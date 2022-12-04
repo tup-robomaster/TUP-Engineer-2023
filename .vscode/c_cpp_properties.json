@@ -16,8 +16,7 @@
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
             "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64",
-            "compileCommands": "${workspaceFolder}/build/stone_control/compile_commands.json"
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4
