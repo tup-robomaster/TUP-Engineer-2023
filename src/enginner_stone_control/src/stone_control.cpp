@@ -5,16 +5,7 @@ namespace stone_control
 {
   FindGlod_::FindGlod_()
   {
-    // try
-    // {
-    //   kernel_big = getStructuringElement(MORPH_RECT,Size(21, 21));
-    //   kernel_s = getStructuringElement(MORPH_RECT,Size(3, 3));
-    // }
-    // catch(const std::exception& e)
-    // {
-    //   std::cerr << e.what() << '\n';
-    // }
-    
+
   }
   FindGlod_::~FindGlod_()
   {
@@ -59,7 +50,6 @@ namespace stone_control
       float temp_size = contourArea(first_points[i]);
       if(temp_size > 8000 && temp_size < 30000 && temp_size/box.size.area() > 0.8)
       {
-        // std::cout<<111111<<endl;
         square.push_back(box);
       }
       if(temp_size > 800 && temp_size < 30000)
@@ -106,7 +96,6 @@ namespace stone_control
               temp_calc_Point = final_box[j];
             }
           }
-          // std::cout<<111111<<endl;
           goldData.points.push_back(temp_calc_Point);
             
         }
