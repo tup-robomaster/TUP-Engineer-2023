@@ -75,6 +75,21 @@
         "forward_list": "cpp",
         "regex": "cpp",
         "future": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "core": "cpp",
+        "*.inc": "cpp",
+        "bufferobject": "cpp",
+        "cullsettings": "cpp",
+        "displaysettings": "cpp",
+        "glbeginendadapter": "cpp",
+        "glextensions": "cpp",
+        "image": "cpp",
+        "nodevisitor": "cpp",
+        "primitiveset": "cpp",
+        "state": "cpp",
+        "stateattribute": "cpp",
+        "stateset": "cpp",
+        "texture": "cpp",
+        "transform": "cpp"
     }
 }
