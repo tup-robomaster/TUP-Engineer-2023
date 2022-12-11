@@ -21,10 +21,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../general/general.h"
-
 #include "CRC_Check.h"
-#include "../debug.h"
 
 using namespace std;
 
@@ -37,7 +34,6 @@ namespace serialport
   #define CmdID0 0x00; //关闭视觉
   #define CmdID1 0x01; //识别矿石
   #define CmdID3 0x03; //识别矿站
-  // #define CmdID4 0x04; //大符
   
   // C_lflag
   #define ECHOFLAGS (ECHO | ECHOE | ECHOK | ECHONL)
@@ -77,10 +73,8 @@ namespace serialport
     float2uchar x_dis;  //前伸距离
     float2uchar y_dis;  //横移距离
     float2uchar z_dis;  //抬升距离
-    int isSwitched;   //目标是否发生切换
     int isFindTarget; //当识别的图片范围内有目标
-    // int isSpinning;   //目标是否处于陀螺状态
-    // int ismiddle;     //设置1表示目标进入了可以开火的范围，设置0则表示目标尚未进入可开火的范围，默认置0
+
   } VisionData;
   
   class SerialPort
@@ -95,10 +89,13 @@ namespace serialport
       int mode;
       int databits, stopbits, parity;
       unsigned char rdata[255];                 // raw_data
-      float quat[4]; //四元数
-      float acc[3]; //加速度
-      float gyro[3]; //角速度
-      float bullet_speed;
+      float pitch; //俯仰角
+      float yaw;   //偏航角度
+      float roll;  //翻滚角度
+      float x_dis; //前伸距离
+      float y_dis; //横移距离
+      float z_dis; //抬升距离
+      // float bullet_speed;
       SerialPort(const string ID, const int BUAD);
       SerialPort(char *);
       bool initSerialPort();

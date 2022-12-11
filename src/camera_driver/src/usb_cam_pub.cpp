@@ -100,6 +100,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec; 
   const rclcpp::NodeOptions options;
+  // rclcpp::sleep_for(std::chrono::seconds(4));
   auto usb_cam_node = std::make_shared<camera_driver::usb_cam_node>(options); 
   exec.add_node(usb_cam_node);
   exec.spin();    
