@@ -35,7 +35,6 @@ namespace seriaport
   public:
     
   
-  
 
   }
 
