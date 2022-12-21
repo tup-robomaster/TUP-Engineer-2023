@@ -24,6 +24,24 @@ namespace stone_station_detector
     BLUE,
     RED
   };
+
+  struct stone_station
+  {
+    int color;
+    int area;
+    double conf;
+    string key;
+    Point2f apex2d[4];
+    Rect rect;
+    RotatedRect rrect;
+    Rect roi;
+    Point2f center2d;
+    Eigen::Vector3d center3d_cam;
+    Eigen::Vector3d center3d_world;
+    Eigen::Vector3d euler;
+    // Eigen::Vector3d predict
+    // global_user::TargetType type;
+  };
   struct debug_params
   {
     /* data */
@@ -71,7 +89,7 @@ namespace stone_station_detector
   
   public:
     void run();
-  
+    bool stone_station_detect(global_user::TaskData &src);
   public:
     std::vector<StationObject> objects;
 
