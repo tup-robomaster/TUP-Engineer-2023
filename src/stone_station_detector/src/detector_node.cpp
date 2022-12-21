@@ -12,9 +12,9 @@ namespace stone_station_detector
     this->declare_parameters<bool>("color", true);
 
     //set path
-    this->declare_parameter("camera_name", "0000001");
-    this->declare_parameter("camera_param_path", "///.yaml");
-    this->declare_parameter("network_path", "//////.xml");
+    this->declare_parameter("camera_name", "KS2A543");
+    this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
+    this->declare_parameter("network_path", "src/stone_station_detector/model/opt-0527-002.xml");
     //debug
     this->declare_parameter("debug_wihout_com", true);
     // this->declare_parameter("using_roi", true);
@@ -67,7 +67,7 @@ namespace stone_station_detector
     
     debug_.detect_red = this->get_parameter("detect_red").as_bool();
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
-    debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
+    // debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
     debug_.show_img = this->get_parameter("show_img").as_bool();
     // debug_.using_roi = this->get_parameter("using_roi").as_bool();
     debug_.show_fps = this->get_parameter("show_fps").as_bool();
