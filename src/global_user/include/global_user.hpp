@@ -18,16 +18,17 @@
 #include <Eigen/Core>
 
 // #include "rclcpp/rclcpp.hpp"
+using namespace std;
 
 namespace global_user
 {
   const std::string config_file_stone_station = "src/global_user/config/stone_station.yaml";
 
-  class global
+  class global_user
   {
   public:
     global_user();
-    ~global_user()
+    ~global_user();
 
   private:
     std::string config_path[1];

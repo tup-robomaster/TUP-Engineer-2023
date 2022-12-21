@@ -108,6 +108,7 @@ namespace stone_station_detector
     if(detector_->stone_station_detect(src))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ..."); 
+      // TargetMsg target_info;
     }
   }
 }

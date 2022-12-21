@@ -116,6 +116,12 @@
         "vec4s": "cpp",
         "vec4ui": "cpp",
         "vec4us": "cpp",
-        "viewport": "cpp"
+        "viewport": "cpp",
+        "*.ipp": "cpp",
+        "polytope": "cpp",
+        "buffered_value": "cpp",
+        "barrier": "cpp",
+        "referenced": "cpp",
+        "view": "cpp"
     }
 }

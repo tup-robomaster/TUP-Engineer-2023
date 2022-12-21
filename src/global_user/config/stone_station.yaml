@@ -3,13 +3,13 @@
   # 自瞄检测节点参数配置
     color: true # red: true
                 # blue: false
-    no_crop_ratio: 2e-3
-    full_crop_ratio: 1e-4
+    # no_crop_ratio: 2e-3
+    # full_crop_ratio: 1e-4
 
     #待改
-    camera_name: "00J90630561" 
+    camera_name: "KS2A543" 
     camera_param_path: "src/global_user/config/camera.yaml"
-    network_path: "src/vehicle_system/autoaim/armor_detector/model/opt-0527-002.xml"
+    network_path: "src/stone_station_detector/model/opt-0527-002.xml"
 
     #debug
     debug_without_com: true
@@ -21,5 +21,3 @@
     print_target_info: true
     detect_red: true
 
-# 自瞄预测节点参数配置 
-# /armor_processor:

@@ -1,5 +1,3 @@
-// #include "./armor_tracker.h"
-// #include "./inference.h"
 #include "./inference.hpp"
 
 //C++
@@ -11,9 +9,9 @@
 //ros
 #include <rclcpp/rclcpp.hpp>
 
-// #include "../../global_user/include/global_user/global_user.hpp"
-// #include "../../global_user/include/coordsolver.hpp"
-// #include "global_interface/msg/target.hpp"
+#include "../../global_user/include/global_user.hpp"
+#include "../../global_user/include/coordsolver.hpp"
+#include "global_interface/msg/target.hpp"
 
 typedef std::chrono::_V2::steady_clock::time_point TimePoint;
 
@@ -25,7 +23,7 @@ namespace stone_station_detector
     RED
   };
 
-  struct stone_station
+  struct Stone_Station
   {
     int color;
     int area;
@@ -46,20 +44,22 @@ namespace stone_station_detector
   {
     /* data */
     bool debug_without_com;
-    bool using_roi;
+    // bool using_roi;
     bool show_img;
     bool detect_red;
     bool show_fps;
     bool print_target_info;
+    // bool show_aim_cross;
 
     debug_params()
     {
       debug_without_com = true;
-      using_roi = false;
+      // using_roi = false;
       show_img = true;
       detect_red = true;
       show_fps = true;
       print_target_info = true;
+      // show_aim_cross = false;
     }
   };
   
@@ -92,7 +92,7 @@ namespace stone_station_detector
     bool stone_station_detect(global_user::TaskData &src);
   public:
     std::vector<StationObject> objects;
-
+    std::vector<Station> station_;
     ofstream data_save;
     bool is_save_data;
   
@@ -108,6 +108,7 @@ namespace stone_station_detector
     TimePoint time_crop;
 
     int timestamp;
+    Size2i input_size;
 
     debug_params debug_params_;
   };

@@ -134,7 +134,7 @@ namespace global_user
     if (last_slash_idx == 0)
       return path;
     else
-      eturn path.substr(0,last_slash_idx - 1);
+      return path.substr(0,last_slash_idx - 1);
       
   }
   

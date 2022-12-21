@@ -17,7 +17,8 @@ namespace stone_station_detector
   class detector_node : public rclcpp::Node
   {
     typedef std::chrono::_V2::steady_clock::time_point TimePoint;
-    typedef global_interface::msg::Target TargetMsg;
+    TODO:
+    typedef global_interface::msg::Target_station TargetMsg;
   
   public:
     detector_node(const rclcpp::NodeOption& options = rclcpp::NodeOptions());

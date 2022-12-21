@@ -4,7 +4,7 @@
 
 #include "../../include/armor_detector/inference.h"
 
-namespace stone_station_detectors
+namespace armor_detector
 {
     // static constexpr int INPUT_W = 640;    // Width of input
     // static constexpr int INPUT_H = 384;    // Height of input

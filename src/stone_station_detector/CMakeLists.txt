@@ -72,14 +72,9 @@ include_directories(include
 include_directories(include)
   
 add_executable(stone_station_detector_node
-  # ./include/armor_detector/inference.h 
-  # ./include/armor_detector/spinning_detector.hpp
-  src/armor_detector/armor_tracker.cpp 
-  src/armor_detector/detector.cpp 
-  src/armor_detector/spinning_detector.cpp
-  include/armor_detector/inference_api2.hpp
-  src/armor_detector/inference_api2.cpp
-  src/armor_detector/detector_node.cpp 
+  src/stone_station_detector/src/detector_node.cpp
+  src/stone_station_detector/src/detector.cpp
+  src/stone_station_detector/src/inference.cpp
 )
 
 # add_executable(testing
@@ -107,7 +102,7 @@ target_link_libraries(stone_station_detector_node
 
   
 install(TARGETS 
-  armor_detector_node
+  stone_station_detector_node
   # testing 
   DESTINATION lib/${PROJECT_NAME}
 )
