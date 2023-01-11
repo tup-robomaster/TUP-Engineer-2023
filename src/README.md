@@ -1,4 +1,4 @@
-# TUP_Enginner
+# TUP_Engineer
 沈阳航空航天大学TUP战队2023赛季工程视觉开发
 
 ## Version
