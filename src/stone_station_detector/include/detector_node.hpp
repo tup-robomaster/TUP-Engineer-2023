@@ -33,7 +33,7 @@ namespace stone_station_detector
     
     //发布矿站信息
     StationMsg station_info;
-    rclcpp::Publisher<TargetMsg>::SharedPtr station_pub
+    rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
   private:
     rclcpp::TimerBase::SharedPtr param_timer_;
     void param_callback();

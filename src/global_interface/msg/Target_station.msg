@@ -1,4 +1,4 @@
-geometry_msgs/Point aiming_point
+geometry_msgs/Point 
 float64 timestamp
 
 bool is_spinning

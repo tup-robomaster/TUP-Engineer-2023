@@ -32,17 +32,16 @@ namespace stone_station_detector
         std::cerr << e.what() << '\n';
     }
     
-    //station pub
-    TODO:
-    station_pub = this->creat_publish<TargetMsg>("/station_info", rclcpp::SensorDataQos());
-
-    time_start = std::chrono::steady_clock::now();
     TODO:
     transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
 
     img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image",
     std::bind(&detector_node::image_callback, this, _1), transport_));
-
+    
+    //station pub
+    TODO:
+    station_pub = this->creat_publisher<TargetMsg>("/station_info", rclcpp::SensorDataQos());
+    time_start = std::chrono::steady_clock::now();
     param_timer_ = this->creat_wall_timer(1000ms, std::bind(&detector_node::param_callback, this));
   }
 
@@ -76,7 +75,7 @@ namespace stone_station_detector
 
   }
 
-  std::unique_ptr<detector> detector_node::nodeinit_detector()
+  std::unique_ptr<detector> detector_node::init_detector()
   {
 
     getParameters();
