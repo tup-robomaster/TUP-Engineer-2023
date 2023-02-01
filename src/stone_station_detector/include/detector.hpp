@@ -5,9 +5,13 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <memory>
 
 //ros
 #include <rclcpp/rclcpp.hpp>
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_ros/static_transform_broadcaster.h"
 
 #include "../../global_user/include/global_user.hpp"
 #include "../../global_user/include/coordsolver.hpp"
@@ -74,7 +78,13 @@ namespace stone_station_detector
       color = RED;
     }
   };
-
+  
+  struct arm_to_camera
+  {
+    float x = 0;
+    float y = 0;
+    float z = 0;
+  };
   class detector
   {
   public:

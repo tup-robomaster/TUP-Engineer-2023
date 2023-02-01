@@ -54,6 +54,10 @@ set(dependencies
   Ceres
   Eigen3
   cv_bridge
+  static_turtle_tf2_broadcaster
+  geometry_msgs
+  tf2
+  tf2_ros
   
   global_interface
   global_user
