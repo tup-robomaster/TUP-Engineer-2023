@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include "../../include/armor_detector/inference.h"
+#include "../include/inference.hpp"
 
 namespace armor_detector
 {

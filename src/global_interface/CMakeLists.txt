@@ -14,11 +14,9 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Gimbal.msg"
-  # "msg/Armor.msg"
-  # "msg/Armors.msg"
-  # "msg/Target.msg"
-  # "msg/SpinInfo.msg"
+  # "msg/Gimbal.msg"
+  "msg/Stone.msg"
+  "msg/Target.msg"
   # "msg/Imu.msg"
   # "srv/*.srv"
   # "action/*.action"

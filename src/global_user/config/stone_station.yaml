@@ -17,7 +17,7 @@
     # show_aim_cross: false
     show_img: true
     show_fps: true
-    print_letency: false
+    # print_letency: false
     print_target_info: true
     detect_red: true
 

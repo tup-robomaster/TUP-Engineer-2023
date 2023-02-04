@@ -54,11 +54,7 @@ set(dependencies
   Ceres
   Eigen3
   cv_bridge
-  static_turtle_tf2_broadcaster
   geometry_msgs
-  tf2
-  tf2_ros
-  
   global_interface
   global_user
   
@@ -76,9 +72,12 @@ include_directories(include
 include_directories(include)
   
 add_executable(stone_station_detector_node
-  src/stone_station_detector/src/detector_node.cpp
-  src/stone_station_detector/src/detector.cpp
-  src/stone_station_detector/src/inference.cpp
+  src/detector_node.cpp
+  src/detector.cpp
+  src/inference.cpp
+  include/detector.hpp
+  include/inference.hpp
+  include/detector_node.hpp
 )
 
 # add_executable(testing

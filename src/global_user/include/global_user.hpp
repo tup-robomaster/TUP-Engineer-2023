@@ -1,3 +1,6 @@
+#ifndef _GLOBAL_HPP
+#define _GLOBAL_HPP
+
 #include <vector>
 #include <thread>
 #include <memory>
@@ -74,5 +77,6 @@ namespace global_user
   Eigen::Matrix3d eulerToRotationMatrix(Eigen::Vector3d &theta);
   float calcDistance(cv::Point2f& p1, cv::Point2f& p2);
 
-  void quatToRPY(const geometry_msgs::Quaternion& q, double& roll, double& pitch, double& yaw);
 }
+
+#endif

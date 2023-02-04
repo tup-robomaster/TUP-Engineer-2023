@@ -1,4 +1,4 @@
-#include "./inference.hpp"
+// #include "./inference.hpp"
 
 //C++
 #include <iostream>
@@ -10,8 +10,6 @@
 //ros
 #include <rclcpp/rclcpp.hpp>
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_ros/static_transform_broadcaster.h"
 
 #include "../../global_user/include/global_user.hpp"
 #include "../../global_user/include/coordsolver.hpp"
@@ -53,7 +51,7 @@ namespace stone_station_detector
     bool detect_red;
     bool show_fps;
     bool print_target_info;
-    // bool show_aim_cross;
+    bool show_aim_cross;
 
     debug_params()
     {
@@ -63,7 +61,7 @@ namespace stone_station_detector
       detect_red = true;
       show_fps = true;
       print_target_info = true;
-      // show_aim_cross = false;
+      show_aim_cross = false;
     }
   };
   
@@ -91,7 +89,7 @@ namespace stone_station_detector
     detector(const std::string& camera_name, const std::string& camera_param_path, const std::string& network_path,
       const detector_params& detector_params_, const debug_params& debug_params_);
     ~detector();
-  private:
+  public:
     std::string camera_name;
     std::string camera_param_path;
     std::string network_path;
@@ -100,17 +98,17 @@ namespace stone_station_detector
   public:
     void run();
     bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target& target_info);
+    void debugParams(const detector_params& detector_params, const debug_params& debug_params);
   public:
     std::vector<StationObject> objects;
-    std::vector<Station> station_;
     Eigen::Vector3d last_target;
     ofstream data_save;
     bool is_save_data;
   
-  private:
+  public:
     bool is_init;
-    coordsolver::coordsolver coordsolver_;
-    StationDetector detector_;
+    coordsolver::CoordSolver coordsolver_;
+    Station_Detector detector_;
     arm_to_camera atc_;
   
   private:

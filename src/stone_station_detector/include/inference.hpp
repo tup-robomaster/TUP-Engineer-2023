@@ -29,11 +29,11 @@ namespace stone_station_detector
     std::vector<cv::Point2f> pts;
   };
 
-  class StationDetector
+  class Station_Detector
   {
   public:
-    Stone_StationDetector();
-    ~Stone_StationDetector();
+    Station_Detector();
+    ~Station_Detector();
     bool detect(Mat &src,vector<StationObject>& objects, int &dw, int &dh, float &rescale_ratio);
     bool initModel(string path);
 

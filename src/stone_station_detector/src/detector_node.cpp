@@ -1,10 +1,10 @@
-#include "../../include/armor_detector/detector_node.hpp"
+#include "../include/detector_node.hpp"
 
 using std::placeholders::_1;
 
 namespace stone_station_detector
 {
-  detector_node::detector_node(const rclcpp::NodeOption& options)
+  detector_node::detector_node(const rclcpp::NodeOptions& options)
   : Node("stone_station_detector", options)
   {
     RCLCPP_WARN(this->get_logger(), "Starting detector node...");
@@ -32,17 +32,17 @@ namespace stone_station_detector
         std::cerr << e.what() << '\n';
     }
     
-    TODO:
+
     transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
 
     img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image",
     std::bind(&detector_node::image_callback, this, _1), transport_));
     
     //station pub
-    TODO:
-    station_pub = this->creat_publisher<TargetMsg>("/station_info", rclcpp::SensorDataQos());
+
+    station_pub = this->create_publisher<TargetMsg>("/station_info", rclcpp::SensorDataQoS());
     time_start = std::chrono::steady_clock::now();
-    param_timer_ = this->creat_wall_timer(1000ms, std::bind(&detector_node::param_callback, this));
+    param_timer_ = this->create_wall_timer(1000ms, std::bind(&detector_node::param_callback, this));
 
   }
 
@@ -71,8 +71,8 @@ namespace stone_station_detector
     debug_.show_img = this->get_parameter("show_img").as_bool();
     // debug_.using_roi = this->get_parameter("using_roi").as_bool();
     debug_.show_fps = this->get_parameter("show_fps").as_bool();
-    debug_.print_letency = this->get_paramert("print_letency").as_bool();
-    debug_.print_target_info = this->get_paramert("print_target_info").as_bool();
+    // debug_.print_letency = this->get_parameter("print_letency").as_bool();
+    debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
 
   }
 
@@ -92,7 +92,7 @@ namespace stone_station_detector
   {
     RCLCPP_INFO(this->get_logger(), "image callback ...");
     global_user::TaskData src;
-    std::vector<stone_station> station;
+    std::vector<Stone_Station> station;
     TargetMsg target_info;
 
     if(!img_info)
@@ -100,11 +100,11 @@ namespace stone_station_detector
       return;
     }
 
-    auto img  = cv_brige::toCvShare(img_info, "bgr8")->image;
+    auto img  = cv_bridge::toCvShare(img_info, "bgr8")->image;
     img.copyTo(src.img);
 
     TimePoint time_img_sub = std::chrono::steady_clock::now();
-    src.timestamp = (int)(std::chrono::duration<double, std::milli>(time_img_sub - tim_start).count());
+    src.timestamp = (int)(std::chrono::duration<double, std::milli>(time_img_sub - time_start).count());
 
     if(detector_->stone_station_detect(src, target_info))
     {
