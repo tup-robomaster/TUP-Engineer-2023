@@ -122,6 +122,20 @@
         "buffered_value": "cpp",
         "barrier": "cpp",
         "referenced": "cpp",
-        "view": "cpp"
+        "view": "cpp",
+        "tensor": "cpp",
+        "camera": "cpp",
+        "drawable": "cpp",
+        "geometry": "cpp",
+        "group": "cpp",
+        "node": "cpp",
+        "object": "cpp",
+        "observer": "cpp",
+        "program": "cpp",
+        "shader": "cpp",
+        "shape": "cpp",
+        "userdatacontainer": "cpp",
+        "observer_ptr": "cpp",
+        "ref_ptr": "cpp"
     }
 }

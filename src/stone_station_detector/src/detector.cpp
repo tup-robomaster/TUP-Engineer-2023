@@ -144,7 +144,7 @@ namespace stone_station_detector
       last_target[1] = stone_station.center3d_cam[1] + atc_.y_offset;
       last_target[2] = stone_station.center3d_cam[2] + atc_.z_offset;
       
-      auto angle = stone_station.euler
+      auto angle = stone_station.euler;
 
       target_info.x_dis = last_target[0];
       target_info.y_dis = last_target[1];

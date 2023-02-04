@@ -45,6 +45,13 @@ namespace global_user
     int timestamp;
   };
 
+  struct GridAndStride
+  {
+    int grid0;
+    int grid1;
+    int stride;
+  };
+
   template<typename T>
   bool initMatrix(Eigen::MatrixXd &matrix,std::vector<T> &vector)
   {

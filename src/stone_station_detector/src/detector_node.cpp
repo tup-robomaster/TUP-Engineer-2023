@@ -9,7 +9,7 @@ namespace stone_station_detector
   {
     RCLCPP_WARN(this->get_logger(), "Starting detector node...");
 
-    this->declare_parameters<bool>("color", true);
+    this->declare_parameter<bool>("color", true);
 
     //set path
     this->declare_parameter("camera_name", "KS2A543");
@@ -82,7 +82,7 @@ namespace stone_station_detector
     getParameters();
 
     std::string camera_name = this->get_parameter("camera_name").as_string();
-    std::string camrera_param_path = this->get_parameter("camera_param_path").as_string();
+    std::string camera_param_path = this->get_parameter("camera_param_path").as_string();
     std::string network_path = this->get_parameter("network_path").as_string();
 
     return std::make_unique<detector>(camera_name, camera_param_path, network_path, detector_params_, debug_);

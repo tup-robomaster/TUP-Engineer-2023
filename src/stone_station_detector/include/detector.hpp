@@ -1,4 +1,4 @@
-// #include "./inference.hpp"
+#include "./inference.hpp"
 
 //C++
 #include <iostream>
@@ -15,7 +15,7 @@
 #include "../../global_user/include/coordsolver.hpp"
 #include "global_interface/msg/target.hpp"
 
-typedef std::chrono::_V2::steady_clock::time_point TimePoint;
+// typedef std::chrono::_V2::steady_clock::time_point TimePoint;
 
 namespace stone_station_detector
 {
@@ -112,10 +112,13 @@ namespace stone_station_detector
     arm_to_camera atc_;
   
   private:
-    int count:
-    TimePoint time_start;
-    TimePoint time_infer;
-    TimePoint time_crop;
+    int count;
+    typedef std::chrono::_V2::steady_clock::time_point time_start;
+    typedef std::chrono::_V2::steady_clock::time_point time_infer;
+    typedef std::chrono::_V2::steady_clock::time_point time_crop;
+    // TimePoint time_start;
+    // TimePoint time_infer;
+    // TimePoint time_crop;
 
     int timestamp;
     Size2i input_size;
