@@ -45,6 +45,7 @@ namespace coordsolver
     Mat rvec;
     Mat tvec;
     Eigen::Matrix3d rvec_eigen;
+    Eigen::Vector3d R_center_world = {0,-0.7,-0.05};
     
     solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
 
@@ -55,7 +56,7 @@ namespace coordsolver
 
     result.station_cam = tvec_eigen;
     result.euler = ::global_user::rotationMatrixToEulerAngles(rvec_eigen);
-
+    result.R_station_cam = (rvec_eigen * R_center_world) + tvec_eigen;
     return result;
   }
 

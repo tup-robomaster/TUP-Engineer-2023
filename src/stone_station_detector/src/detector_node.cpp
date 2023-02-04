@@ -44,9 +44,6 @@ namespace stone_station_detector
     time_start = std::chrono::steady_clock::now();
     param_timer_ = this->creat_wall_timer(1000ms, std::bind(&detector_node::param_callback, this));
 
-    tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-    this->make_transforms(transformation);
-
   }
 
   detector_node::~detector_node()
@@ -96,6 +93,7 @@ namespace stone_station_detector
     RCLCPP_INFO(this->get_logger(), "image callback ...");
     global_user::TaskData src;
     std::vector<stone_station> station;
+    TargetMsg target_info;
 
     if(!img_info)
     {
@@ -108,60 +106,17 @@ namespace stone_station_detector
     TimePoint time_img_sub = std::chrono::steady_clock::now();
     src.timestamp = (int)(std::chrono::duration<double, std::milli>(time_img_sub - tim_start).count());
 
-    if(detector_->stone_station_detect(src))
+    if(detector_->stone_station_detect(src, target_info))
     {
-      RCLCPP_INFO(this->get_logger(), "stone_station detector ..."); 
-      // TargetMsg target_info;
+      RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
+
+      target_info.timestamp = src.timestamp;
+
+      station_pub->publish(target_info);
     }
   }
 
-  void detector_node::tf_transforms(const global_interface::msg::Target::SharedPtr msg,
-      const std::string& header_frame_id, const std::string& child_frame_id)const
-  {
-    geometry_msgs::msg::TransformStamped Tf;
 
-    Tf.header.stamp = this->get_clock()->now;
-    Tf.header.frame_id = camera_frame;
-    Tf.child_frame_id = stone_station_frame;
-
-    Tf.transform.translation.x = stone_station.center3d_world.x;
-    Tf.transform.translation.y = stone_station.center3d_world.y;
-    Tf.transform.translation.z = stone_station.center3d_world.z;
-    
-    tf2::Quaternion q;
-    q.setRPY(
-      stone_station.euler(0),
-      stone_station.euler(1),
-      stone_station.euler(2));
-
-    tf_broadcaster_->sendTransform(Tf);
-
-  }
-
-  void detector_node::tf_transforms(const global_interface::msg::Target::SharedPtr msg,
-      const std::string& header_frame_id,const std::string& child_frame_id, const rclcpp::Time& time) const
-  {
-    geometry_msgs::msg::TransformStamped T;
-    struct arm_to_camera atc;
-
-    T.header.stamp = this->get_clock()->now;
-    T.header.frame_id = camera_frame;
-    T.child_frame_id = arm_frame;
-
-    T.transform.translation.x = atc.x;
-    T.transform.translation.y = atc.y;
-    T.transform.translation.z = atc.z;
-    
-    tf2::Quaternion q;
-    q.setRPY(0, 0, 0);
-    T.transform.rotation.x = 0;
-    T.transform.rotation.y = 0;
-    T.transform.rotation.z = 0;
-    T.transform.rotation.w = 0;
-
-    tf_broadcaster_->sendTransform(T);
-
-  }
 }
 
 int main(int argc, char** argv)

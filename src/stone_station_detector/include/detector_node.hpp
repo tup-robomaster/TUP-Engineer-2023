@@ -52,17 +52,6 @@ namespace stone_station_detector
 
     std::unique_ptr<detector> detecor_;
     std::unique_ptr<detector> init_detector();
-  //tf2
-  public:
-    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-    std::string camera_frame;
-    std::string stong_station_frame;
-    std::string arm_frame; 
-
-    void tf_transforms(const global_interface::msg::Target::SharedPtr msg,
-            const std::string& header_frame_id,
-            const std::string& child_frame_id,
-            const rclcpp::Time& time) const
 
   } 
 }

@@ -81,9 +81,9 @@ namespace stone_station_detector
   
   struct arm_to_camera
   {
-    float x = 0;
-    float y = 0;
-    float z = 0;
+    float x_offset = 0;
+    float y_offset = 0;
+    float z_offset = 0;
   };
   class detector
   {
@@ -99,17 +99,19 @@ namespace stone_station_detector
   
   public:
     void run();
-    bool stone_station_detect(global_user::TaskData &src);
+    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target& target_info);
   public:
     std::vector<StationObject> objects;
     std::vector<Station> station_;
+    Eigen::Vector3d last_target;
     ofstream data_save;
     bool is_save_data;
   
   private:
     bool is_init;
-
+    coordsolver::coordsolver coordsolver_;
     StationDetector detector_;
+    arm_to_camera atc_;
   
   private:
     int count:

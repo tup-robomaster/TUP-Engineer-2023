@@ -17,11 +17,13 @@ namespace coordsolver
   {
     Eigen::Vector3d station_cam;
     Eigen::Vector3d station_world;
+    Eigen::Vector3d R_station_world;
+    Eigen::Vector3d R_station_cam;
     Eigen::Vector3d euler;
     Eigen::Vector3d rmat;
   };
 
-  class CoordSolver
+  class CoordSolver : public global_user::global_user
   {
   public:
     CoordSolver();

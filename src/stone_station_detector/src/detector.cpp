@@ -43,7 +43,7 @@ namespace stone_station_detector
     this->debug_params_.print_target_info = debug_params.print_target_info;
   }
 
-  bool detector::stone_station_detect(global_user::TaskData &src)
+  bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Target& target_info)
   {
     if(!is_init)
     {
@@ -139,6 +139,20 @@ namespace stone_station_detector
       stone_station.euler = pnp_result.euler;
       stone_station.area = object.area;
       station_.push_back(stone_station);
+
+      //坐标系转换获得最终yaw，pitch，roll，x，y，z
+      last_target[0] = stone_station.center3d_cam[0] + atc_.x_offset;
+      last_target[1] = stone_station.center3d_cam[1] + atc_.y_offset;
+      last_target[2] = stone_station.center3d_cam[2] + atc_.z_offset;
+
+      target_info.x = last_target[0];
+      target_info.y = last_target[1];
+      target_info.z = last_target[2];
+
+      target_info.roll = stone_station.euler[0];
+      target_info.yaw = stone_station.euler[0];
+      target_info.pitch = stone_station.euler[0];
+      
     }
 
     return true;
