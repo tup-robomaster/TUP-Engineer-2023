@@ -33,14 +33,14 @@ namespace stone_station_detector
      * @param transform_matrix Transform Matrix of Resize
      * @return Image after resize
      */
-    inline cv::Mat scaledResize(cv::Mat& img, Eigen::Matrix<float,3,3> &transform_matrix, int &dw, int &dh, float &rescale_ratio)
+    inline cv::Mat scaledResize(cv::Mat& img, Eigen::Matrix<float,3,3> &transform_matrix)
     {
-        rescale_ratio = std::min(INPUT_W / (img.cols * 1.0), INPUT_H / (img.rows * 1.0));
+        float rescale_ratio = std::min(INPUT_W / (img.cols * 1.0), INPUT_H / (img.rows * 1.0));
         int unpad_w = rescale_ratio * img.cols;
         int unpad_h = rescale_ratio * img.rows;
         
-        dw = INPUT_W - unpad_w;
-        dh = INPUT_H - unpad_h;
+        int dw = INPUT_W - unpad_w;
+        int dh = INPUT_H - unpad_h;
 
         dw /= 2;
         dh /= 2;
@@ -52,8 +52,8 @@ namespace stone_station_detector
         Mat re;
         cv::resize(img, re, Size(unpad_w,unpad_h));
         Mat out;
-        cv::copyMakeBorder(re, out, dh, dh, dw, dw, BORDER_CONSTANT);
-        cout << dw << " " << dh << " " << rescale_ratio << endl;
+        cv::copyMakeBorder(re, out, dh, dh, dw, dw, cv::BORDER_CONSTANT);
+        // cout << dw << " " << dh << " " << rescale_ratio << endl;
         return out;
     }
 
@@ -309,7 +309,7 @@ namespace stone_station_detector
     //TODO:change to your dir
     bool Station_Detector::initModel(string path)
     {
-        ie.SetConfig({{CONFIG_KEY(CACHE_DIR), "/home/tup/Desktop/tup_2023/.cache"}});
+        ie.SetConfig({{CONFIG_KEY(CACHE_DIR), "../.cache"}});
         // ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"GPU_THROUGHPUT_AUTO"}});
         ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"1"}});
         // Step 1. Read a model in OpenVINO Intermediate Representation (.xml and
@@ -367,7 +367,7 @@ namespace stone_station_detector
         return true;
     }
 
-    bool Station_Detector::detect(Mat &src,std::vector<StationObject>& objects, int &dw, int &dh, float &rescale_ratio)
+    bool Station_Detector::detect(Mat &src,std::vector<StationObject>& objects)
     {
         if (src.empty())
         {
@@ -377,8 +377,8 @@ namespace stone_station_detector
     #endif // SAVE_AUTOAIM_LOG
             return false;
         }
-        cv::Mat pr_img = scaledResize(src, transfrom_matrix, dw, dh, rescale_ratio);
-        dw = this->dw;
+        cv::Mat pr_img = scaledResize(src, transfrom_matrix);
+        // dw = this->dw;
         
     #ifdef SHOW_INPUT
         namedWindow("network_input",0);

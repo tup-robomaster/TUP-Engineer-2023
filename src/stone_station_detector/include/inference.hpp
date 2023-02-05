@@ -1,3 +1,6 @@
+#ifndef INFERENCE_HPP_
+#define INFERENCE_HPP_
+
 //C++
 #include <iterator>
 #include <memory>
@@ -15,6 +18,7 @@
 using namespace std;
 using namespace cv;
 using namespace InferenceEngine;
+using namespace global_user;
 
 namespace stone_station_detector
 {
@@ -34,7 +38,7 @@ namespace stone_station_detector
   public:
     Station_Detector();
     ~Station_Detector();
-    bool detect(Mat &src,vector<StationObject>& objects, int &dw, int &dh, float &rescale_ratio);
+    bool detect(cv::Mat &src, std::vector<StationObject>& objects);
     bool initModel(string path);
 
   private:
@@ -51,3 +55,6 @@ namespace stone_station_detector
     Eigen::Matrix<float,3,3> transfrom_matrix;
   };
 }
+
+
+#endif

@@ -23,7 +23,7 @@ namespace coordsolver
     Eigen::Vector3d rmat;
   };
 
-  class CoordSolver : public global_user::global_user
+  class CoordSolver 
   {
   public:
     CoordSolver();
@@ -39,7 +39,8 @@ namespace coordsolver
   private:
     Mat intrinsic;
     Mat dis_coeff;
-
+    rclcpp::Logger logger_;
+    
     YAML::Node param_node;
   };
 }

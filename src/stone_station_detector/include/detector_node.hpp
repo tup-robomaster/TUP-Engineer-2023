@@ -35,8 +35,6 @@ namespace stone_station_detector
     TimePoint time_start;
     
     //发布矿站信息
-    // StationMsg station_info;
-    // rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
     rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
   private:
     rclcpp::TimerBase::SharedPtr param_timer_;

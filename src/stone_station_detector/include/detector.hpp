@@ -15,8 +15,6 @@
 #include "../../global_user/include/coordsolver.hpp"
 #include "global_interface/msg/target.hpp"
 
-// typedef std::chrono::_V2::steady_clock::time_point TimePoint;
-
 namespace stone_station_detector
 {
   enum Color 
@@ -76,7 +74,7 @@ namespace stone_station_detector
       color = RED;
     }
   };
-  
+  //暂时位置（待改）
   struct arm_to_camera
   {
     float x_offset = 0;
@@ -110,15 +108,13 @@ namespace stone_station_detector
     coordsolver::CoordSolver coordsolver_;
     Station_Detector detector_;
     arm_to_camera atc_;
+    rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
   
   private:
     int count;
-    typedef std::chrono::_V2::steady_clock::time_point time_start;
-    typedef std::chrono::_V2::steady_clock::time_point time_infer;
-    typedef std::chrono::_V2::steady_clock::time_point time_crop;
-    // TimePoint time_start;
-    // TimePoint time_infer;
-    // TimePoint time_crop;
+    rclcpp::Time time_start;
+    rclcpp::Time time_infer;
+    rclcpp::Time time_crop;
 
     int timestamp;
     Size2i input_size;

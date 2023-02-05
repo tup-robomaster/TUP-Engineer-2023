@@ -3,6 +3,7 @@
 namespace coordsolver
 {
   CoordSolver::CoordSolver()
+  : logger_(rclcpp::get_logger("coordsolver"))
   {
   }
 
@@ -10,7 +11,7 @@ namespace coordsolver
   {
   }
 
-  bool CoordSolver::loadParam(string coord_path, string param_name)
+  bool coordsolver::loadParam(string coord_path, string param_name)
   {
     YAML::Node config = YAML::LoadFile(coord_path);
 

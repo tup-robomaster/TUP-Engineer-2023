@@ -7,7 +7,8 @@
 			"type": "shell",      //可以选择shell或者process,如果是shell代码是在shell里面运行一个命令，如果是process代表作为一个进程来运行
 			"command": "colcon build -DCMAKE_BUILD_TYPE=Debug", //这个是我们需要运行的命令
 			"args": [											//如果需要在命令后面加一些后缀，可以写在这里，比如-DCATKIN_WHITELIST_PACKAGES=“pac1;pac2”
-				"--packages-select package"						//
+				"--packages-select package"	,					//
+				"${src/global_user/include/coordsolver.hpp}\\*.c"
 			],
 			"group": {
 				"kind": "build",

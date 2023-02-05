@@ -58,14 +58,14 @@ namespace stone_station_detector
       is_init = true;
     }
 
-    time_start = std::chrono::steady_clock::now();
+    time_start = steady_clock_.now();
     auto input = src.img;
     timestamp = src.timestamp;
 
-    time_crop = std::chrono::steady_clock::now();
+    time_crop = steady_clock_.now();
     
     objects.clear();
-
+    
     if(!detector_.detect(input, objects))
     {
       if(debug_params_.show_aim_cross)
@@ -82,7 +82,7 @@ namespace stone_station_detector
       return false;
     }
 
-    time_infer = std::chrono::steady_clock::now();
+    time_infer = steady_clock_.now();
 
     for(auto object : objects)
     {
