@@ -31,7 +31,7 @@ namespace coordsolver
     return true;
   }
 
-  PnPInfo coordsolver::pnp(const std::vector<cv::Point2f> &points_pic, int method = cv::SOLVEPNP_IPPE)
+  PnPInfo coordsolver::pnp(const std::vector<cv::Point2f> &points_pic, int &pnp_method)
   {
     std::vector<Point3d> points_world;
 
@@ -48,7 +48,7 @@ namespace coordsolver
     Eigen::Matrix3d rvec_eigen;
     Eigen::Vector3d R_center_world = {0,-0.7,-0.05};
     
-    solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
+    solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, pnp_method);
 
     PnPInfo result;
     // Rodrigues(rvec, rmat); //由旋转向量得到旋转矩阵

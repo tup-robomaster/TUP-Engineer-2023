@@ -124,14 +124,10 @@ namespace stone_station_detector
       stone_station.rrect = points_pic_rrect;
       auto bbox = points_pic_rrect.boundingRect();
 
-      //进行pnp解算
-      int pnp_method;
-      if(objects.size() <= 2)
-        pnp_method = SOLVEPNP_ITERATIVE;
-      else
-        pnp_method = SOLVEPNP_IPPE;
+      //进行pnp解算,采取迭代法
+      int pnp_method = SOLVEPNP_ITERATIVE;
 
-      auto pnp_result = coordsolver_.pnp(points_pic, SOLVEPNP_IPPE);
+      auto pnp_result = coordsolver_.pnp(points_pic, pnp_method);
 
       stone_station.center3d_world = pnp_result.station_world;
       stone_station.center3d_cam = pnp_result.station_cam;
