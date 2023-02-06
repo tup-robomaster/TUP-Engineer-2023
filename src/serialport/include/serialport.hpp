@@ -21,7 +21,7 @@
 #include <iostream>
 #include <vector>
 
-// #include "CRC_Check.h"
+#include "CRC_Check.h"
 
 using namespace std;
 
@@ -32,8 +32,8 @@ namespace serialport
   
   //模式
   #define CmdID0 0x00; //关闭视觉
-  #define CmdID1 0x01; //识别矿石
-  #define CmdID3 0x03; //识别矿站
+  #define CmdID1 0x01; //识别矿站
+  #define CmdID3 0x03; //识别矿石
   
   // C_lflag
   #define ECHOFLAGS (ECHO | ECHOE | ECHOK | ECHONL)
@@ -95,7 +95,6 @@ namespace serialport
       float x_dis; //前伸距离
       float y_dis; //横移距离
       float z_dis; //抬升距离
-      // float bullet_speed;
       SerialPort(const string ID, const int BUAD);
       SerialPort(char *);
       bool initSerialPort();
@@ -111,6 +110,10 @@ namespace serialport
       void closePort();
       // void TransformDataFirst(int Xpos, int Ypos, int dis); //方案1
   private:
+      rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
+      bool debug_without_com_; //是否无串口调试
+      int mode; 
+
       unsigned char Tdata[40];                  // transfrom data
   
       string serial_id;

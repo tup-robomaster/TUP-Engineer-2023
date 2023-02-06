@@ -343,7 +343,7 @@ namespace seriaport
   
   /**
    *@brief   转换数据并发送
-   *@param   data   类型  VisionData(union)  包含pitch,yaw,distance
+   *@param   data   类型  VisionData(union)  包含pitch, yaw, roll, x_dis, y_dis, z_dis
    *@param   flag   类型  char   用于判断是否瞄准目标，0代表没有，1代表已经瞄准
    */
   void SerialPort::TransformData(const VisionData &data)
@@ -352,7 +352,7 @@ namespace seriaport
       Tdata[0] = 0xA5;
   
       Tdata[1] = CmdID1;
-  	Append_CRC8_Check_Sum(Tdata, 3);
+  	  Append_CRC8_Check_Sum(Tdata, 3);
   
       Tdata[3] = data.pitch_angle.c[0];
       Tdata[4] = data.pitch_angle.c[1];
