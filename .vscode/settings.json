@@ -136,6 +136,7 @@
         "shape": "cpp",
         "userdatacontainer": "cpp",
         "observer_ptr": "cpp",
-        "ref_ptr": "cpp"
+        "ref_ptr": "cpp",
+        "plane": "cpp"
     }
 }

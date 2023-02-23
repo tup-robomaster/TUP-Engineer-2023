@@ -37,6 +37,7 @@ find_package(OpenCV REQUIRED)
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 include_directories(
   include
@@ -46,6 +47,15 @@ include_directories(
   
 set(node_plugins "")
   
+add_library(${PROJECT_NAME} SHARED
+  src/CRC_Check.cpp 
+  src/${PROJECT_NAME}.cpp
+  src/data_transform.cpp
+  src/${PROJECT_NAME}_node.cpp
+)
+  
+# target_compile_definitions(${PROJECT_NAME}
+# PRIVATE "COMPOSITION_BUILDING_DLL")
 
 set(dependencies 
   rclcpp
@@ -67,37 +77,55 @@ set(dependencies
   visualization_msgs 
   angles 
   robot_state_publisher 
+  yaml-cpp
+)
+
+ament_target_dependencies(${PROJECT_NAME}
+  ${dependencies}
+)
+target_link_libraries(${PROJECT_NAME}
+  yaml-cpp.so
 )
 
 include_directories(include)
-
-add_executable(serial_driver
-  include/${PROJECT_NAME}/crc_check.hpp
-  include/${PROJECT_NAME}/crc_check_old.hpp
-
-  include/${PROJECT_NAME}/packet.hpp
-  # include/${PROJECT_NAME}/packet.h
-  include/${PROJECT_NAME}/${PROJECT_NAME}_node.hpp
-  include/${PROJECT_NAME}/${PROJECT_NAME}.hpp
-  include/${PROJECT_NAME}/${PROJECT_NAME}_old.hpp
-
-  src/${PROJECT_NAME}/crc_check.cpp
-  src/${PROJECT_NAME}/crc_check_old.cpp
-  src/${PROJECT_NAME}/${PROJECT_NAME}.cpp
-  src/${PROJECT_NAME}/${PROJECT_NAME}_old.cpp
-  src/${PROJECT_NAME}/${PROJECT_NAME}_node.cpp
-  src/${PROJECT_NAME}/${PROJECT_NAME}_node_main.cpp
-  # src/${PROJECT_NAME}/crc_check.cpp
-  # src/${PROJECT_NAME}/${PROJECT_NAME}.cpp
+add_executable(${PROJECT_NAME}_node
+  src/CRC_Check.cpp 
+  src/${PROJECT_NAME}.cpp
+  src/data_transform.cpp
+  src/${PROJECT_NAME}_node.cpp
 )
 
-ament_target_dependencies(serial_driver 
+ament_target_dependencies(${PROJECT_NAME}_node 
   ${dependencies}
 )
+target_link_libraries(${PROJECT_NAME}_node 
+  yaml-cpp.so
+)
 
+# register component nodes
+rclcpp_components_register_nodes(${PROJECT_NAME} 
+  PLUGIN "serialport::serial_driver"
+  EXECUTABLE ${PROJECT_NAME}_node  
+)
+
+# set(node_plugins "${node_plugins}serialport::serial_driver;$<TARGET_FILE:serialport>\n")
+
+# Install executable nodes
+# install(TARGETS ${PROJECT_NAME}
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
+# Install libraries
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 install(TARGETS
-  serial_driver
+  ${PROJECT_NAME}_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -113,7 +141,6 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -126,5 +153,3 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
-
-

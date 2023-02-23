@@ -11,7 +11,7 @@ namespace coordsolver
   {
   }
 
-  bool coordsolver::loadParam(string coord_path, string param_name)
+  bool CoordSolver::loadParam(std::string coord_path, std::string param_name)
   {
     YAML::Node config = YAML::LoadFile(coord_path);
 
@@ -31,7 +31,7 @@ namespace coordsolver
     return true;
   }
 
-  PnPInfo coordsolver::pnp(const std::vector<cv::Point2f> &points_pic, int &pnp_method)
+  PnPInfo CoordSolver::pnp(const std::vector<cv::Point2f> &points_pic, int method)
   {
     std::vector<Point3d> points_world;
 
@@ -46,9 +46,10 @@ namespace coordsolver
     Mat rvec;
     Mat tvec;
     Eigen::Matrix3d rvec_eigen;
+    Eigen::Vector3d tvec_eigen;
     Eigen::Vector3d R_center_world = {0,-0.7,-0.05};
     
-    solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, pnp_method);
+    solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
 
     PnPInfo result;
     // Rodrigues(rvec, rmat); //由旋转向量得到旋转矩阵

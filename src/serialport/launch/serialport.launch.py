@@ -5,13 +5,19 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     
-    ld = LaunchDescription():
+    ld = LaunchDescription()
     ld.add_action(
-        None(
+        Node(
             name = "serialport",
             package = "serialport",
-            executable = "serial_driver",
+            executable = "serialport_node",
             namespace = "",
             output = "screen"
+            # parameters=[param_file,
+            #     {
+            #       "debug_without_com": 'false',
+            #       "baud": 115200 
+            #     }
+            # ]
         )
     )

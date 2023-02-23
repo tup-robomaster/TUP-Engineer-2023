@@ -1,5 +1,5 @@
-#ifndef _GLOBAL_HPP
-#define _GLOBAL_HPP
+#ifndef _GLOBAL_USER_HPP
+#define _GLOBAL_USER_HPP
 
 #include <vector>
 #include <thread>

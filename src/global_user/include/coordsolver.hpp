@@ -1,13 +1,20 @@
+//ros
+#include <rclcpp/rclcpp.hpp>
+
 #include <yaml-cpp/yaml.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
 #include <glog/logging.h>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
+
 #include "global_user.hpp"
 
+using namespace global_user;
 using namespace std;
 using namespace cv;
 
@@ -29,7 +36,7 @@ namespace coordsolver
     CoordSolver();
     ~CoordSolver();
 
-    bool loadParam(string coord_path, string param_name);
+    bool loadParam(std::string coord_path, std::string param_name);
 
     PnPInfo pnp(const std::vector<Point2f> &points_pic, int method);
 
