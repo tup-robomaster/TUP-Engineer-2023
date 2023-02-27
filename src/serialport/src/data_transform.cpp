@@ -3,6 +3,7 @@
 namespace serialport
 {
     DataTransform::DataTransform()
+    : logger_(rclcpp::get_logger("serialport"))
     {
     }
 
@@ -11,51 +12,83 @@ namespace serialport
     }
 
     /**
-    *@brief 转换数据并发送
-    *@param data 类型 VisionData(union)  包含pitch,yaw,distance
-    *@param flag 类型 char   用于判断是否瞄准目标，0代表没有，1代表已经瞄准
-    */
+     * @brief 数据转化
+     * 
+     * @param mode 模式位
+     * @param vision_data 上位机发送的数据
+     * @param trans_data 转化后的数据
+     */
     void DataTransform::transformData(int mode, const VisionData &vision_data, uchar* trans_data)
     {
-        if(mode == STONE_DETACTE || mode == STONE_STATION_DETACTE )
+        trans_data[0] = 0xA5;
+        trans_data[1] = mode;
+        crc_check_.Append_CRC8_Check_Sum(trans_data, 3);
+        if(mode == STONE_STATION_DETECT)
         {
-            trans_data[0] = 0xA5;
-            trans_data[1] = mode;
-            crc_check_.Append_CRC8_Check_Sum(trans_data, 3);
-
             float float_data[] = {vision_data.pitch_angle, vision_data.yaw_angle, vision_data.roll_angle, vision_data.x_dis, vision_data.y_dis, vision_data.z_dis};
             float2UcharRawArray(float_data, 3, &trans_data[3]);
-
-            trans_data[27] = vision_data.isFindTarget;
+            trans_data[20] = vision_data.isFindTarget;
+            trans_data[21] = 0x00;
+            crc_check_.Append_CRC16_Check_Sum(trans_data, 64);
+        }
+        if(mode == STONE_DETECT)
+        {
             
-            trans_data[28] = 0x00;
-            crc_check_.Append_CRC16_Check_Sum(trans_data, 31);
         }
     }
-
+    
+    /**
+     * @brief 获取四元数
+     * 
+     * @param raw_data 原数据 
+     * @param quat 转化后得到的四元数
+     */
     void DataTransform::getQuatData(uchar* raw_data, vector<float>& quat)
     {
         ucharRaw2FloatVector(raw_data, 16, quat);
+        return;
     }
 
+    /**
+     * @brief 获取角速度
+     * 
+     * @param raw_data 原数据
+     * @param gyro 角速度数据
+     */
     void DataTransform::getGyroData(uchar* raw_data, vector<float>& gyro)
     {
         ucharRaw2FloatVector(raw_data, 12, gyro);
+        return;
     }
 
+    /**
+     * @brief 获取加速度数据
+     * 
+     * @param raw_data 原数据
+     * @param acc 加速度数据
+     */
     void DataTransform::getAccData(uchar* raw_data, vector<float>& acc)
     {
         ucharRaw2FloatVector(raw_data, 12, acc);
+        return;
     }
 
+    /**
+     * @brief 获取裁判系统弹速
+     * 
+     * @param raw_data 原数据
+     * @param bullet_speed 弹速
+     */
     void DataTransform::getBulletSpeed(uchar* raw_data, float& bullet_speed)
     {
         bullet_speed = ucharRaw2Float(raw_data);
+        return;
     }
 
     void DataTransform::getThetaAngle(uchar* raw_data, float& theta)
     {
         theta = ucharRaw2Float(raw_data);
+        return;
     }
 
     /**
@@ -91,11 +124,13 @@ namespace serialport
      */
     bool DataTransform::ucharRaw2FloatVector(uchar *data, int bytes, std::vector<float> &vec)
     {
-        std::vector<uchar*> pts;
+        // std::vector<uchar*> pts;
         assert(bytes % 4 == 0);
-        for (int i = 0; i < bytes; i+=4)
+        vec.clear();
+        for (int i = 0; i < bytes; i += 4)
         {
-            vec.push_back(ucharRaw2Float(&data[i]));
+            float float_data = ucharRaw2Float(&data[i]);
+            vec.push_back(float_data);
         }
         return true;
     }

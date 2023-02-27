@@ -18,3 +18,7 @@ Date:2022-12-20 基本完成对矿站识别部分的编写，除网络部分。
 Date:2022-01-08 完成机械臂轨迹规划部分框架的搭建。
 
 Data:2022-02-01 调整方案。
+
+
+若出现： Failed to load module "canberra-gtk-module"
+一般处理方法：sudo apt-get install libcanberra-gtk-module

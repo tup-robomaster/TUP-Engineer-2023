@@ -17,7 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   # "msg/Gimbal.msg"
   "msg/Stone.msg"
   "msg/Target.msg"
-  # "msg/Imu.msg"
+  "msg/Serial.msg"
   # "srv/*.srv"
   # "action/*.action"
   DEPENDENCIES

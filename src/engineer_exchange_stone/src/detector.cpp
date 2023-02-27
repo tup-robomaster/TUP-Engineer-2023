@@ -34,13 +34,13 @@ namespace stone_station_detector
     this->detector_params_.rescale_ratio = detector_params.rescale_ratio;
 
     //debug
-    this->debug_params_.debug_without_com = debug_params.debug_without_com;
+    // this->debug_params_.debug_without_com = debug_params.debug_without_com;
     // this->debug_params_.using_roi = debug_params.using_roi;
     // this->debug_params_.show_aim_cross = debug_params.show_aim_cross;
-    this->debug_params_.show_img = debug_params.show_img;
-    this->debug_params_.detect_red = debug_params.detect_red;
+    // this->debug_params_.show_img = debug_params.show_img;
+    // this->debug_params_.detect_red = debug_params.detect_red;
     // this->debug_params_.print_letency = debug_params.print_letency;
-    this->debug_params_.print_target_info = debug_params.print_target_info;
+    // this->debug_params_.print_target_info = debug_params.print_target_info;
   }
 
   bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Target& target_info)
@@ -49,7 +49,6 @@ namespace stone_station_detector
     {
       detector_.initModel(network_path);
       coordsolver_.loadParam(camera_param_path, camera_name);
-
       if(is_save_data)
       {
         data_save.open("src/data/dis_info_1.txt", ios::out | ios::trunc);

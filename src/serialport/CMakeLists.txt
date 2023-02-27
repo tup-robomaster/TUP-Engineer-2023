@@ -38,6 +38,8 @@ find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(Ceres REQUIRED COMPONENTS EigenSparse)
 
 include_directories(
   include
@@ -78,6 +80,8 @@ set(dependencies
   angles 
   robot_state_publisher 
   yaml-cpp
+  Eigen3
+  Ceres
 )
 
 ament_target_dependencies(${PROJECT_NAME}
@@ -89,7 +93,7 @@ target_link_libraries(${PROJECT_NAME}
 
 include_directories(include)
 add_executable(${PROJECT_NAME}_node
-  src/CRC_Check.cpp 
+  src/CRC_Check.cpp
   src/${PROJECT_NAME}.cpp
   src/data_transform.cpp
   src/${PROJECT_NAME}_node.cpp

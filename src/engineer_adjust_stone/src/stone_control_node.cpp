@@ -23,7 +23,7 @@ namespace stone_control
 
   void stone_control_node::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info)
   {
-    // RCLCPP_INFO(this->get_logger(), "image_callback ...");
+    RCLCPP_INFO(this->get_logger(), "image_callback ...");
   
     if(!img_info)
     {

@@ -7,4 +7,3 @@ float64 z_dis
 float64 timestamp
 
 bool is_target
-bool is_spinning

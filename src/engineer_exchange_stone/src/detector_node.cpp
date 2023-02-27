@@ -7,7 +7,7 @@ namespace stone_station_detector
   detector_node::detector_node(const rclcpp::NodeOptions& options)
   : Node("stone_station_detector", options)
   {
-    RCLCPP_WARN(this->get_logger(), "Starting detector node...");
+    RCLCPP_WARN(this->get_logger(), "Starting station_detector node...");
 
     this->declare_parameter<bool>("color", true);
 
@@ -16,7 +16,7 @@ namespace stone_station_detector
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
     this->declare_parameter("network_path", "src/stone_station_detector/model/opt-0527-002.xml");
     //debug
-    this->declare_parameter("debug_wihout_com", true);
+    // this->declare_parameter("debug_wihout_com", true);
     // this->declare_parameter("using_roi", true);
     this->declare_parameter("show_img", true);
     this->declare_parameter("detect_red", true);
@@ -65,14 +65,14 @@ namespace stone_station_detector
     else
       detector_params_.color = BLUE;
     
-    debug_.detect_red = this->get_parameter("detect_red").as_bool();
-    debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
+    // debug_.detect_red = this->get_parameter("detect_red").as_bool();
+    // debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
     // debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
-    debug_.show_img = this->get_parameter("show_img").as_bool();
+    // debug_.show_img = this->get_parameter("show_img").as_bool();
     // debug_.using_roi = this->get_parameter("using_roi").as_bool();
-    debug_.show_fps = this->get_parameter("show_fps").as_bool();
+    // debug_.show_fps = this->get_parameter("show_fps").as_bool();
     // debug_.print_letency = this->get_parameter("print_letency").as_bool();
-    debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
+    // debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
 
   }
 
@@ -94,7 +94,6 @@ namespace stone_station_detector
     global_user::TaskData src;
     std::vector<Stone_Station> station;
     TargetMsg target_info;
-
     if(!img_info)
     {
       return;
@@ -105,7 +104,6 @@ namespace stone_station_detector
 
     TimePoint time_img_sub = std::chrono::steady_clock::now();
     src.timestamp = (int)(std::chrono::duration<double, std::milli>(time_img_sub - time_start).count());
-
     if(detector_->stone_station_detect(src, target_info))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
