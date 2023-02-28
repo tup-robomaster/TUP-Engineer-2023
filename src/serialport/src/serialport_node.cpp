@@ -3,8 +3,8 @@
 using namespace std::placeholders;
 namespace serialport
 {
-    SerialPortNode::SerialPortNode(const rclcpp::NodeOptions& options)
-    : Node("serial_port", options), device_name_("ttyACM0"), baud_(115200)
+    SerialPortNode::SerialPortNode(const rclcpp::NodeOptions &options)
+        : Node("serial_port", options), device_name_("ttyACM0"), baud_(115200)
     {
         RCLCPP_WARN(this->get_logger(), "Serialport node...");
         try
@@ -12,7 +12,7 @@ namespace serialport
             serial_port_ = initSerialPort();
             data_transform_ = initDataTransform();
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             RCLCPP_ERROR(this->get_logger(), "Error while initializing serial port: %s", e.what());
         }
@@ -24,32 +24,30 @@ namespace serialport
         qos.reliable();
         qos.durability();
         qos.durability_volatile();
-        
-        //矿站检测msg订阅
-        if(!tracking_target_)
-        {   //检测信息订阅
+
+        // 矿站检测msg订阅
+        if (!tracking_target_)
+        { // 检测信息订阅
             RCLCPP_WARN(this->get_logger(), "Detect!!!");
             target_info_sub_ = this->create_subscription<TargetMsg>(
-                "/target_msg", 
+                "/target_msg",
                 qos,
-                std::bind(&SerialPortNode::TargetMsgSub, this, _1)
-            );
+                std::bind(&SerialPortNode::TargetMsgSub, this, _1));
         }
-        
-        //矿石msg订阅
+
+        // 矿石msg订阅
         stone_info_sub_ = this->create_subscription<StoneMsg>(
             "/stone_msg",
             qos,
-            std::bind(&SerialPortNode::StoneMsgSub, this, _1)
-        );
-        
-        //创建发送数据定时器
-        // timer_ = this->create_wall_timer(5ms, std::bind(&SerialPortNode::sendData, this));
+            std::bind(&SerialPortNode::StoneMsgSub, this, _1));
+
+        // 创建发送数据定时器
+        //  timer_ = this->create_wall_timer(5ms, std::bind(&SerialPortNode::sendData, this));
         timer_ = rclcpp::create_timer(this, this->get_clock(), 500ms, std::bind(&SerialPortNode::serialWatcher, this));
 
-        if(using_port_)
-        {   // Use serial port.
-            if(serial_port_->openPort())
+        if (using_port_)
+        { // Use serial port.
+            if (serial_port_->openPort())
             {
                 serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
                 // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
@@ -60,25 +58,25 @@ namespace serialport
 
     SerialPortNode::~SerialPortNode()
     {
-        if(receive_thread_.joinable())
+        if (receive_thread_.joinable())
             receive_thread_.join();
     }
 
     void SerialPortNode::serialWatcher()
     {
-        if(access(serial_port_->serial_data_.device.path.c_str(), F_OK) == -1 || !serial_port_->serial_data_.is_initialized)
+        if (access(serial_port_->serial_data_.device.path.c_str(), F_OK) == -1 || !serial_port_->serial_data_.is_initialized)
         {
             serial_port_->serial_data_.is_initialized = true;
-            if(!serial_port_->openPort())
+            if (!serial_port_->openPort())
             {
                 RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 500, "Port open failed!!!");
             }
         }
     }
-    
+
     void SerialPortNode::receiveData()
     {
-        while(1)
+        while (1)
         {
             // 若串口离线则跳过数据发送
             if (!serial_port_->serial_data_.is_initialized)
@@ -94,26 +92,26 @@ namespace serialport
                 RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "CHECKSUM FAILED OR NO DATA RECVIED!!!");
                 usleep(5000);
             }
-            
+
             uchar mode = serial_port_->serial_data_.rdata[1];
             mode_ = mode;
             RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
             // RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
-            
-            if(mode)
+
+            if (mode)
             {
                 // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
                 // std::vector<float> quat(4);
                 // std::vector<float> gyro(3);
                 // std::vector<float> acc(3);
                 // float bullet_speed;
-                
-                //Process IMU Datas
-                // data_transform_->getQuatData(&serial_port_->serial_data_.rdata[3], quat);
-                // data_transform_->getGyroData(&serial_port_->serial_data_.rdata[19], gyro);
-                // data_transform_->getAccData(&serial_port_->serial_data_.rdata[31], acc);
-                // data_transform_->getBulletSpeed(&serial_port_->serial_data_.rdata[43], bullet_speed);
-                if(print_serial_info_)
+
+                // Process IMU Datas
+                //  data_transform_->getQuatData(&serial_port_->serial_data_.rdata[3], quat);
+                //  data_transform_->getGyroData(&serial_port_->serial_data_.rdata[19], gyro);
+                //  data_transform_->getAccData(&serial_port_->serial_data_.rdata[31], acc);
+                //  data_transform_->getBulletSpeed(&serial_port_->serial_data_.rdata[43], bullet_speed);
+                if (print_serial_info_)
                 {
 
                     RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
@@ -140,13 +138,12 @@ namespace serialport
                 // serial_msg.imu.linear_acceleration.z = acc[2];
                 serial_msg_pub_->publish(std::move(serial_msg));
             }
-
         }
     }
 
     /**
      * @brief 数据发送回调函数
-     * 
+     *
      */
     void SerialPortNode::sendData()
     {
@@ -176,61 +173,60 @@ namespace serialport
     {
         int mode = mode_;
         // RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
-        if(this->using_port_)
-        {   
+        if (this->using_port_)
+        {
             VisionData vision_data;
-            if(mode == STONE_STATION_DETECT)
+            if (mode == STONE_STATION_DETECT)
             {
                 RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
                 mutex_.lock();
-                vision_data = 
-                {
-                    (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
-                    (float)target_info->pitch, 
-                    (float)target_info->yaw, 
-                    (float)target_info->roll, 
-                    (float)target_info->x_dis, 
-                    (float)target_info->y_dis,
-                    (float)target_info->z_dis,  
-                    target_info->is_target
-                };
-                
-                //根据不同mode进行对应的数据转换
+                vision_data =
+                    {
+                        (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
+                        (float)target_info->pitch,
+                        (float)target_info->yaw,
+                        (float)target_info->roll,
+                        (float)target_info->x_dis,
+                        (float)target_info->y_dis,
+                        (float)target_info->z_dis,
+                        target_info->is_target};
+
+                // 根据不同mode进行对应的数据转换
                 data_transform_->transformData(mode, vision_data, serial_port_->Tdata);
-                //数据发送
+                // 数据发送
                 serial_port_->sendData();
                 mutex_.unlock();
                 flag_ = true;
             }
         }
         else
-        {   // Debug without com.
+        { // Debug without com.
             RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 500, "No sub target_info msg...");
         }
     }
-    
+
     void SerialPortNode::StoneMsgSub(StoneMsg::SharedPtr stnoe_info)
     {
         int mode = mode_;
         RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
-        if(this->using_port_)
+        if (this->using_port_)
         {
             VisionData vision_data;
-            if(mode == STONE_DETECT)
+            if (mode == STONE_DETECT)
             {
                 mutex_.lock();
-                vision_data = 
-                {
-                    (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
-                    (float)stnoe_info->up, 
-                    (float)stnoe_info->down, 
-                    (float)stnoe_info->left, 
-                    (float)stnoe_info->right, 
-                };
+                vision_data =
+                    {
+                        (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
+                        (float)stnoe_info->up,
+                        (float)stnoe_info->down,
+                        (float)stnoe_info->left,
+                        (float)stnoe_info->right,
+                    };
 
-                //根据不同mode进行对应的数据转换
+                // 根据不同mode进行对应的数据转换
                 data_transform_->transformData(mode, vision_data, serial_port_->Tdata);
-                //数据发送
+                // 数据发送
                 serial_port_->sendData();
                 mutex_.unlock();
                 flag_ = true;
@@ -264,13 +260,13 @@ namespace serialport
         }
         return true;
     }
-    
-    rcl_interfaces::msg::SetParametersResult SerialPortNode::paramsCallback(const std::vector<rclcpp::Parameter>& params)
+
+    rcl_interfaces::msg::SetParametersResult SerialPortNode::paramsCallback(const std::vector<rclcpp::Parameter> &params)
     {
         rcl_interfaces::msg::SetParametersResult result;
         result.successful = false;
         result.reason = "debug";
-        for(const auto& param : params)
+        for (const auto &param : params)
         {
             result.successful = setParam(param);
         }
@@ -280,12 +276,11 @@ namespace serialport
     std::unique_ptr<SerialPort> SerialPortNode::initSerialPort()
     {
         params_map_ =
-        {
-            {"using_port", 0},
-            {"baud", 1},
-            {"tracking_target", 2},
-            {"print_serial_info", 3}
-        };
+            {
+                {"using_port", 0},
+                {"baud", 1},
+                {"tracking_target", 2},
+                {"print_serial_info", 3}};
 
         this->declare_parameter<std::string>("port_id", "483/5740/200");
         this->get_parameter("port_id", id_);
@@ -309,9 +304,9 @@ namespace serialport
     {
         return std::make_unique<DataTransform>();
     }
-} //namespace serialport
+} // namespace serialport
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<serialport::SerialPortNode>());

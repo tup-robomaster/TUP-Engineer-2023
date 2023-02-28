@@ -21,28 +21,28 @@ namespace stone_control
     typedef std::chrono::_V2::steady_clock::time_point TimePoint;
 
   public:
-    stone_control_node(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+    stone_control_node(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
     ~stone_control_node();
-  
+
   private:
-    //subscribe image
+    // subscribe image
     std::shared_ptr<image_transport::Subscriber> image_sub;
 
     std::string transport_;
     TimePoint time_start;
+
   private:
-    //params callback
+    // params callback
     rclcpp::TimerBase::SharedPtr param_timer_;
     void param_callback();
-  
+
   public:
     void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info);
     FindGlod_ findgold;
-  
+
   public:
     // std::unique_ptr<FindGlod_> FindGlod;
     // std::unique_ptr<stone_control> init_stone_control_;
   };
-  
 
 }

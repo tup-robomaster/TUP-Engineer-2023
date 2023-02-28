@@ -1,7 +1,7 @@
 #include "./detector.hpp"
 
 #include <memory>
-//ros
+// ros
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/publisher.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -22,27 +22,28 @@ namespace stone_station_detector
     typedef std::chrono::_V2::steady_clock::time_point TimePoint;
     // TODO:
     typedef global_interface::msg::Target TargetMsg;
-  
+
   public:
-    detector_node(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+    detector_node(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
     ~detector_node();
-  
+
   private:
-    //图像订阅信息
+    // 图像订阅信息
     std::shared_ptr<image_transport::Subscriber> img_sub;
-    
+
     std::string transport_;
     TimePoint time_start;
-    
-    //发布矿站信息
+
+    // 发布矿站信息
     rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
+
   private:
     rclcpp::TimerBase::SharedPtr param_timer_;
     void param_callback();
-  
+
   public:
     void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info);
-  
+
   public:
     detector_params detector_params_;
     debug_params debug_;
@@ -50,6 +51,5 @@ namespace stone_station_detector
 
     std::unique_ptr<detector> detector_;
     std::unique_ptr<detector> init_detector();
-
   };
 }

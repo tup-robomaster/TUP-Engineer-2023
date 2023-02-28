@@ -1,4 +1,4 @@
-//ros
+// ros
 #include <rclcpp/rclcpp.hpp>
 
 #include <yaml-cpp/yaml.h>
@@ -30,7 +30,7 @@ namespace coordsolver
     Eigen::Vector3d rmat;
   };
 
-  class CoordSolver 
+  class CoordSolver
   {
   public:
     CoordSolver();
@@ -47,7 +47,7 @@ namespace coordsolver
     Mat intrinsic;
     Mat dis_coeff;
     rclcpp::Logger logger_;
-    
+
     YAML::Node param_node;
   };
 }

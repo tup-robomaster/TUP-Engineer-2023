@@ -1,10 +1,10 @@
-//C++
+// C++
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <string>
 
-//ros
+// ros
 #include <rclcpp/rclcpp.hpp>
 
 // #include "../../global_user/include/global_user.hpp"
@@ -17,33 +17,33 @@ namespace middle_processor
 
   class processor
   {
-    public:
-      struct set_arm_position
-      {
-        int err_picth;
-        int err_yaw;
-        int err_roll;
+  public:
+    struct set_arm_position
+    {
+      int err_picth;
+      int err_yaw;
+      int err_roll;
 
-        int err_x_dis;
-        int err_y_dis;
-        int err_z_dis;
-      };
+      int err_x_dis;
+      int err_y_dis;
+      int err_z_dis;
+    };
 
-      struct current_arm_position
-      {
-        int current_picth;
-        int current_yaw;
-        int current_roll;
+    struct current_arm_position
+    {
+      int current_picth;
+      int current_yaw;
+      int current_roll;
 
-        int current_x_dis;
-        int current_y_dis;
-        int current_z_dis;
-      };
-      
-    public:
-      processor();
-      ~processor();
-      void run();
-      void get_current_arm_position();
+      int current_x_dis;
+      int current_y_dis;
+      int current_z_dis;
+    };
+
+  public:
+    processor();
+    ~processor();
+    void run();
+    void get_current_arm_position();
   };
 }

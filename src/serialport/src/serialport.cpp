@@ -4,22 +4,22 @@ namespace serialport
 {
     /**
      *@brief 参数说明
-    *@param  fd       类型  int  打开的串口文件句柄
-    *@param  speed    类型  int  波特率
-    *@param  databits 类型  int  数据位   取值 为 7 或者8
-    *@param  stopbits 类型  int  停止位   取值为 1 或者2
-    *@param  parity   类型  int  效验类型 取值为N,E,O,S
-    *@param  portchar 类型  char* 串口路径
-    */
+     *@param  fd       类型  int  打开的串口文件句柄
+     *@param  speed    类型  int  波特率
+     *@param  databits 类型  int  数据位   取值 为 7 或者8
+     *@param  stopbits 类型  int  停止位   取值为 1 或者2
+     *@param  parity   类型  int  效验类型 取值为N,E,O,S
+     *@param  portchar 类型  char* 串口路径
+     */
 
     SerialPort::SerialPort(const string ID, const int BAUD, bool using_port)
-    : using_port_(using_port), logger_(rclcpp::get_logger("serial_port"))
+        : using_port_(using_port), logger_(rclcpp::get_logger("serial_port"))
     {
         serial_data_.is_initialized = false;
         serial_data_.baud = BAUD;
         serial_id_ = ID;
 
-        if(!this->using_port_) //无串口调试
+        if (!this->using_port_) // 无串口调试
         {
             RCLCPP_WARN(logger_, "Debug without com...");
             withoutSerialPort();
@@ -32,24 +32,27 @@ namespace serialport
     }
 
     SerialPort::SerialPort()
-    : logger_(rclcpp::get_logger("serial_port"))
-    {}
+        : logger_(rclcpp::get_logger("serial_port"))
+    {
+    }
 
     SerialPort::~SerialPort()
-    {}
+    {
+    }
 
     /**
      * @brief 数据接收函数
-     * 
-     * @param lens 
-     * @return true 
-     * @return false 
+     *
+     * @param lens
+     * @return true
+     * @return false
      */
     bool SerialPort::receiveData(int lens)
     {
         int bytes;
         char *name = ttyname(serial_data_.fd);
-        if (name == NULL) RCLCPP_WARN(logger_, "tty is null...");
+        if (name == NULL)
+            RCLCPP_WARN(logger_, "tty is null...");
         int result = ioctl(serial_data_.fd, FIONREAD, &bytes);
         if (result == -1)
             return false;
@@ -58,29 +61,25 @@ namespace serialport
             return false;
         }
         // cout << "bytes_num:" << bytes << endl;
-        
+
         bytes = read(serial_data_.fd, serial_data_.rdata, (size_t)(lens));
         timestamp_ = this->steady_clock_.now();
 
-        if(serial_data_.rdata[0] == 0xA5 
-            && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3)
-            && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
+        if (serial_data_.rdata[0] == 0xA5 && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3) && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
         {
             return true;
         }
-        if(serial_data_.rdata[0] == 0xB5
-            && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3)
-            && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
+        if (serial_data_.rdata[0] == 0xB5 && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3) && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
         {
             return true;
         }
-        
+
         return false;
     }
 
     /**
      * @brief 数据发送函数
-     * 
+     *
      */
     void SerialPort::sendData(int bytes_num)
     {
@@ -91,16 +90,16 @@ namespace serialport
 
     /**
      * @brief 打开串口
-     * 
-     * @return true 
-     * @return false 
+     *
+     * @return true
+     * @return false
      */
     bool SerialPort::openPort()
     {
         serial_data_.device = setDeviceByID(listPorts());
         const string alias = "/dev/" + serial_data_.device.alias;
 
-        if(alias.length() - 4 == 0)
+        if (alias.length() - 4 == 0)
             return false;
 
         close(serial_data_.last_fd);
@@ -119,7 +118,7 @@ namespace serialport
 
         RCLCPP_INFO(logger_, "Openning %s...", alias.c_str());
         setBrate();
-        if(!setBit())
+        if (!setBit())
         {
             RCLCPP_WARN(logger_, "Set Parity Error.");
             exit(0);
@@ -133,7 +132,7 @@ namespace serialport
 
     /**
      * @brief 关闭通讯协议接口
-     * 
+     *
      */
     void SerialPort::closePort()
     {
@@ -146,21 +145,21 @@ namespace serialport
     std::vector<Device> SerialPort::listPorts()
     {
         vector<Device> devices;
-        for(auto port_dir : DEFAULT_PORT)
+        for (auto port_dir : DEFAULT_PORT)
         {
             std::vector<string> availible_path;
-            auto general_path = "/sys/class/tty/"+ port_dir;
-            for(int i = 0; i < MAX_ITER;i++)
+            auto general_path = "/sys/class/tty/" + port_dir;
+            for (int i = 0; i < MAX_ITER; i++)
             {
                 auto tty_dir_path = general_path + to_string(i);
 
-                if (access(tty_dir_path.c_str(),F_OK) != -1)
+                if (access(tty_dir_path.c_str(), F_OK) != -1)
                 {
                     Device dev;
                     availible_path.push_back(tty_dir_path);
                     auto real_path = symbolicToReal(tty_dir_path);
                     string info_path;
-                    //需注意ttyACM与ttyUSB的uevent文件实际深度不同
+                    // 需注意ttyACM与ttyUSB的uevent文件实际深度不同
                     if (port_dir == "ttyACM")
                         info_path = getParent(getParent(getParent(real_path)));
                     else if (port_dir == "ttyUSB")
@@ -171,7 +170,7 @@ namespace serialport
                     devices.push_back(dev);
                     // cout << dev.id << endl;
                 }
-            } 
+            }
         }
         return devices;
     }
@@ -185,13 +184,13 @@ namespace serialport
         Device dev;
         auto uevent_path = path + "/uevent";
         auto texts = readLines(uevent_path);
-        for(auto text : texts)
+        for (auto text : texts)
         {
             int equal_idx = text.find("=");
-            string config_type = text.substr(0,equal_idx);
+            string config_type = text.substr(0, equal_idx);
             string config_info = text.substr(equal_idx + 1);
 
-            if(config_type == "PRODUCT")
+            if (config_type == "PRODUCT")
             {
                 dev.id = config_info;
             }
@@ -222,7 +221,7 @@ namespace serialport
 
     /**
      *@brief 设置波特率
-    */
+     */
     void SerialPort::setBrate()
     {
         // int speed_arr[] = {B115200, B38400, B19200, B9600, B4800, B2400, B1200, B300,
@@ -231,21 +230,21 @@ namespace serialport
         // 				  115200, 38400, 19200, 9600, 4800, 2400, 1200,  300};
 
         int speed_arr[] = {B921600, B460800, B230400, B115200, B38400, B19200, B9600, B4800, B2400, B1200, B300};
-        int name_arr[] = {921600, 460800, 230400,115200, 38400, 19200, 9600, 4800, 2400, 1200,  300};
+        int name_arr[] = {921600, 460800, 230400, 115200, 38400, 19200, 9600, 4800, 2400, 1200, 300};
         int i;
         int status;
         struct termios Opt;
         tcgetattr(serial_data_.fd, &Opt);
 
-        for (i = 0; i < sizeof(speed_arr) / sizeof(int);  ++i)
+        for (i = 0; i < sizeof(speed_arr) / sizeof(int); ++i)
         {
             if (serial_data_.speed == name_arr[i])
             {
-                tcflush(serial_data_.fd, TCIOFLUSH);//清空缓冲区的内容
-                cfsetispeed(&Opt, speed_arr[i]);//设置接受和发送的波特率
+                tcflush(serial_data_.fd, TCIOFLUSH); // 清空缓冲区的内容
+                cfsetispeed(&Opt, speed_arr[i]);     // 设置接受和发送的波特率
                 cfsetospeed(&Opt, speed_arr[i]);
 
-                status = tcsetattr(serial_data_.fd, TCSANOW, &Opt); //使设置立即生效
+                status = tcsetattr(serial_data_.fd, TCSANOW, &Opt); // 使设置立即生效
                 if (status != 0)
                 {
                     perror("tcsetattr fd1");
@@ -258,19 +257,19 @@ namespace serialport
 
     /**
      *@brief 设置串口数据位，停止位和效验位
-    */
+     */
     bool SerialPort::setBit()
     {
         struct termios termios_p;
 
-        if (tcgetattr(serial_data_.fd, &termios_p)  !=  0)
+        if (tcgetattr(serial_data_.fd, &termios_p) != 0)
         {
             perror("SetupSerial 1");
             return false;
         }
 
-        termios_p.c_cflag |= (CLOCAL | CREAD);  //接受数据
-        termios_p.c_cflag &= ~CSIZE;//设置数据位数
+        termios_p.c_cflag |= (CLOCAL | CREAD); // 接受数据
+        termios_p.c_cflag &= ~CSIZE;           // 设置数据位数
 
         switch (serial_data_.databits)
         {
@@ -285,13 +284,13 @@ namespace serialport
             return false;
         }
 
-        //设置奇偶校验位double
+        // 设置奇偶校验位double
         switch (serial_data_.parity)
         {
         case 'n':
         case 'N':
-            termios_p.c_cflag &= ~PARENB;   /* Clear parity enable */
-            termios_p.c_iflag &= ~INPCK;     /* Enable parity checking */
+            termios_p.c_cflag &= ~PARENB; /* Clear parity enable */
+            termios_p.c_iflag &= ~INPCK;  /* Enable parity checking */
             break;
         case 'o':
         case 'O':
@@ -300,12 +299,12 @@ namespace serialport
             break;
         case 'e':
         case 'E':
-            termios_p.c_cflag |= PARENB;     /* Enable parity */
-            termios_p.c_cflag &= ~PARODD;   /* 转换为偶效验*/
-            termios_p.c_iflag |= INPCK;       /* Disnable parity checking */
+            termios_p.c_cflag |= PARENB;  /* Enable parity */
+            termios_p.c_cflag &= ~PARODD; /* 转换为偶效验*/
+            termios_p.c_iflag |= INPCK;   /* Disnable parity checking */
             break;
         case 'S':
-        case 's':  /*as no parity*/
+        case 's': /*as no parity*/
             termios_p.c_cflag &= ~PARENB;
             termios_p.c_cflag &= ~CSTOPB;
             break;
@@ -332,13 +331,13 @@ namespace serialport
         if (serial_data_.parity != 'n')
             termios_p.c_iflag |= INPCK;
 
-        tcflush(serial_data_.fd, TCIFLUSH); // 清除输入缓存区
-        termios_p.c_cc[VTIME] = 150;        // 设置超时15 seconds
-        termios_p.c_cc[VMIN] = 0;           //最小接收字符
-        termios_p.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);  // Input原始输入
+        tcflush(serial_data_.fd, TCIFLUSH);                   // 清除输入缓存区
+        termios_p.c_cc[VTIME] = 150;                          // 设置超时15 seconds
+        termios_p.c_cc[VMIN] = 0;                             // 最小接收字符
+        termios_p.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // Input原始输入
         termios_p.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
         termios_p.c_iflag &= ~(ICRNL | IGNCR);
-        termios_p.c_oflag &= ~OPOST;   // Output禁用输出处理
+        termios_p.c_oflag &= ~OPOST; // Output禁用输出处理
 
         if (tcsetattr(serial_data_.fd, TCSANOW, &termios_p) != 0) /* Update the options and do it NOW */
         {

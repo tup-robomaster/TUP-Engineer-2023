@@ -1,13 +1,13 @@
 #include "./inference.hpp"
 
-//C++
+// C++
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <memory>
 
-//ros
+// ros
 #include <rclcpp/rclcpp.hpp>
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
@@ -17,7 +17,7 @@
 
 namespace stone_station_detector
 {
-  enum Color 
+  enum Color
   {
     BLUE,
     RED
@@ -62,11 +62,11 @@ namespace stone_station_detector
       show_aim_cross = false;
     }
   };
-  
+
   struct detector_params
   {
-    int dw, dh;           //letterbox对原图像resize的padding区域的宽度和高度
-    float rescale_ratio;  //缩放比例
+    int dw, dh;          // letterbox对原图像resize的padding区域的宽度和高度
+    float rescale_ratio; // 缩放比例
 
     Color color;
     detector_params()
@@ -74,7 +74,7 @@ namespace stone_station_detector
       color = RED;
     }
   };
-  //暂时位置（待改）
+  // 暂时位置（待改）
   struct arm_to_camera
   {
     float x_offset = 0;
@@ -84,32 +84,34 @@ namespace stone_station_detector
   class detector
   {
   public:
-    detector(const std::string& camera_name, const std::string& camera_param_path, const std::string& network_path,
-      const detector_params& detector_params_, const debug_params& debug_params_);
+    detector(const std::string &camera_name, const std::string &camera_param_path, const std::string &network_path,
+             const detector_params &detector_params_, const debug_params &debug_params_);
     ~detector();
+
   public:
     std::string camera_name;
     std::string camera_param_path;
     std::string network_path;
     detector_params detector_params_;
-  
+
   public:
     void run();
-    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target& target_info);
-    void debugParams(const detector_params& detector_params, const debug_params& debug_params);
+    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info);
+    void debugParams(const detector_params &detector_params, const debug_params &debug_params);
+
   public:
     std::vector<StationObject> objects;
     Eigen::Vector3d last_target;
     ofstream data_save;
     bool is_save_data;
-  
+
   public:
     bool is_init;
     coordsolver::CoordSolver coordsolver_;
     Station_Detector detector_;
     arm_to_camera atc_;
     rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
-  
+
   private:
     int count;
     rclcpp::Time time_start;

@@ -1,7 +1,7 @@
 #ifndef INFERENCE_HPP_
 #define INFERENCE_HPP_
 
-//C++
+// C++
 #include <iterator>
 #include <memory>
 #include <string>
@@ -38,23 +38,22 @@ namespace stone_station_detector
   public:
     Station_Detector();
     ~Station_Detector();
-    bool detect(cv::Mat &src, std::vector<StationObject>& objects);
+    bool detect(cv::Mat &src, std::vector<StationObject> &objects);
     bool initModel(string path);
 
   private:
     int dw, dh;
-    float rescale_ratio;//缩放比例
+    float rescale_ratio; // 缩放比例
     Core ie;
-    CNNNetwork network;           //网络
-    ExecutableNetwork executable_network;   //可执行网络
-    InferRequest infer_request;        //推理请求
+    CNNNetwork network;                   // 网络
+    ExecutableNetwork executable_network; // 可执行网络
+    InferRequest infer_request;           // 推理请求
     MemoryBlob::CPtr moutput;
     string input_name;
     string output_name;
 
-    Eigen::Matrix<float,3,3> transfrom_matrix;
+    Eigen::Matrix<float, 3, 3> transfrom_matrix;
   };
 }
-
 
 #endif

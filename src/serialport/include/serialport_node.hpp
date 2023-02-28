@@ -1,9 +1,9 @@
 #ifndef SERIALPORT_NODE_HPP_
 #define SERIALPORT_NODE_HPP_
 
-#pragma once 
+#pragma once
 
-//ros
+// ros
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/subscription.hpp>
@@ -31,7 +31,7 @@ namespace serialport
         typedef global_interface::msg::Serial SerialMsg;
 
     public:
-        SerialPortNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+        SerialPortNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
         ~SerialPortNode();
 
     public:
@@ -40,7 +40,7 @@ namespace serialport
         void TargetMsgSub(TargetMsg::SharedPtr msg);
         void StoneMsgSub(StoneMsg::SharedPtr msg);
         void serialWatcher();
-    
+
     private:
         int baud_;
         std::string id_;
@@ -48,7 +48,7 @@ namespace serialport
         std::thread receive_thread_;
         CoordSolver coordsolver_;
         bool print_serial_info_;
-        
+
         mutex mutex_;
         bool using_port_;
         bool tracking_target_;
@@ -56,11 +56,11 @@ namespace serialport
         atomic<bool> flag_;
         // VisionData vision_data_;
         rclcpp::TimerBase::SharedPtr timer_;
-        
+
     public:
         /**
          * @brief 工程msg
-         * 
+         *
          */
         rclcpp::Subscription<TargetMsg>::SharedPtr target_info_sub_;
         rclcpp::Subscription<StoneMsg>::SharedPtr stone_info_sub_;
@@ -73,13 +73,13 @@ namespace serialport
 
         std::unique_ptr<DataTransform> data_transform_;
         std::unique_ptr<DataTransform> initDataTransform();
-    
+
     private:
         std::map<std::string, int> params_map_;
         OnSetParametersCallbackHandle::SharedPtr callback_handle_;
         bool setParam(rclcpp::Parameter param);
-        rcl_interfaces::msg::SetParametersResult paramsCallback(const std::vector<rclcpp::Parameter>& params);
-    }; 
-} //namespace serialport
+        rcl_interfaces::msg::SetParametersResult paramsCallback(const std::vector<rclcpp::Parameter> &params);
+    };
+} // namespace serialport
 
 #endif

@@ -3,7 +3,7 @@
 namespace coordsolver
 {
   CoordSolver::CoordSolver()
-  : logger_(rclcpp::get_logger("coordsolver"))
+      : logger_(rclcpp::get_logger("coordsolver"))
   {
   }
 
@@ -16,14 +16,14 @@ namespace coordsolver
     YAML::Node config = YAML::LoadFile(coord_path);
 
     Eigen::MatrixXd mat_intrinsic(3, 3);
-    Eigen::MatrixXd mat_coeff(1 ,5);
+    Eigen::MatrixXd mat_coeff(1, 5);
 
-    //初始化内参矩阵
+    // 初始化内参矩阵
     auto read_vector = config[param_name]["Intrinsic"].as<vector<float>>();
     initMatrix(mat_intrinsic, read_vector);
-    eigen2cv(mat_intrinsic, intrinsic);   //将Eigen::Tensor(张量)类型转换为cv::Mat类型
+    eigen2cv(mat_intrinsic, intrinsic); // 将Eigen::Tensor(张量)类型转换为cv::Mat类型
 
-    //初始化畸变矩阵
+    // 初始化畸变矩阵
     read_vector = config[param_name]["Coeff"].as<vector<float>>();
     initMatrix(mat_coeff, read_vector);
     eigen2cv(mat_coeff, dis_coeff);
@@ -35,20 +35,19 @@ namespace coordsolver
   {
     std::vector<Point3d> points_world;
 
-    points_world = 
-    {
-      {-137.500, 137.500, 0},
-      {-137.500, -137.500, 0},
-      {137.500, -137.500, 0},
-      {137.500, 137.500, 0}
-    };
+    points_world =
+        {
+            {-137.500, 137.500, 0},
+            {-137.500, -137.500, 0},
+            {137.500, -137.500, 0},
+            {137.500, 137.500, 0}};
 
     Mat rvec;
     Mat tvec;
     Eigen::Matrix3d rvec_eigen;
     Eigen::Vector3d tvec_eigen;
-    Eigen::Vector3d R_center_world = {0,-0.7,-0.05};
-    
+    Eigen::Vector3d R_center_world = {0, -0.7, -0.05};
+
     solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
 
     PnPInfo result;
@@ -61,6 +60,5 @@ namespace coordsolver
     result.R_station_cam = (rvec_eigen * R_center_world) + tvec_eigen;
     return result;
   }
-
 
 } // namespace coordsolver

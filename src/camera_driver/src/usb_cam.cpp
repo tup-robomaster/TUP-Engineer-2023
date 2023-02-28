@@ -6,10 +6,10 @@ namespace camera_driver
   {
     this->usb_cam_params_ = usb_params;
     // RCLCPP_INFO(this->get_logger(), "node success!");
-  }  
+  }
   usb_cam::~usb_cam()
-  {  
-  }  
+  {
+  }
   void usb_cam::init()
   {
     // cap.open(0);

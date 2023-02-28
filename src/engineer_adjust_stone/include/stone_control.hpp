@@ -15,22 +15,22 @@ namespace stone_control
     Mat rvecs;
     Mat tvecs;
   };
-  
-  
+
   class FindGlod_
   {
-    public:
+  public:
     int threshold_value = 100;
     // Mat kernel_big = Mat::zeros(Size(21,21),CV_16FC1);
     // Mat kernel_s = Mat::zeros(Size(5,5),CV_16FC1);
-    public:
+  public:
     FindGlod_();
     ~FindGlod_();
-    void getGold(Mat &Src,GoldData &goldData);
-    void getPnP(GoldData goldData,Mat &Src);
-    private:
-    void preSrc(Mat Src,Mat &dst);
-    bool sort_Y(Point p1,Point p2)
+    void getGold(Mat &Src, GoldData &goldData);
+    void getPnP(GoldData goldData, Mat &Src);
+
+  private:
+    void preSrc(Mat Src, Mat &dst);
+    bool sort_Y(Point p1, Point p2)
     {
       return p1.y < p2.y;
     };

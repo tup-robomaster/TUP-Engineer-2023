@@ -18,11 +18,11 @@ namespace camera_driver
     int image_width = 480;
     int image_height = 480;
     int fps = 30;
-  };  
+  };
 
   class usb_cam
   {
-  public:     
+  public:
     usb_cam_params usb_cam_params_;
 
   public:
@@ -36,7 +36,5 @@ namespace camera_driver
 
     void init();
   };
-     
-}
 
-    
+}
