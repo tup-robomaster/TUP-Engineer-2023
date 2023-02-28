@@ -1,5 +1,3 @@
-#include "./inference.hpp"
-
 //C++
 #include <iostream>
 #include <algorithm>
@@ -9,8 +7,8 @@
 //ros
 #include <rclcpp/rclcpp.hpp>
 
-#include "../../global_user/include/global_user.hpp"
-#include "../../global_user/include/coordsolver.hpp"
+// #include "../../global_user/include/global_user.hpp"
+// #include "../../global_user/include/coordsolver.hpp"
 
 typedef std::chrono::_V2::steady_clock::time_point Timepoint;
 

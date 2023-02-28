@@ -64,27 +64,6 @@ ament_target_dependencies(${PROJECT_NAME}
   # yaml-cpp.so
 )
 
-# target_link_libraries(${PROJECT_NAME}
-  # ${OpenCV_LIBRARIES}
-  # yaml-cpp.so
-  # fmt.so 
-# )
-      
-# 添加头文件地址
-# target_include_directories(${PROJECT_NAME} PUBLIC
-#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#   $<INSTALL_INTERFACE:include>
-# )
-
-# 为了使下游文件可以访问
-# ament_export_include_directories(include)
-# ament_export_libraries(${PROJECT_NAME})
-# ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-# ament_export_dependencies(
-#   ${dependencies}
-# )
-
-
 # 注册 导出头文件
 install(
   DIRECTORY include/

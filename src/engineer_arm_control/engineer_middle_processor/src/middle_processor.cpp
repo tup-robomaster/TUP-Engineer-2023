@@ -9,8 +9,8 @@
 //ros
 #include <rclcpp/rclcpp.hpp>
 
-#include "../../global_user/include/global_user.hpp"
-#include "../../global_user/include/coordsolver.hpp"
+// #include "../../global_user/include/global_user.hpp"
+// #include "../../global_user/include/coordsolver.hpp"
 
 namespace middle_processor
 {
