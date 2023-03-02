@@ -14,7 +14,7 @@ namespace stone_station_detector
     // set path
     this->declare_parameter("camera_name", "KS2A543");
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
-    this->declare_parameter("network_path", "src/stone_station_detector/model/opt-0527-002.xml");
+    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/opt-0127-001.xml");
     // debug
     //  this->declare_parameter("debug_wihout_com", true);
     //  this->declare_parameter("using_roi", true);
