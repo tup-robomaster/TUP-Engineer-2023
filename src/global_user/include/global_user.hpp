@@ -41,8 +41,14 @@ namespace global_user
   {
     int mode;
     cv::Mat img;
-    Eigen::Quaterniond quat;
+    // Eigen::Quaterniond quat;
     int timestamp;
+  };
+  enum CameraType
+  {
+    usb,
+    usb_01,
+    usb_02,
   };
 
   struct GridAndStride

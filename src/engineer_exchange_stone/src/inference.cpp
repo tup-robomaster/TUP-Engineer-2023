@@ -306,61 +306,45 @@ namespace stone_station_detector
     }
 
     // TODO:change to your dir
-    bool Station_Detector::initModel(string path)
+    bool Station_Detector::initModel(std::string path)
     {
-        ie.SetConfig({{CONFIG_KEY(CACHE_DIR), "../.cache"}});
-        // ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"GPU_THROUGHPUT_AUTO"}});
-        // ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS), "1"}});
-        // Step 1. Read a model in OpenVINO Intermediate Representation (.xml and
-        // .bin files) or ONNX (.onnx file) format
+        std::cout << "Start initialize model..." << std::endl;
+        // Setting Configuration Values
+        core.set_property("CPU", ov::enable_profiling(true));
 
-        network = ie.ReadNetwork(path);
+        // Step 1.Create openvino runtime core
+        model = core.read_model(path);
 
-        try
-        {
-            if (network.getOutputsInfo().size() != 1)
-                throw std::logic_error("Sample supports topologies with 1 output only");
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+        // Preprocessing
+        ov::preprocess::PrePostProcessor ppp(model);
+        ppp.input().tensor().set_element_type(ov::element::f32);
+        // ppp.input().tensor().set_element_type(ov::element::u8);
 
-        // cout << "4" << endl;
+        // set output precision
+        ppp.output().tensor().set_element_type(ov::element::f32);
+        // ppp.output().tensor().set_element_type(ov::element::u8);
 
-        // Step 2. Configure input & output
-        //  Prepare input blobs
-        InputInfo::Ptr input_info = network.getInputsInfo().begin()->second;
-        input_name = network.getInputsInfo().begin()->first;
+        // 将预处理融入原始模型
+        ppp.build();
 
-        //  Prepare output blobs
-        if (network.getOutputsInfo().empty())
-        {
-            std::cerr << "Network outputs info is empty" << std::endl;
-            return EXIT_FAILURE;
-        }
-        DataPtr output_info = network.getOutputsInfo().begin()->second;
-        output_name = network.getOutputsInfo().begin()->first;
+        // std::cout << 5 << std::endl;
+        // Step 2. Compile the model
+        compiled_model = core.compile_model(
+            model,
+            "CPU",
+            ov::hint::performance_mode(ov::hint::PerformanceMode::LATENCY)
+            // "AUTO:GPU,CPU",
+            // ov::hint::performance_mode(ov::hint::PerformanceMode::LATENCY)
+            // ov::hint::inference_precision(ov::element::u8)
+        );
 
-        // output_info->setPrecision(Precision::FP16);
-        // Step 3. Loading a model to the device
-        // executable_network = ie.LoadNetwork(network, "MULTI:GPU");
-        // executable_network = ie.LoadNetwork(network, "GPU");
-        executable_network = ie.LoadNetwork(network, "CPU");
+        // std::cout << 6 << std::endl;
 
-        // Step 4. Create an infer request
-        infer_request = executable_network.CreateInferRequest();
-        const Blob::Ptr output_blob = infer_request.GetBlob(output_name);
-        moutput = as<MemoryBlob>(output_blob);
-        // Blob::Ptr input = infer_request.GetBlob(input_name);     // just wrap Mat data by Blob::Ptr
-        if (!moutput)
-        {
-            throw std::logic_error("We expect output to be inherited from MemoryBlob, "
-                                   "but by fact we were not able to cast output to MemoryBlob");
-        }
-        // locked memory holder should be alive all time while access to its buffer
-        // happens
-        // printf("4...");
+        // compiled_model.set_property(ov::device::priorities("GPU"));
+
+        // Step 3. Create an Inference Request
+        infer_request = compiled_model.create_infer_request();
+
         return true;
     }
 
@@ -374,49 +358,64 @@ namespace stone_station_detector
 #endif // SAVE_AUTOAIM_LOG
             return false;
         }
+        // std::cout<<1111<<endl;
         cv::Mat pr_img = scaledResize(src, transfrom_matrix);
+        // std::cout<<2222<<endl;
         // dw = this->dw;
 
-#ifdef SHOW_INPUT
+// #ifdef SHOW_INPUT
         namedWindow("network_input", 0);
         imshow("network_input", pr_img);
         waitKey(1);
-#endif // SHOW_INPUT
+// #endif // SHOW_INPUT
         cv::Mat pre;
         cv::Mat pre_split[3];
         pr_img.convertTo(pre, CV_32F);
         cv::split(pre, pre_split);
 
-        Blob::Ptr imgBlob = infer_request.GetBlob(input_name); // just wrap Mat data by Blob::Ptr
-        InferenceEngine::MemoryBlob::Ptr mblob = InferenceEngine::as<InferenceEngine::MemoryBlob>(imgBlob);
-        // locked memory holder should be alive all time while access to its buffer happens
-        auto mblobHolder = mblob->wmap();
-        float *blob_data = mblobHolder.as<float *>();
+        // Get input tensor by index
+        input_tensor = infer_request.get_input_tensor(0);
 
-        auto img_offset = INPUT_W * INPUT_H;
-        // Copy img into blob
+        // 准备输入
+        infer_request.set_input_tensor(input_tensor);
+
+        float *tensor_data = input_tensor.data<float_t>();
+        // u_int8_t* tensor_data = input_tensor.data<u_int8_t>();
+
+        auto img_offset = INPUT_H * INPUT_W;
+        // Copy img into tensor
         for (int c = 0; c < 3; c++)
         {
-            memcpy(blob_data, pre_split[c].data, INPUT_W * INPUT_H * sizeof(float));
-            blob_data += img_offset;
+            memcpy(tensor_data, pre_split[c].data, INPUT_H * INPUT_W * sizeof(float));
+            // memcpy(tensor_data, pre_split[c].data, INPUT_H * INPUT_W * sizeof(u_int8_t));
+            tensor_data += img_offset;
         }
 
-        // auto t1 = std::chrono::steady_clock::now();
-        infer_request.Infer();
-        // auto t2 = std::chrono::steady_clock::now();
-        // cout<<(float)(std::chrono::duration<double,std::milli>(t2 - t1).count())<<endl;
-        // infer_request.GetPerformanceCounts();
-        // -----------------------------------------------------------------------------------------------------
-        // --------------------------- Step 8. Process output----------------
-        // const Blob::Ptr output_blob = infer_request.GetBlob(output_name);
-        // MemoryBlob::CPtr moutput = as<MemoryBlob>(output_blob);
+        // ov::element::Type input_type = ov::element::f32;
+        // ov::Shape input_shape = {1, 3, 416, 416};
 
-        auto moutputHolder = moutput->rmap();
-        const float *net_pred = moutputHolder.as<const PrecisionTrait<Precision::FP32>::value_type *>();
+        // // std::shared_ptr<unsigned char> input_data_ptr = pre.data;
+        // auto input_data_ptr = pre.data;
+
+        // // 转换图像数据为ov::Tensor
+        // input_tensor = ov::Tensor(input_type, input_shape, input_data_ptr);
+
+        // 推理
+        infer_request.infer();
+
+        // 处理推理结果
+        ov::Tensor output_tensor = infer_request.get_output_tensor();
+        float *output = output_tensor.data<float_t>();
+        // u_int8_t* output = output_tensor.data<u_int8_t>();
+
+        // std::cout << &output << std::endl;
+
         int img_w = src.cols;
         int img_h = src.rows;
 
-        decodeOutputs(net_pred, objects, transfrom_matrix, img_w, img_h);
+        decodeOutputs(output, objects, transfrom_matrix, img_w, img_h);
+
+        // std::cout << 15 << std::endl;
         for (auto object = objects.begin(); object != objects.end(); ++object)
         {
             // 对候选框预测角点进行平均,降低误差
@@ -441,8 +440,21 @@ namespace stone_station_detector
                 (*object).apex[2] = pts_final[2];
                 (*object).apex[3] = pts_final[3];
             }
-            (*object).area = (int)(global_user::calcTetragonArea((*object).apex));
+
+            //
+            // cv::Point2f pts_final[4];
+            // for(int ii = 0; ii < 4; ii++)
+            // {
+            //     pts_final[ii] = (*object).pts[ii];
+            // }
+            // (*object).apex[0] = pts_final[0];
+            // (*object).apex[1] = pts_final[1];
+            // (*object).apex[2] = pts_final[2];
+            // (*object).apex[3] = pts_final[3];
+
+            (*object).area = (int)(calcTetragonArea((*object).apex));
         }
+
         if (objects.size() != 0)
             return true;
         else

@@ -1,3 +1,6 @@
+#ifndef DETECTOR_HPP_
+#define DETECTOR_HPP_
+
 #include "./inference.hpp"
 
 // C++
@@ -23,6 +26,24 @@ namespace stone_station_detector
     RED
   };
 
+  struct DetectorParam
+  {
+    Color color;
+    DetectorParam()
+    {
+      color = RED;
+    }
+  };
+
+
+  struct PathParam
+  {
+    std::string camera_name;
+    std::string camera_param_path;
+    std::string network_path;
+    std::string save_path;
+  };
+
   struct Stone_Station
   {
     int color;
@@ -40,40 +61,37 @@ namespace stone_station_detector
     // Eigen::Vector3d predict
     // global_user::TargetType type;
   };
-  struct debug_params
+  struct DebugParam
   {
-    /* data */
     bool debug_without_com;
-    // bool using_roi;
+    bool using_imu;
+    bool using_roi;
+    bool show_aim_cross;
     bool show_img;
     bool detect_red;
+    // bool show_all_armors;
     bool show_fps;
+    bool print_letency;
     bool print_target_info;
-    bool show_aim_cross;
+    bool save_data;
+    bool save_dataset;
 
-    debug_params()
+    DebugParam()
     {
       debug_without_com = true;
-      // using_roi = false;
+      using_imu = false;
+      using_roi = false;
+      show_aim_cross = false;
       show_img = true;
       detect_red = true;
+      // show_all_armors = true;
       show_fps = true;
+      print_letency = false;
       print_target_info = true;
-      show_aim_cross = false;
+      save_data = false;
     }
   };
 
-  struct detector_params
-  {
-    int dw, dh;          // letterbox对原图像resize的padding区域的宽度和高度
-    float rescale_ratio; // 缩放比例
-
-    Color color;
-    detector_params()
-    {
-      color = RED;
-    }
-  };
   // 暂时位置（待改）
   struct arm_to_camera
   {
@@ -84,32 +102,27 @@ namespace stone_station_detector
   class detector
   {
   public:
-    detector(const std::string &camera_name, const std::string &camera_param_path, const std::string &network_path,
-             const detector_params &detector_params_, const debug_params &debug_params_);
+    detector(const PathParam& path_param, const DetectorParam& detector_params, const DebugParam& debug_params);
     ~detector();
 
-  public:
-    std::string camera_name;
-    std::string camera_param_path;
-    std::string network_path;
-    detector_params detector_params_;
 
   public:
-    void run();
+    // void run();
     bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info);
-    void debugParams(const detector_params &detector_params, const debug_params &debug_params);
+    // void debugParams(const detector_params &detector_params, const DebugParam &debug_params);
 
   public:
     std::vector<StationObject> objects;
     Eigen::Vector3d last_target;
     ofstream data_save;
     bool is_save_data;
+    bool is_init_;
 
   public:
-    bool is_init;
     coordsolver::CoordSolver coordsolver_;
-    Station_Detector detector_;
+    Station_Detector station_detector_;
     arm_to_camera atc_;
+    rclcpp::Logger logger_;
     rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
 
   private:
@@ -121,6 +134,11 @@ namespace stone_station_detector
     int timestamp;
     Size2i input_size;
 
-    debug_params debug_params_;
+  public:
+    DebugParam debug_params_;
+    DetectorParam detector_params_;
+    PathParam path_params_;
   };
 }
+
+#endif

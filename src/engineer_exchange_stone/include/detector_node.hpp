@@ -1,4 +1,8 @@
+#ifndef DETECTOR_NODE_HPP_
+#define DETECTOR_NODE_HPP_
+
 #include "./detector.hpp"
+#include "../../global_user/include/global_user.hpp"
 
 #include <memory>
 // ros
@@ -14,42 +18,57 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include "global_interface/msg/target.hpp"
+#include "global_interface/msg/serial.hpp"
+
+using namespace global_user;
+using namespace coordsolver;
 
 namespace stone_station_detector
 {
   class detector_node : public rclcpp::Node
   {
-    typedef std::chrono::_V2::steady_clock::time_point TimePoint;
-    // TODO:
     typedef global_interface::msg::Target TargetMsg;
+    typedef global_interface::msg::Serial SerialMsg;
 
   public:
     detector_node(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
     ~detector_node();
 
-  private:
-    // 图像订阅信息
     std::shared_ptr<image_transport::Subscriber> img_sub;
 
     std::string transport_;
-    TimePoint time_start;
+    // TimePoint time_start;
 
     // 发布矿站信息
     rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
+    //订阅串口信息
+    rclcpp::Subscription<SerialMsg>::SharedPtr serial_msg_sub_;
 
   private:
     rclcpp::TimerBase::SharedPtr param_timer_;
-    void param_callback();
+    OnSetParametersCallbackHandle::SharedPtr callback_handle_;
+    rcl_interfaces::msg::SetParametersResult paramsCallback(const std::vector<rclcpp::Parameter>& params);
+    // void param_callback();
 
   public:
     void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info);
+    void sensorMsgCallback(const SerialMsg &serial_msg);
+
+  private:
+    // Params callback.
+    bool updateParam();
 
   public:
-    detector_params detector_params_;
-    debug_params debug_;
-    void getParameters();
+    // void getParameters();
+    // Mutex param_mutex_;
+    SerialMsg serial_msg_;
+    DetectorParam detector_params_;
+    PathParam path_params_;
+    DebugParam debug_;
 
     std::unique_ptr<detector> detector_;
     std::unique_ptr<detector> init_detector();
   };
 }
+
+#endif

@@ -4,17 +4,12 @@ using namespace std;
 
 namespace stone_station_detector
 {
-  detector::detector(const std::string &camera_name_, const std::string &camera_param_path_, const std::string &network_path_,
-                     const detector_params &_detector_params_, const debug_params &_debug_param_)
-      : detector_params_(_detector_params_), debug_params_(_debug_param_)
+  detector::detector(const PathParam &path_param, const DetectorParam &detector_params, const DebugParam &debug_params)
+      : detector_params_(detector_params),
+        path_params_(path_param), debug_params_(debug_params), logger_(rclcpp::get_logger("stone_station_detector"))
   {
-    // 参数设置
-    this->camera_name = camera_name_;
-    this->camera_param_path = camera_param_path_;
-    this->network_path = network_path_;
-
-    is_init = false;
-    input_size = {720, 720};
+    is_init_ = false;
+    input_size = {1920, 1080};
 
     is_save_data = false;
   }
@@ -26,46 +21,28 @@ namespace stone_station_detector
       data_save.close();
     }
   }
-  void detector::debugParams(const detector_params &detector_params, const debug_params &debug_params)
-  {
-    // detector params
-    this->detector_params_.dw = detector_params.dw;
-    this->detector_params_.dh = detector_params.dh;
-    this->detector_params_.rescale_ratio = detector_params.rescale_ratio;
-
-    // debug
-    //  this->debug_params_.debug_without_com = debug_params.debug_without_com;
-    //  this->debug_params_.using_roi = debug_params.using_roi;
-    //  this->debug_params_.show_aim_cross = debug_params.show_aim_cross;
-    //  this->debug_params_.show_img = debug_params.show_img;
-    //  this->debug_params_.detect_red = debug_params.detect_red;
-    //  this->debug_params_.print_letency = debug_params.print_letency;
-    //  this->debug_params_.print_target_info = debug_params.print_target_info;
-  }
 
   bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info)
   {
-    if (!is_init)
+    if (!is_init_)
     {
-      detector_.initModel(network_path);
-      coordsolver_.loadParam(camera_param_path, camera_name);
       if (is_save_data)
       {
         data_save.open("src/data/dis_info_1.txt", ios::out | ios::trunc);
         data_save << fixed;
       }
-      is_init = true;
+      is_init_ = true;
     }
 
-    time_start = steady_clock_.now();
+    // time_start = steady_clock_.now();
     auto input = src.img;
-    timestamp = src.timestamp;
+    // timestamp = src.timestamp;
 
-    time_crop = steady_clock_.now();
+    // time_crop = steady_clock_.now();
 
     objects.clear();
 
-    if (!detector_.detect(input, objects))
+    if (!station_detector_.detect(input, objects))
     {
       if (debug_params_.show_aim_cross)
       {
@@ -74,6 +51,7 @@ namespace stone_station_detector
       }
       if (debug_params_.show_img)
       {
+        
         namedWindow("dst", 0);
         imshow("dst", src.img);
         waitKey(1);

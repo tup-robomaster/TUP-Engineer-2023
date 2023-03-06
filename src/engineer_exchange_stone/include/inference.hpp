@@ -1,17 +1,23 @@
 #ifndef INFERENCE_HPP_
 #define INFERENCE_HPP_
 
-// C++
+//c++
 #include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
 #include <iostream>
 
-#include <inference_engine.hpp>
+//openvino
+#include <openvino/openvino.hpp>
+// #include <format_reader_ptr.h>
+
+//opencv
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
+
+//eigen
 #include <Eigen/Core>
-#include <fftw3.h>
 
 #include "../../global_user/include/global_user.hpp"
 
@@ -24,7 +30,7 @@ namespace stone_station_detector
 {
   struct StationObject
   {
-    Point2f apex[4];
+    cv::Point2f apex[4];
     cv::Rect_<float> rect;
     int cls;
     int color;
@@ -44,14 +50,17 @@ namespace stone_station_detector
   private:
     int dw, dh;
     float rescale_ratio; // 缩放比例
-    Core ie;
-    CNNNetwork network;                   // 网络
-    ExecutableNetwork executable_network; // 可执行网络
-    InferRequest infer_request;           // 推理请求
-    MemoryBlob::CPtr moutput;
+
+    ov::Core core;
+    std::shared_ptr<ov::Model> model; // 网络
+    ov::CompiledModel compiled_model; // 可执行网络
+    ov::InferRequest infer_request;   // 推理请求
+    ov::Tensor input_tensor;
+
     string input_name;
     string output_name;
 
+    //TODO:
     Eigen::Matrix<float, 3, 3> transfrom_matrix;
   };
 }
