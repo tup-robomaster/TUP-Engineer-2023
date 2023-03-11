@@ -20,7 +20,7 @@
   <depend>tf2_ros</depend>
 
   <!-- <depend>InferenceEngine</depend> -->
-  <!-- <depend>OpenVINO</depend> -->
+  <depend>OpenVINO</depend>
   <depend>Ceres</depend>
   <depend>Eigen3</depend>
 

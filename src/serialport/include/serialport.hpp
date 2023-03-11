@@ -95,7 +95,7 @@ namespace serialport
 
     public:
         rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
-        bool using_port_; // 是否无串口调试
+        bool using_port_ = false; // 是否无串口调试
     };
 } // namespace serialport
 

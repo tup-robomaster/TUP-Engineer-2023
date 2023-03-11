@@ -9,7 +9,7 @@ namespace stone_station_detector
         path_params_(path_param), debug_params_(debug_params), logger_(rclcpp::get_logger("stone_station_detector"))
   {
     is_init_ = false;
-    input_size = {1920, 1080};
+    // input_size = {1920, 1080};
 
     is_save_data = false;
   }
@@ -34,28 +34,27 @@ namespace stone_station_detector
       is_init_ = true;
     }
 
-    // time_start = steady_clock_.now();
+    time_start = steady_clock_.now();
     auto input = src.img;
     // timestamp = src.timestamp;
 
-    // time_crop = steady_clock_.now();
-
+    time_crop = steady_clock_.now();
     objects.clear();
 
     if (!station_detector_.detect(input, objects))
     {
-      if (debug_params_.show_aim_cross)
-      {
-        line(src.img, Point2f(src.img.size().width / 2, 0), Point2f(src.img.size().width / 2, src.img.size().height), {0, 255, 0}, 1);
-        line(src.img, Point2f(0, src.img.size().height / 2), Point2f(src.img.size().width, src.img.size().height / 2), {0, 255, 0}, 1);
-      }
-      if (debug_params_.show_img)
-      {
-        
-        namedWindow("dst", 0);
-        imshow("dst", src.img);
-        waitKey(1);
-      }
+      // if (debug_params_.show_aim_cross)
+      // {
+      //   line(src.img, Point2f(src.img.size().width / 2, 0), Point2f(src.img.size().width / 2, src.img.size().height), {0, 255, 0}, 1);
+      //   line(src.img, Point2f(0, src.img.size().height / 2), Point2f(src.img.size().width, src.img.size().height / 2), {0, 255, 0}, 1);
+      // }
+
+      // if (debug_params_.show_img)
+      // {
+      //   namedWindow("dst", 0);
+      //   imshow("dst", src.img);
+      //   waitKey(1);
+      // }
       return false;
     }
 
@@ -73,7 +72,6 @@ namespace stone_station_detector
         if (object.color != 0)
           continue;
       }
-
       Stone_Station stone_station;
       stone_station.color = object.color;
       stone_station.conf = object.prob;
@@ -99,7 +97,7 @@ namespace stone_station_detector
       std::vector<Point2f> points_pic(stone_station.apex2d, stone_station.apex2d + 4);
       RotatedRect points_pic_rrect = minAreaRect(points_pic);
       stone_station.rrect = points_pic_rrect;
-      auto bbox = points_pic_rrect.boundingRect();
+      // auto bbox = points_pic_rrect.boundingRect();
 
       // 进行pnp解算,采取迭代法
       int pnp_method = SOLVEPNP_ITERATIVE;
@@ -110,7 +108,7 @@ namespace stone_station_detector
       stone_station.center3d_cam = pnp_result.station_cam;
       stone_station.euler = pnp_result.euler;
       stone_station.area = object.area;
-      // station_.push_back(stone_station);
+      stone_stations.push_back(stone_station);
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
       last_target[0] = stone_station.center3d_cam[0] + atc_.x_offset;
@@ -127,56 +125,90 @@ namespace stone_station_detector
       target_info.yaw = angle[1];
       target_info.pitch = angle[2];
 
-      // if(debug_params_.print_letency)
+      // 若预测出错取消本次数据发送
+      // if (isnan(angle[0]) || isnan(angle[1]) || isnan(angle[3]) || isnan(last_target[0]) || isnan(last_target[1]) || isnan(last_target[2]))
       // {
-      //   //降低输出频率，避免影响帧率
-      //   if (count % 5 == 0)
-      //   {
-      //     fmt::print(fmt::fg(fmt::color::gray), "-----------TIME------------\n");
-      //     fmt::print(fmt::fg(fmt::color::blue_violet), "Crop: {} ms\n"   ,dr_crop_ms);
-      //     fmt::print(fmt::fg(fmt::color::golden_rod), "Infer: {} ms\n",dr_infer_ms);
-      //     // fmt::print(fmt::fg(fmt::color::green_yellow), "Predict: {} ms\n",dr_predict_ms);
-      //     fmt::print(fmt::fg(fmt::color::orange_red), "Total: {} ms\n",dr_full_ms);
-      //   }
+      //   // LOG(ERROR)<<"NAN Detected! Data Transmit Aborted!";
+      //   return false;
       // }
+
+      auto time_predict = steady_clock_.now();
+      double dr_crop_ns = (time_crop - time_start).nanoseconds();
+      double dr_infer_ns = (time_infer - time_crop).nanoseconds();
+      double dr_full_ns = (time_predict - time_start).nanoseconds();
+
+      if (debug_params_.print_letency)
+      {
+        // 降低输出频率，避免影响帧率
+        if (count % 5 == 0)
+        {
+          RCLCPP_INFO(logger_, "-----------TIME------------");
+          RCLCPP_INFO(logger_, "Crop:  %lfms", (dr_crop_ns / 1e6));
+          RCLCPP_INFO(logger_, "Infer: %lfms", (dr_infer_ns / 1e6));
+          RCLCPP_INFO(logger_, "Total: %lfms", (dr_full_ns / 1e6));
+        }
+
+        // if (is_save_data_)
+        // {
+        //   data_save_ << setprecision(3) << (float)(dr_infer_ns / 1e6) << endl;
+        // }
+      }
+
       if (debug_params_.print_target_info)
       {
-        // if (count % 5 == 0)
-        // {
-        fmt::print(fmt::fg(fmt::color::gray), "-----------INFO------------\n");
-        fmt::print(fmt::fg(fmt::color::green_yellow), "roll: {} \n", angle[0]);
-        fmt::print(fmt::fg(fmt::color::blue_violet), "Yaw: {} \n", angle[1]);
-        fmt::print(fmt::fg(fmt::color::golden_rod), "Pitch: {} \n", angle[2]);
-        fmt::print(fmt::fg(fmt::color::golden_rod), "x_dis: {} \n", last_target[0]);
-        fmt::print(fmt::fg(fmt::color::golden_rod), "y_dis: {} \n", last_target[1]);
-        fmt::print(fmt::fg(fmt::color::golden_rod), "z_dis: {} \n", last_target[2]);
-
-        // if(is_save_data)
-        // {
-        //     data_save << setprecision(3) << (float)target.center3d_cam.norm() << endl;
-
-        // count = 0;
-        // }
-        // else
-        // {
-        //   count++;
-        // }
+        if (count % 5 == 0)
+        {
+          RCLCPP_INFO(logger_, "-----------INFO------------");
+          RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
+          RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
+          RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
+          RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
+          RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
+          RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
+          RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.center3d_cam.norm());
+          count = 0;
+        }
       }
-      // 若预测出错取消本次数据发送
-      if (isnan(angle[0]) || isnan(angle[1]) || isnan(angle[3]) || isnan(last_target[0]) || isnan(last_target[1]) || isnan(last_target[2]))
+      if (debug_params_.show_fps)
       {
-        // LOG(ERROR)<<"NAN Detected! Data Transmit Aborted!";
-        return false;
-      }
-
-      if (debug_params_.show_img)
-      {
-        namedWindow("dst", 0);
-        imshow("dst", src.img);
-        waitKey(1);
+        char ch[10];
+        sprintf(ch, "%.2f", (1e9 / dr_full_ns));
+        std::string fps_str = ch;
+        putText(src.img, fps_str, {10, 25}, FONT_HERSHEY_SIMPLEX, 1, {0, 255, 0});
       }
     }
 
+    if (debug_params_.show_target)
+    {
+      RCLCPP_DEBUG_ONCE(logger_, "Show target...");
+      showTarget(src);
+    }
+
     return true;
+  }
+
+  void detector::showTarget(TaskData &src)
+  {
+    for (auto stone_station_target : stone_stations)
+    {
+      char ch[10];
+      // sprintf(ch, "%.3f", stone_station_target.conf);
+      // std::string conf_str = ch;
+      // putText(src.img, conf_str, stone_station_target.apex2d[3], FONT_HERSHEY_SIMPLEX, 1, {0, 255, 0}, 2);
+
+      std::string id_str = to_string(stone_station_target.id);
+
+      if (stone_station_target.color == 0)
+        putText(src.img, "B" + id_str, stone_station_target.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
+      if (stone_station_target.color == 1)
+        putText(src.img, "R" + id_str, stone_station_target.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
+
+      for (int i = 0; i < 4; i++)
+        line(src.img, stone_station_target.apex2d[i % 4], stone_station_target.apex2d[(i + 1) % 4], {0, 255, 0}, 1);
+
+      // rectangle(src.img, armor.roi, {255, 0, 255}, 1);
+      // auto target_center = coordsolver_.reproject(stone_station_target.armor3d_cam);
+      // circle(src.img, target_center, 4, {0, 0, 255}, 2);
+    }
   }
 }

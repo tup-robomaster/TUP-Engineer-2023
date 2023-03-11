@@ -37,13 +37,20 @@ namespace coordsolver
 
     points_world =
         {
-            {-137.500, 137.500, 0},
-            {-137.500, -137.500, 0},
-            {137.500, -137.500, 0},
-            {137.500, 137.500, 0}};
+            // {-137.500, 137.500, 0},
+            // {-137.500, -137.500, 0},
+            // {137.500, -137.500, 0},
+            // {137.500, 137.500, 0}
+
+            {-0.066, 0.027, 0},
+            {-0.066, -0.027, 0},
+            {0.066, -0.027, 0},
+            {0.066, 0.027, 0}
+            };
 
     Mat rvec;
     Mat tvec;
+    Mat rmat;
     Eigen::Matrix3d rvec_eigen;
     Eigen::Vector3d tvec_eigen;
     Eigen::Vector3d R_center_world = {0, -0.7, -0.05};
@@ -51,14 +58,31 @@ namespace coordsolver
     solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
 
     PnPInfo result;
-    // Rodrigues(rvec, rmat); //由旋转向量得到旋转矩阵
-    cv2eigen(rvec, rvec_eigen);
+    Rodrigues(rvec, rmat); //由旋转向量得到旋转矩阵
+    cv2eigen(rmat, rvec_eigen);
     cv2eigen(tvec, tvec_eigen);
 
     result.station_cam = tvec_eigen;
     result.euler = ::global_user::rotationMatrixToEulerAngles(rvec_eigen);
     result.R_station_cam = (rvec_eigen * R_center_world) + tvec_eigen;
     return result;
+  }
+
+  /**
+   * @brief 重投影
+   *
+   * @param xyz 目标三维坐标
+   * @return cv::Point2f 图像坐标系上坐标(x,y)
+   */
+
+  cv::Point2f CoordSolver::reproject(Eigen::Vector3d &xyz)
+  {
+
+    Eigen::Matrix3d mat_intrinsic;
+    cv2eigen(intrinsic, mat_intrinsic);
+    //(u,v,1)^T = (1/Z) * K * (X,Y,Z)^T
+    auto result = (1.f / xyz[2]) * mat_intrinsic * (xyz); // 解算前进行单位转换
+    return cv::Point2f(result[0], result[1]);
   }
 
 } // namespace coordsolver

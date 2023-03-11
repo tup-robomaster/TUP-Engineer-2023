@@ -90,10 +90,13 @@ namespace stone_station_detector
 
   void detector_node::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info)
   {
-    RCLCPP_INFO(this->get_logger(), "image callback ...");
+    // RCLCPP_INFO(this->get_logger(), "image callback ...");
     global_user::TaskData src;
     std::vector<Stone_Station> station;
     TargetMsg target_info;
+
+    // auto img_sub_time = detector_->steady_clock_.now();
+    // src.timestamp = (img_sub_time - time_start_).nanoseconds();
 
     if (!img_info)
     {
@@ -102,11 +105,7 @@ namespace stone_station_detector
 
     auto img = cv_bridge::toCvShare(img_info, "bgr8")->image;
     img.copyTo(src.img);
-    // namedWindow("555", 0);
-    // imshow("555", src.img);
-    // waitKey(1);
-    // TimePoint time_img_sub = std::chrono::steady_clock::now();
-    // src.timestamp = (int)(std::chrono::duration<double, std::milli>(time_img_sub - time_t).count());
+
     if (detector_->stone_station_detect(src, target_info))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
@@ -114,6 +113,19 @@ namespace stone_station_detector
       // target_info.timestamp = src.timestamp;
 
       station_pub->publish(target_info);
+    }
+
+    if (debug_.show_aim_cross)
+    {
+      line(src.img, Point2f(src.img.size().width / 2, 0), Point2f(src.img.size().width / 2, src.img.size().height), {0, 255, 0}, 1);
+      line(src.img, Point2f(0, src.img.size().height / 2), Point2f(src.img.size().width, src.img.size().height / 2), {0, 255, 0}, 1);
+    }
+
+    if (debug_.show_img)
+    {
+      namedWindow("dst", 0);
+      imshow("dst", src.img);
+      waitKey(1);
     }
   }
 
@@ -152,13 +164,13 @@ namespace stone_station_detector
     this->declare_parameter("debug_without_com", true);
     this->declare_parameter("using_imu", false);
     // this->declare_parameter("using_roi", true);
-    this->declare_parameter("show_aim_cross", false);
-    this->declare_parameter("show_img", false);
+    this->declare_parameter("show_aim_cross", true);
+    this->declare_parameter("show_img", true);
     this->declare_parameter("detect_red", true);
-    this->declare_parameter("show_fps", false);
+    this->declare_parameter("show_fps", true);
     this->declare_parameter("print_letency", false);
     this->declare_parameter("print_target_info", false);
-    // this->declare_parameter("show_all_armors", false);
+    this->declare_parameter("show_target", false);
     this->declare_parameter("save_data", false);
     this->declare_parameter("save_dataset", false);
 
@@ -185,7 +197,7 @@ namespace stone_station_detector
     debug_.show_fps = this->get_parameter("show_fps").as_bool();
     debug_.print_letency = this->get_parameter("print_letency").as_bool();
     debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
-    // debug_.show_all_armors = this->get_parameter("show_all_armors").as_bool();
+    debug_.show_target = this->get_parameter("show_target").as_bool();
     debug_.save_data = this->get_parameter("save_data").as_bool();
     debug_.save_dataset = this->get_parameter("save_dataset").as_bool();
 

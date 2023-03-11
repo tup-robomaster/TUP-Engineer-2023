@@ -138,5 +138,19 @@
         "observer_ptr": "cpp",
         "ref_ptr": "cpp",
         "plane": "cpp"
-    }
+    },
+    "python.autoComplete.extraPaths": [
+        "/home/liyuhang/Desktop/TUP_Engineer/install/global_interface/lib/python3.8/site-packages",
+        "/opt/ros/galactic/lib/python3.8/site-packages",
+        "/opt/intel/openvino_2022.1.0.643/python/python3.8",
+        "/opt/intel/openvino_2022.1.0.643/python/python3",
+        ""
+    ],
+    "python.analysis.extraPaths": [
+        "/home/liyuhang/Desktop/TUP_Engineer/install/global_interface/lib/python3.8/site-packages",
+        "/opt/ros/galactic/lib/python3.8/site-packages",
+        "/opt/intel/openvino_2022.1.0.643/python/python3.8",
+        "/opt/intel/openvino_2022.1.0.643/python/python3",
+        ""
+    ]
 }

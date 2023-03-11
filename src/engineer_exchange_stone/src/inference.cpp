@@ -3,6 +3,7 @@
 //
 
 #include "../include/inference.hpp"
+#include "../include/detector.hpp"
 
 namespace stone_station_detector
 {
@@ -362,12 +363,13 @@ namespace stone_station_detector
         cv::Mat pr_img = scaledResize(src, transfrom_matrix);
         // std::cout<<2222<<endl;
         // dw = this->dw;
-
-// #ifdef SHOW_INPUT
-        namedWindow("network_input", 0);
-        imshow("network_input", pr_img);
-        waitKey(1);
-// #endif // SHOW_INPUT
+        // if (true)
+        if (false)
+        {
+            namedWindow("network_input", 0);
+            imshow("network_input", pr_img);
+            waitKey(1);
+        }
         cv::Mat pre;
         cv::Mat pre_split[3];
         pr_img.convertTo(pre, CV_32F);
@@ -390,15 +392,6 @@ namespace stone_station_detector
             // memcpy(tensor_data, pre_split[c].data, INPUT_H * INPUT_W * sizeof(u_int8_t));
             tensor_data += img_offset;
         }
-
-        // ov::element::Type input_type = ov::element::f32;
-        // ov::Shape input_shape = {1, 3, 416, 416};
-
-        // // std::shared_ptr<unsigned char> input_data_ptr = pre.data;
-        // auto input_data_ptr = pre.data;
-
-        // // 转换图像数据为ov::Tensor
-        // input_tensor = ov::Tensor(input_type, input_shape, input_data_ptr);
 
         // 推理
         infer_request.infer();
@@ -454,6 +447,8 @@ namespace stone_station_detector
 
             (*object).area = (int)(calcTetragonArea((*object).apex));
         }
+
+        // std::cout<<16<<endl;
 
         if (objects.size() != 0)
             return true;

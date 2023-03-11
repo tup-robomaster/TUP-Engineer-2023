@@ -53,7 +53,8 @@ namespace stone_station_detector
     Point2f apex2d[4];
     Rect rect;
     RotatedRect rrect;
-    Rect roi;
+    int id;
+    // Rect roi;
     Point2f center2d;
     Eigen::Vector3d center3d_cam;
     Eigen::Vector3d center3d_world;
@@ -69,7 +70,7 @@ namespace stone_station_detector
     bool show_aim_cross;
     bool show_img;
     bool detect_red;
-    // bool show_all_armors;
+    bool show_target;
     bool show_fps;
     bool print_letency;
     bool print_target_info;
@@ -81,13 +82,13 @@ namespace stone_station_detector
       debug_without_com = true;
       using_imu = false;
       using_roi = false;
-      show_aim_cross = false;
+      show_aim_cross = true;
       show_img = true;
       detect_red = true;
-      // show_all_armors = true;
+      show_target = false;
       show_fps = true;
       print_letency = false;
-      print_target_info = true;
+      print_target_info = false;
       save_data = false;
     }
   };
@@ -107,12 +108,11 @@ namespace stone_station_detector
 
 
   public:
-    // void run();
     bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info);
-    // void debugParams(const detector_params &detector_params, const DebugParam &debug_params);
-
+    void showTarget(TaskData& src);
   public:
     std::vector<StationObject> objects;
+    std::vector<Stone_Station> stone_stations;
     Eigen::Vector3d last_target;
     ofstream data_save;
     bool is_save_data;
@@ -138,6 +138,7 @@ namespace stone_station_detector
     DebugParam debug_params_;
     DetectorParam detector_params_;
     PathParam path_params_;
+
   };
 }
 

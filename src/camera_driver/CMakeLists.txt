@@ -28,11 +28,12 @@ find_package(Eigen3 REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(camera_calibration_parsers REQUIRED)
-find_package(fmt REQUIRED)
 find_package(glog REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(PythonLibs REQUIRED)
 find_package(matplotlib_cpp REQUIRED)
+find_package(global_interface REQUIRED)
+find_package(global_user REQUIRED)
 
 set(dependencies 
   rclcpp
@@ -47,10 +48,9 @@ set(dependencies
   Eigen3
   tf2
   sensor_msgs
-  # global_user
-  # global_interface 
+  global_user
+  global_interface 
   glog
-  fmt #TODO:version
   yaml-cpp
   PythonLibs
   matplotlib_cpp
@@ -89,7 +89,6 @@ target_link_libraries(usb_cam_pub
 )
 
 ament_target_dependencies(usb_cam_pub
-  # ${PROJECT_NAME}
   ${dependencies}
 )
 

@@ -48,6 +48,7 @@ namespace stone_station_detector
     rclcpp::TimerBase::SharedPtr param_timer_;
     OnSetParametersCallbackHandle::SharedPtr callback_handle_;
     rcl_interfaces::msg::SetParametersResult paramsCallback(const std::vector<rclcpp::Parameter>& params);
+    rclcpp::Time time_start_;
     // void param_callback();
 
   public:
@@ -59,7 +60,6 @@ namespace stone_station_detector
     bool updateParam();
 
   public:
-    // void getParameters();
     // Mutex param_mutex_;
     SerialMsg serial_msg_;
     DetectorParam detector_params_;

@@ -8,19 +8,16 @@ namespace camera_driver
   usb_cam_node::usb_cam_node(const rclcpp::NodeOptions &option)
       : Node("usb_driver", option), is_filpped(false)
   {
-    cap.open(2);
+    cap.open(0);
     if (cap.isOpened())
     {
       RCLCPP_INFO(this->get_logger(), "open camera success!");
     }
 
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, usb_cam_->usb_cam_params_.image_width);
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, usb_cam_->usb_cam_params_.image_height);
-
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
     timer_ = this->create_wall_timer(1ms, std::bind(&usb_cam_node::image_callback, this));
-  };
+  }
 
   std::unique_ptr<usb_cam> usb_cam_node::init_usb_cam()
   {
@@ -47,12 +44,6 @@ namespace camera_driver
     std_msgs::msg::Header header;
     sensor_msgs::msg::Image ros_image;
 
-    // if(frame.rows != usb_cam_->usb_cam_params_.image_width || frame.cols != usb_cam_->usb_cam_params_.image_height)
-    // {
-    //   cv::resize(frame, frame, cv::Size(usb_cam_->usb_cam_params_.image_width,usb_cam_->usb_cam_params_.image_height));
-    //   RCLCPP_INFO(this->get_logger(), "resize frame ...");
-    // }
-
     ros_image.header = header;
     ros_image.height = frame.rows;
     ros_image.width = frame.cols;
@@ -62,11 +53,7 @@ namespace camera_driver
     ros_image.is_bigendian = false; // 图像数据的大小端存储模式
     ros_image.data.assign(frame.datastart, frame.dataend);
 
-    // RCLCPP_INFO(this->get_logger(), "copy frame ...");
-
     auto msg_ptr = std::make_unique<sensor_msgs::msg::Image>(ros_image);
-
-    // RCLCPP_INFO(this->get_logger(), "msg_ptr ...");
 
     return msg_ptr;
   }
@@ -98,7 +85,6 @@ int main(int argc, char *argv[])
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
   const rclcpp::NodeOptions options;
-  // rclcpp::sleep_for(std::chrono::seconds(4));
   auto usb_cam_node = std::make_shared<camera_driver::usb_cam_node>(options);
   exec.add_node(usb_cam_node);
   exec.spin();
@@ -107,7 +93,4 @@ int main(int argc, char *argv[])
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-// Register the component with class_loader.
-// This acts as a sort of entry point, allowing the component to be discoverable when its library
-// is being loaded into a running process.
 RCLCPP_COMPONENTS_REGISTER_NODE(camera_driver::usb_cam_node)

@@ -17,6 +17,8 @@ namespace serialport
             RCLCPP_ERROR(this->get_logger(), "Error while initializing serial port: %s", e.what());
         }
 
+        TargetMsg target_info;
+        std::cout<<target_info.x_dis<<std::endl;
         // QoS
         rclcpp::QoS qos(0);
         qos.keep_last(10);
@@ -67,7 +69,7 @@ namespace serialport
         if (access(serial_port_->serial_data_.device.path.c_str(), F_OK) == -1 || !serial_port_->serial_data_.is_initialized)
         {
             serial_port_->serial_data_.is_initialized = true;
-            if (!serial_port_->openPort())
+            if (!serial_port_-> ())
             {
                 RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 500, "Port open failed!!!");
             }
@@ -101,41 +103,16 @@ namespace serialport
             if (mode)
             {
                 // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
-                // std::vector<float> quat(4);
-                // std::vector<float> gyro(3);
-                // std::vector<float> acc(3);
-                // float bullet_speed;
 
-                // Process IMU Datas
-                //  data_transform_->getQuatData(&serial_port_->serial_data_.rdata[3], quat);
-                //  data_transform_->getGyroData(&serial_port_->serial_data_.rdata[19], gyro);
-                //  data_transform_->getAccData(&serial_port_->serial_data_.rdata[31], acc);
-                //  data_transform_->getBulletSpeed(&serial_port_->serial_data_.rdata[43], bullet_speed);
                 if (print_serial_info_)
                 {
-
                     RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
-                    // RCLCPP_INFO(this->get_logger(), "quat:[%f %f %f %f]", quat[0], quat[1], quat[2], quat[3]);
-                    // RCLCPP_INFO(this->get_logger(), "gyro:[%f %f %f]", gyro[0], gyro[1], gyro[2]);
-                    // RCLCPP_INFO(this->get_logger(), "acc:[%f %f %f]", acc[0], acc[1], acc[2]);
-                    // RCLCPP_INFO(this->get_logger(), "bullet_speed::%f", bullet_speed);
                 }
 
                 SerialMsg serial_msg;
                 serial_msg.imu.header.frame_id = "imu_link";
                 serial_msg.imu.header.stamp = this->get_clock()->now();
                 serial_msg.mode = mode;
-                // serial_msg.bullet_speed = bullet_speed;
-                // serial_msg.imu.orientation.w = quat[0];
-                // serial_msg.imu.orientation.x = quat[1];
-                // serial_msg.imu.orientation.y = quat[2];
-                // serial_msg.imu.orientation.z = quat[3];
-                // serial_msg.imu.angular_velocity.x = gyro[0];
-                // serial_msg.imu.angular_velocity.y = gyro[1];
-                // serial_msg.imu.angular_velocity.z = gyro[2];
-                // serial_msg.imu.linear_acceleration.x = acc[0];
-                // serial_msg.imu.linear_acceleration.y = acc[1];
-                // serial_msg.imu.linear_acceleration.z = acc[2];
                 serial_msg_pub_->publish(std::move(serial_msg));
             }
         }
@@ -171,7 +148,8 @@ namespace serialport
 
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
-        int mode = mode_;
+        // int mode = mode_;
+        int mode = 1;
         // RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
         if (this->using_port_)
         {

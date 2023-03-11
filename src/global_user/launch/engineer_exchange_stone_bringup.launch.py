@@ -13,13 +13,10 @@ from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
-    # autoaim_param_file = os.path.join(get_package_share_directory('global_user'), 'config/autoaim.yaml')
-    # camera_node_launch_file = os.path.join(get_package_share_directory('camera_driver'), 'launch/hik_cam_node.launch.py')
-    detector_node_launch_file = os.path.join(get_package_share_directory('armor_detector'), 'launch/armor_detector.launch.py')
-    processor_node_launch_file = os.path.join(get_package_share_directory('armor_processor'), 'launch/armor_processor.launch.py')
+    detector_node_launch_file = os.path.join(get_package_share_directory('stone_station_detector'), 'launch/stone_station_detector.launch.py')
     
     camera_param_file = os.path.join(get_package_share_directory('global_user'), 'config/camera_ros.yaml')
-    autoaim_param_file = os.path.join(get_package_share_directory('global_user'), 'config/autoaim.yaml')
+    stone_station_param_file = os.path.join(get_package_share_directory('global_user'), 'config/stone_station.yaml')
     
     camera_type = LaunchConfiguration('camera_type')
     use_serial = LaunchConfiguration('using_imu')
@@ -27,7 +24,7 @@ def generate_launch_description():
     declare_camera_type = DeclareLaunchArgument(
         name='camera_type',
         default_value='usb',
-        description='hik daheng mvs usb'
+        description='usb usb_01 usb_02'
     )
 
     declare_use_serial = DeclareLaunchArgument(
@@ -38,17 +35,9 @@ def generate_launch_description():
 
     with open(camera_param_file, 'r') as f:
         usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
-    with open(camera_param_file, 'r') as f:
-        hik_cam_params = yaml.safe_load(f)['/hik_cam_driver']['ros__parameters']
-    with open(camera_param_file, 'r') as f:
-        daheng_cam_params = yaml.safe_load(f)['/daheng_cam_driver']['ros__parameters']
-    with open(camera_param_file, 'r') as f:
-        mvs_cam_params = yaml.safe_load(f)['/mvs_cam_driver']['ros__parameters']
 
-    with open(autoaim_param_file, 'r') as f:
-        armor_detector_params = yaml.safe_load(f)['/armor_detector']['ros__parameters']
-    with open(autoaim_param_file, 'r') as f:
-        armor_processor_params = yaml.safe_load(f)['/armor_processor']['ros__parameters']
+    with open(stone_station_param_file, 'r') as f:
+        stone_station_detector_params = yaml.safe_load(f)['/stone_station_detector']['ros__parameters']
     
     return LaunchDescription([
         declare_camera_type,
@@ -67,44 +56,19 @@ def generate_launch_description():
             condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
         ),
         
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         launch_file_path=camera_node_launch_file
-        #     )
-        # ),
-
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         launch_file_path=detector_node_launch_file
-        #     )
-        # ),
-
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         launch_file_path=processor_node_launch_file
-        #     )
-        # ),
 
         ComposableNodeContainer(
-            name='armor_detector_container',
+            name='stone_station_detector_container',
             namespace='',
             output='screen',
             package='rclcpp_components',
             executable='component_container',
             condition=IfCondition(PythonExpression(["'", camera_type, "' == 'usb'"])),
             composable_node_descriptions=[
-                # ComposableNode(
-                #     package='camera_driver',
-                #     plugin='camera_driver::DahengCamNode',
-                #     name='daheng_driver',
-                #     parameters=[daheng_cam_params],
-                #     extra_arguments=[{
-                #         'use_intra_process_comms':True
-                #     }]
-                # ),
+
                 ComposableNode(
                     package='camera_driver',
-                    plugin='camera_driver::UsbCamNode',
+                    plugin='camera_driver::usb_cam_node',
                     name='usb_driver',
                     parameters=[usb_cam_params],
                     extra_arguments=[{
@@ -112,32 +76,15 @@ def generate_launch_description():
                     }]
                 ),
                 ComposableNode(
-                    package='armor_detector',
-                    plugin='armor_detector::DetectorNode',
-                    name='armor_detector',
-                    parameters=[armor_detector_params],
+                    package='stone_station_detector',
+                    plugin='stone_station_detector::detector_node',
+                    name='stone_station_detector',
+                    parameters=[stone_station_detector_params],
                     extra_arguments=[{
                         'use_intra_process_comms':True
                     }]
                 ),
-                ComposableNode(
-                    package='armor_processor',
-                    plugin='armor_processor::ArmorProcessorNode',
-                    name='armor_processor',
-                    namespace='',
-                    parameters=[armor_processor_params],
-                    extra_arguments=[{
-                        'use_intra_process_comms':True
-                    }]
-                ),  
             ],
         ),
 
-        # Node(
-        #     package='armor_processor',
-        #     executable='armor_processor_node',
-        #     output='screen',
-        #     emulate_tty=True,
-        #     parameters=[armor_processor_params]
-        # ),
     ])
