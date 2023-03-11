@@ -39,6 +39,8 @@ namespace stone_station_detector
     this->declare_parameter<int>("camera_type", usb);
     int camera_type = this->get_parameter("camera_type").as_int();
 
+    time_start_ = detector_->steady_clock_.now();
+
     // Qos
     rclcpp::QoS qos(0);
     qos.keep_last(5);
@@ -95,8 +97,8 @@ namespace stone_station_detector
     std::vector<Stone_Station> station;
     TargetMsg target_info;
 
-    // auto img_sub_time = detector_->steady_clock_.now();
-    // src.timestamp = (img_sub_time - time_start_).nanoseconds();
+    auto img_sub_time = detector_->steady_clock_.now();
+    src.timestamp = (img_sub_time - time_start_).nanoseconds();
 
     if (!img_info)
     {
@@ -123,9 +125,9 @@ namespace stone_station_detector
 
     if (debug_.show_img)
     {
-      namedWindow("dst", 0);
-      imshow("dst", src.img);
-      waitKey(1);
+      cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
+      cv::imshow("dst", src.img);
+      cv::waitKey(1);
     }
   }
 
@@ -166,11 +168,11 @@ namespace stone_station_detector
     // this->declare_parameter("using_roi", true);
     this->declare_parameter("show_aim_cross", true);
     this->declare_parameter("show_img", true);
-    this->declare_parameter("detect_red", true);
+    this->declare_parameter("detect_red", false);
     this->declare_parameter("show_fps", true);
     this->declare_parameter("print_letency", false);
-    this->declare_parameter("print_target_info", false);
-    this->declare_parameter("show_target", false);
+    this->declare_parameter("print_target_info", true);
+    this->declare_parameter("show_target", true);
     this->declare_parameter("save_data", false);
     this->declare_parameter("save_dataset", false);
 

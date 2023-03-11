@@ -35,7 +35,6 @@ namespace stone_station_detector
     }
   };
 
-
   struct PathParam
   {
     std::string camera_name;
@@ -56,12 +55,11 @@ namespace stone_station_detector
     int id;
     // Rect roi;
     Point2f center2d;
-    Eigen::Vector3d center3d_cam;
-    Eigen::Vector3d center3d_world;
+    Eigen::Vector3d station3d_cam;
+    Eigen::Vector3d station3d_world;
     Eigen::Vector3d euler;
-    // Eigen::Vector3d predict
-    // global_user::TargetType type;
   };
+
   struct DebugParam
   {
     bool debug_without_com;
@@ -84,8 +82,8 @@ namespace stone_station_detector
       using_roi = false;
       show_aim_cross = true;
       show_img = true;
-      detect_red = true;
-      show_target = false;
+      detect_red = false;
+      show_target = true;
       show_fps = true;
       print_letency = false;
       print_target_info = false;

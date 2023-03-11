@@ -37,7 +37,6 @@ namespace stone_station_detector
     std::shared_ptr<image_transport::Subscriber> img_sub;
 
     std::string transport_;
-    // TimePoint time_start;
 
     // 发布矿站信息
     rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
@@ -49,7 +48,6 @@ namespace stone_station_detector
     OnSetParametersCallbackHandle::SharedPtr callback_handle_;
     rcl_interfaces::msg::SetParametersResult paramsCallback(const std::vector<rclcpp::Parameter>& params);
     rclcpp::Time time_start_;
-    // void param_callback();
 
   public:
     void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info);

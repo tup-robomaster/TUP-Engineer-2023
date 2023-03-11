@@ -36,7 +36,7 @@ namespace stone_station_detector
 
     time_start = steady_clock_.now();
     auto input = src.img;
-    // timestamp = src.timestamp;
+    timestamp = src.timestamp;
 
     time_crop = steady_clock_.now();
     objects.clear();
@@ -104,16 +104,16 @@ namespace stone_station_detector
 
       auto pnp_result = coordsolver_.pnp(points_pic, pnp_method);
 
-      stone_station.center3d_world = pnp_result.station_world;
-      stone_station.center3d_cam = pnp_result.station_cam;
+      stone_station.station3d_world = pnp_result.station_world;
+      stone_station.station3d_cam = pnp_result.station_cam;
       stone_station.euler = pnp_result.euler;
       stone_station.area = object.area;
       stone_stations.push_back(stone_station);
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_station.center3d_cam[0] + atc_.x_offset;
-      last_target[1] = stone_station.center3d_cam[1] + atc_.y_offset;
-      last_target[2] = stone_station.center3d_cam[2] + atc_.z_offset;
+      last_target[0] = stone_station.station3d_cam[0] + atc_.x_offset;
+      last_target[1] = stone_station.station3d_cam[1] + atc_.y_offset;
+      last_target[2] = stone_station.station3d_cam[2] + atc_.z_offset;
 
       auto angle = stone_station.euler;
 
@@ -125,12 +125,23 @@ namespace stone_station_detector
       target_info.yaw = angle[1];
       target_info.pitch = angle[2];
 
-      // 若预测出错取消本次数据发送
-      // if (isnan(angle[0]) || isnan(angle[1]) || isnan(angle[3]) || isnan(last_target[0]) || isnan(last_target[1]) || isnan(last_target[2]))
-      // {
-      //   // LOG(ERROR)<<"NAN Detected! Data Transmit Aborted!";
-      //   return false;
-      // }
+      if (debug_params_.show_target)
+      {
+        RCLCPP_DEBUG_ONCE(logger_, "Show target...");
+
+        std::string id_str = to_string(stone_station.id);
+
+        if (stone_station.color == 0)
+          putText(src.img, "B" + id_str, stone_station.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
+        if (stone_station.color == 1)
+          putText(src.img, "R" + id_str, stone_station.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
+
+        for (int i = 0; i < 4; i++)
+          line(src.img, stone_station.apex2d[i % 4], stone_station.apex2d[(i + 1) % 4], {0, 255, 0}, 1);
+
+        auto target_center = coordsolver_.reproject(stone_station.station3d_cam);
+        circle(src.img, target_center, 4, {0, 0, 255}, 2);
+      }
 
       auto time_predict = steady_clock_.now();
       double dr_crop_ns = (time_crop - time_start).nanoseconds();
@@ -165,7 +176,7 @@ namespace stone_station_detector
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
           RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
           RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
-          RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.center3d_cam.norm());
+          RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.station3d_cam.norm());
           count = 0;
         }
       }
@@ -176,39 +187,16 @@ namespace stone_station_detector
         std::string fps_str = ch;
         putText(src.img, fps_str, {10, 25}, FONT_HERSHEY_SIMPLEX, 1, {0, 255, 0});
       }
-    }
 
-    if (debug_params_.show_target)
-    {
-      RCLCPP_DEBUG_ONCE(logger_, "Show target...");
-      showTarget(src);
+      // // 若预测出错取消本次数据发送
+      // if (isnan(angle[0]) || isnan(angle[1]) || isnan(angle[3]) || isnan(last_target[0]) || isnan(last_target[1]) || isnan(last_target[2]))
+      // {
+      //   LOG(ERROR)<<"NAN Detected! Data Transmit Aborted!";
+      //   return false;
+      // }
     }
 
     return true;
   }
 
-  void detector::showTarget(TaskData &src)
-  {
-    for (auto stone_station_target : stone_stations)
-    {
-      char ch[10];
-      // sprintf(ch, "%.3f", stone_station_target.conf);
-      // std::string conf_str = ch;
-      // putText(src.img, conf_str, stone_station_target.apex2d[3], FONT_HERSHEY_SIMPLEX, 1, {0, 255, 0}, 2);
-
-      std::string id_str = to_string(stone_station_target.id);
-
-      if (stone_station_target.color == 0)
-        putText(src.img, "B" + id_str, stone_station_target.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
-      if (stone_station_target.color == 1)
-        putText(src.img, "R" + id_str, stone_station_target.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
-
-      for (int i = 0; i < 4; i++)
-        line(src.img, stone_station_target.apex2d[i % 4], stone_station_target.apex2d[(i + 1) % 4], {0, 255, 0}, 1);
-
-      // rectangle(src.img, armor.roi, {255, 0, 255}, 1);
-      // auto target_center = coordsolver_.reproject(stone_station_target.armor3d_cam);
-      // circle(src.img, target_center, 4, {0, 0, 255}, 2);
-    }
-  }
 }

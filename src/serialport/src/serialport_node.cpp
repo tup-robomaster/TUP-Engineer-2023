@@ -17,8 +17,6 @@ namespace serialport
             RCLCPP_ERROR(this->get_logger(), "Error while initializing serial port: %s", e.what());
         }
 
-        TargetMsg target_info;
-        std::cout<<target_info.x_dis<<std::endl;
         // QoS
         rclcpp::QoS qos(0);
         qos.keep_last(10);
@@ -28,14 +26,15 @@ namespace serialport
         qos.durability_volatile();
 
         // 矿站检测msg订阅
-        if (!tracking_target_)
-        { // 检测信息订阅
-            RCLCPP_WARN(this->get_logger(), "Detect!!!");
-            target_info_sub_ = this->create_subscription<TargetMsg>(
-                "/target_msg",
-                qos,
-                std::bind(&SerialPortNode::TargetMsgSub, this, _1));
-        }
+        // TargetMsg target_info;
+        // std::cout << (float)target_info.x_dis << std::endl;
+
+        // 检测信息订阅
+        RCLCPP_WARN(this->get_logger(), "Detect!!!");
+        target_info_sub_ = this->create_subscription<TargetMsg>(
+            "/station_info",
+            qos,
+            std::bind(&SerialPortNode::TargetMsgSub, this, _1));
 
         // 矿石msg订阅
         stone_info_sub_ = this->create_subscription<StoneMsg>(
@@ -69,7 +68,7 @@ namespace serialport
         if (access(serial_port_->serial_data_.device.path.c_str(), F_OK) == -1 || !serial_port_->serial_data_.is_initialized)
         {
             serial_port_->serial_data_.is_initialized = true;
-            if (!serial_port_-> ())
+            if (!serial_port_->openPort())
             {
                 RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 500, "Port open failed!!!");
             }
@@ -124,32 +123,32 @@ namespace serialport
      */
     void SerialPortNode::sendData()
     {
-        // VisionData vision_data = {0.0, (float)0.0, (float)0.0, (float)0.0, 0, 1, 0, 0};
-        // if(flag_)
+        // VisionData vision_data_ = {0.0, (float)0.0, (float)0.0, (float)0.0, 0, 1, 0, 0};
+        // if (flag_)
         // {
         //     auto now = (serial_port_->steady_clock_.now().nanoseconds() / 1e6);
         //     mutex_.lock();
-        //     if(abs(now - vision_data_.timestamp) < 50) //(ms)，若时间差过大，则忽略此帧数据
+        //     if (abs(now - vision_data.timestamp) < 30) //(ms)，若时间差过大，则忽略此帧数据
         //     {
-        //         vision_data = vision_data_;
+        //         vision_data_ = vision_data;
         //     }
         //     mutex_.unlock();
         //     flag_ = false;
         // }
-        // // RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 10, "pitch:%f yaw:%f", vision_data.pitch_angle, vision_data.yaw_angle);
-        // // RCLCPP_WARN(this->get_logger(), "pitch:%f yaw:%f", vision_data.pitch_angle, vision_data.yaw_angle);
-        // //根据不同mode进行对应的数据转换
-        // data_transform_->transformData(mode_, vision_data, serial_port_->Tdata);
-        // //数据发送
+        // // 根据不同mode进行对应的数据转换
+        // data_transform_->transformData(mode_, vision_data_, serial_port_->Tdata);
+        // // 数据发送
         // serial_port_->sendData();
 
-        return;
+        // return;
     }
 
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
+        // std::cout << 11111111111 << std::endl;
         // int mode = mode_;
         int mode = 1;
+        std::cout << (float)target_info->pitch << std::endl;
         // RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
         if (this->using_port_)
         {
