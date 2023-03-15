@@ -43,18 +43,6 @@ namespace stone_station_detector
 
     if (!station_detector_.detect(input, objects))
     {
-      // if (debug_params_.show_aim_cross)
-      // {
-      //   line(src.img, Point2f(src.img.size().width / 2, 0), Point2f(src.img.size().width / 2, src.img.size().height), {0, 255, 0}, 1);
-      //   line(src.img, Point2f(0, src.img.size().height / 2), Point2f(src.img.size().width, src.img.size().height / 2), {0, 255, 0}, 1);
-      // }
-
-      // if (debug_params_.show_img)
-      // {
-      //   namedWindow("dst", 0);
-      //   imshow("dst", src.img);
-      //   waitKey(1);
-      // }
       return false;
     }
 
@@ -111,9 +99,9 @@ namespace stone_station_detector
       stone_stations.push_back(stone_station);
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_station.station3d_cam[0] + atc_.x_offset;
-      last_target[1] = stone_station.station3d_cam[1] + atc_.y_offset;
-      last_target[2] = stone_station.station3d_cam[2] + atc_.z_offset;
+      last_target[0] = stone_station.station3d_cam[0] + atc_.x_offset; //前伸距离
+      last_target[1] = stone_station.station3d_cam[1] + atc_.y_offset; //横移距离
+      last_target[2] = stone_station.station3d_cam[2] + atc_.z_offset; //抬升距离
 
       auto angle = stone_station.euler;
 
@@ -170,13 +158,13 @@ namespace stone_station_detector
         if (count % 5 == 0)
         {
           RCLCPP_INFO(logger_, "-----------INFO------------");
-          RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
-          RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
-          RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
+          // RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
+          // RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
+          // RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
-          RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
-          RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
-          RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.station3d_cam.norm());
+          // RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
+          // RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
+          // RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.station3d_cam.norm());
           count = 0;
         }
       }

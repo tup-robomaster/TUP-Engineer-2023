@@ -159,7 +159,7 @@ namespace stone_station_detector
     // TODO:Set by your own path.
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
-    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/opt-0127-001.xml");
+    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox.onnx");
     this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
 
     // Debug.
@@ -168,7 +168,7 @@ namespace stone_station_detector
     // this->declare_parameter("using_roi", true);
     this->declare_parameter("show_aim_cross", true);
     this->declare_parameter("show_img", true);
-    this->declare_parameter("detect_red", false);
+    this->declare_parameter("detect_red", true);
     this->declare_parameter("show_fps", true);
     this->declare_parameter("print_letency", false);
     this->declare_parameter("print_target_info", true);

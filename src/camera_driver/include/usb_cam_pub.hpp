@@ -24,6 +24,8 @@ namespace camera_driver
     bool is_filpped;
     cv::VideoCapture cap;
     cv::Mat frame;
+    bool using_video_;
+    std::string video_path_;
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::chrono::steady_clock::time_point last_frame;

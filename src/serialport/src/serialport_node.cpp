@@ -146,10 +146,10 @@ namespace serialport
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
         // std::cout << 11111111111 << std::endl;
-        // int mode = mode_;
-        int mode = 1;
+        int mode = mode_;
+        // int mode = 1;
         std::cout << (float)target_info->pitch << std::endl;
-        // RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
+        RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
         if (this->using_port_)
         {
             VisionData vision_data;
@@ -166,7 +166,9 @@ namespace serialport
                         (float)target_info->x_dis,
                         (float)target_info->y_dis,
                         (float)target_info->z_dis,
-                        target_info->is_target};
+                        // target_info->is_target
+                        1
+                    };
 
                 // 根据不同mode进行对应的数据转换
                 data_transform_->transformData(mode, vision_data, serial_port_->Tdata);

@@ -82,7 +82,7 @@ namespace stone_station_detector
       using_roi = false;
       show_aim_cross = true;
       show_img = true;
-      detect_red = false;
+      detect_red = true;
       show_target = true;
       show_fps = true;
       print_letency = false;

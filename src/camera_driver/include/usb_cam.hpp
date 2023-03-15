@@ -14,7 +14,7 @@ namespace camera_driver
   struct usb_cam_params
   {
     std::string frame_id = "usb_cam";
-    int camera_id = 0;
+    int camera_id = 2;
     int image_width = 480;
     int image_height = 480;
     int fps = 30;

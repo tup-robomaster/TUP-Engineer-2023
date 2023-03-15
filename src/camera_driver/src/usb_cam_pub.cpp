@@ -17,6 +17,29 @@ namespace camera_driver
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
     timer_ = this->create_wall_timer(1ms, std::bind(&usb_cam_node::image_callback, this));
+
+    this->declare_parameter<bool>("using_video", true);
+    using_video_ = this->get_parameter("using_video").as_bool();
+    this->declare_parameter<std::string>("video_path", " ");
+    video_path_ = this->get_parameter("video_path").as_string();
+
+    // if (using_video_)
+    // if (true)
+    // {
+    //   cap.open(video_path_);
+    //   if (!cap.isOpened())
+    //   {
+    //     RCLCPP_ERROR(this->get_logger(), "Open camera failed!");
+    //   }
+    // }
+    // else
+    // {
+    //   cap.open(2);
+    //   if (cap.isOpened())
+    //   {
+    //     RCLCPP_INFO(this->get_logger(), "Open camera success!");
+    //   }
+    // }
   }
 
   std::unique_ptr<usb_cam> usb_cam_node::init_usb_cam()
