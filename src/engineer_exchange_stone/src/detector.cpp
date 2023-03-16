@@ -158,13 +158,13 @@ namespace stone_station_detector
         if (count % 5 == 0)
         {
           RCLCPP_INFO(logger_, "-----------INFO------------");
-          // RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
-          // RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
-          // RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
+          RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
+          RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
+          RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
-          // RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
-          // RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
-          // RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.station3d_cam.norm());
+          RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
+          RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
+          RCLCPP_INFO(logger_, "Dist: %fm", (float)stone_station.station3d_cam.norm());
           count = 0;
         }
       }

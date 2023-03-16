@@ -37,16 +37,16 @@ namespace coordsolver
 
     points_world =
         {
-            // {-137.500, 137.500, 0},
-            // {-137.500, -137.500, 0},
-            // {137.500, -137.500, 0},
-            // {137.500, 137.500, 0}
+            {-0.1375, 0.1375, 0},
+            {-0.1375, -0.1375, 0},
+            {0.1375, -0.1375, 0},
+            {0.1375, 0.1375, 0}
 
-            {-0.066, 0.027, 0},
-            {-0.066, -0.027, 0},
-            {0.066, -0.027, 0},
-            {0.066, 0.027, 0}
-            };
+            // {-0.066, 0.027, 0},
+            // {-0.066, -0.027, 0},
+            // {0.066, -0.027, 0},
+            // {0.066, 0.027, 0}
+        };
 
     Mat rvec;
     Mat tvec;
@@ -58,7 +58,7 @@ namespace coordsolver
     solvePnP(points_world, points_pic, intrinsic, dis_coeff, rvec, tvec, false, method);
 
     PnPInfo result;
-    Rodrigues(rvec, rmat); //由旋转向量得到旋转矩阵
+    Rodrigues(rvec, rmat); // 由旋转向量得到旋转矩阵
     cv2eigen(rmat, rvec_eigen);
     cv2eigen(tvec, tvec_eigen);
 

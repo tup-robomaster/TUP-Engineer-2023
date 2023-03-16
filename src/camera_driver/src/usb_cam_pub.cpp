@@ -9,6 +9,12 @@ namespace camera_driver
       : Node("usb_driver", option), is_filpped(false)
   {
     cap.open(0);
+
+    cap.set(cv::CAP_PROP_BRIGHTNESS, -100); //亮度
+
+    // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
+    // cap.set(cv::CAP_PROP_EXPOSURE, 50); //曝光
+    // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
     if (cap.isOpened())
     {
       RCLCPP_INFO(this->get_logger(), "open camera success!");
