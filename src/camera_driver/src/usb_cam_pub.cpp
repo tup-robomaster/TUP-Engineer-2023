@@ -10,7 +10,7 @@ namespace camera_driver
   {
     cap.open(0);
 
-    cap.set(cv::CAP_PROP_BRIGHTNESS, -100); //亮度
+    // cap.set(cv::CAP_PROP_BRIGHTNESS, -100); //亮度
 
     // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
     // cap.set(cv::CAP_PROP_EXPOSURE, 50); //曝光
