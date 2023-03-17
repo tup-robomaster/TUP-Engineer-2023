@@ -8,44 +8,38 @@ namespace camera_driver
   usb_cam_node::usb_cam_node(const rclcpp::NodeOptions &option)
       : Node("usb_driver", option), is_filpped(false)
   {
-    cap.open(0);
 
-    // cap.set(cv::CAP_PROP_BRIGHTNESS, -100); //亮度
+    this->declare_parameter<bool>("using_video", false);
+    using_video_ = this->get_parameter("using_video").as_bool();
+    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/2022-06-23_19_36_54(1).avi");
+    video_path_ = this->get_parameter("video_path").as_string();
 
-    // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
-    // cap.set(cv::CAP_PROP_EXPOSURE, 50); //曝光
-    // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
-    if (cap.isOpened())
+    if (using_video_)
     {
-      RCLCPP_INFO(this->get_logger(), "open camera success!");
+      cap.open(video_path_);
+      if (!cap.isOpened())
+      {
+        RCLCPP_ERROR(this->get_logger(), "Open camera failed!");
+      }
     }
+    else
+    {
+      cap.open(0);
+      if (cap.isOpened())
+      {
+        RCLCPP_INFO(this->get_logger(), "Open camera success!");
+      }
+    }
+
+    cap.set(cv::CAP_PROP_BRIGHTNESS, 0); // 亮度
+
+    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
+    cap.set(cv::CAP_PROP_EXPOSURE, 50); // 曝光
+    // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
 
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
     timer_ = this->create_wall_timer(1ms, std::bind(&usb_cam_node::image_callback, this));
-
-    this->declare_parameter<bool>("using_video", true);
-    using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", " ");
-    video_path_ = this->get_parameter("video_path").as_string();
-
-    // if (using_video_)
-    // if (true)
-    // {
-    //   cap.open(video_path_);
-    //   if (!cap.isOpened())
-    //   {
-    //     RCLCPP_ERROR(this->get_logger(), "Open camera failed!");
-    //   }
-    // }
-    // else
-    // {
-    //   cap.open(2);
-    //   if (cap.isOpened())
-    //   {
-    //     RCLCPP_INFO(this->get_logger(), "Open camera success!");
-    //   }
-    // }
   }
 
   std::unique_ptr<usb_cam> usb_cam_node::init_usb_cam()

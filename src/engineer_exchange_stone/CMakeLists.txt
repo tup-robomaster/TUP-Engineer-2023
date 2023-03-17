@@ -28,7 +28,7 @@ find_package(OpenCV REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
-# find_package(InferenceEngine REQUIRED)
+find_package(InferenceEngine REQUIRED)
 find_package(OpenVINO REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Ceres REQUIRED COMPONENTS EigenSparse)
@@ -49,7 +49,7 @@ set(dependencies
   message_filters 
   image_transport
   sensor_msgs
-  # InferenceEngine 
+  InferenceEngine 
   OpenVINO
   Ceres
   Eigen3
@@ -61,16 +61,24 @@ set(dependencies
   yaml-cpp 
   fmt
 )
-  
-include_directories(include
-  ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-  # ${InferenceEngine_INCLUDE_DIRS}
-  ${OpenVINO_INCLUDE_DIRS}
+
+add_library(${PROJECT_NAME} SHARED
+  src/detector_node.cpp
+  src/detector.cpp
+  src/inference.cpp
+  include/detector.hpp
+  include/inference.hpp
+  include/detector_node.hpp
+)
+
+ament_target_dependencies(${PROJECT_NAME}
+  ${dependencies}  
 )
   
-include_directories(include)
-  
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE "COMPOSITION_BUILDING_DLL"
+)
+
 add_executable(stone_station_detector_node
   src/detector_node.cpp
   src/detector.cpp
@@ -80,20 +88,15 @@ add_executable(stone_station_detector_node
   include/detector_node.hpp
 )
 
-# add_executable(testing
-#   # ./include/armor_detector/inference.h
-#   # ./src/armor_detector/inference.cpp
-#   ./src/test/test.cpp 
-# )
 
 ament_target_dependencies(stone_station_detector_node
   ${dependencies}
 )
 
 target_link_libraries(stone_station_detector_node
-  # ${PROJECT_NAME}
+
   ${OpenCV_LIBRARIES}
-  # ${InferenceEngine_LIBRARIES}
+  ${InferenceEngine_LIBRARIES}
   openvino::runtime 
   ${Eigen3_LIBRARIES}
 
@@ -102,17 +105,19 @@ target_link_libraries(stone_station_detector_node
   fmt.so
 )
 
+rclcpp_components_register_nodes(${PROJECT_NAME}
+  PLUGIN "stone_station_detector::detector_node"
+  EXECUTABLE stone_station_detector
+)
 
   
 install(TARGETS 
   stone_station_detector_node
-  # testing 
   DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY 
   launch
-  # config
   DESTINATION share/${PROJECT_NAME}
 )
 

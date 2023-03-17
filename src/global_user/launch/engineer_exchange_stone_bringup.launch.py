@@ -69,7 +69,7 @@ def generate_launch_description():
                 ComposableNode(
                     package='camera_driver',
                     plugin='camera_driver::usb_cam_node',
-                    name='usb_driver',
+                    name='camera_driver',
                     parameters=[usb_cam_params],
                     extra_arguments=[{
                         'use_intra_process_comms':True
