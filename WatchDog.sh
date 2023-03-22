@@ -7,6 +7,7 @@ program_name3=stone_station_detector_node
 
 cd /home/tup/Desktop/$name/
 colcon build --symlink-install --packages-up-to global_user global_interface
+source install/setup.bash
 colcon build --symlink-install 
 source install/setup.bash
 ros2 launch $package $launch_file

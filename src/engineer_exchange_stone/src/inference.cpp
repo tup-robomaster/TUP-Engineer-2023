@@ -17,7 +17,7 @@ namespace stone_station_detector
     static constexpr float NMS_THRESH = 0.3;
     static constexpr float BBOX_CONF_THRESH = 0.6;
     static constexpr float MERGE_CONF_ERROR = 0.15;
-    static constexpr float MERGE_MIN_IOU = 0.88;
+    static constexpr float MERGE_MIN_IOU = 0.75;
 
     static inline int argmax(const float *ptr, int len)
     {

@@ -125,10 +125,17 @@ namespace stone_station_detector
 
     if (debug_.show_img)
     {
+      if(src.img.empty())
+      {
+        std::cout<< "[CAMERA] Get empty image"<<std::endl;
+      }
+      std::cout<<src.img.size()<<std::endl;
+
       cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
       cv::imshow("dst", src.img);
       cv::waitKey(1);
     }
+
   }
 
   /**
@@ -159,7 +166,7 @@ namespace stone_station_detector
     // TODO:Set by your own path.
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
-    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_1.onnx");
+    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_2.onnx");
     this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
 
     // Debug.

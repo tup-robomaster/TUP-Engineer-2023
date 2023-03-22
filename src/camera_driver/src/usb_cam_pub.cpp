@@ -11,7 +11,7 @@ namespace camera_driver
 
     this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/2022-06-23_19_36_54(1).avi");
+    this->declare_parameter<std::string>("video_path", "/home/liyuhang/Desktop/TUP-Engineer-2023/src/camera_driver/video/test.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
 
     if (using_video_)
@@ -24,7 +24,7 @@ namespace camera_driver
     }
     else
     {
-      cap.open(0);
+      cap.open(3);
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");
@@ -48,7 +48,7 @@ namespace camera_driver
 
     this->declare_parameter("camera_id", 0);
     this->declare_parameter("frame_id", "usb_image");
-    this->declare_parameter("image_width", 480);
+    this->declare_parameter("image_width", 680);
     this->declare_parameter("image_height", 480);
     this->declare_parameter("fps", 30);
 

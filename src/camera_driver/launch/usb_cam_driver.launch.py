@@ -8,10 +8,6 @@ def generate_launch_description():
     # cam_config = os.path.abspath('config/camera.yml')
     return  LaunchDescription([
 
-        # DeclareLaunchArgument(name = 'param_file',
-        #                       default_value = cam_config
-        # ),
-
         Node(
             package = 'camera_driver',
             executable = 'usb_cam_pub',

@@ -15,7 +15,7 @@
     image_height: 480
     fps: 30
     debug: true
-    using_video: true
+    using_video: false
     # video_path: "src/camera_driver/recorder/video/gyro_video.webm"
     # video_path: "src/camera_driver/recorder/video/gyro_transition_fusion.webm"
     # video_path: "src/camera_driver/recorder/video/buff.webm"

@@ -15,6 +15,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ## Export compile commands for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# link_directories(/usr/local/lib)
+# include_directories(/usr/local/include/yaml-cpp)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -92,6 +95,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 include_directories(include)
+
 add_executable(${PROJECT_NAME}_node
   src/CRC_Check.cpp
   src/${PROJECT_NAME}.cpp
@@ -103,7 +107,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
   ${dependencies}
 )
 target_link_libraries(${PROJECT_NAME}_node 
-  yaml-cpp.so
+  yaml-cpp
 )
 
 # register component nodes

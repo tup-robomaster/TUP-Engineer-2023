@@ -81,11 +81,15 @@ namespace stone_station_detector
         apex_sum += apex;
       stone_station.center2d = apex_sum / 4.f;
 
+      for (int k = 0; k < 4; k++)
+        line(src.img, stone_station.apex2d[k % 4], stone_station.apex2d[(k + 1) % 4], {200, 100, 25}, 1);
+
+      circle(src.img, stone_station.center2d, 5, {200, 100, 25}, -1);
+
       // 生成矿站旋转矩形
       std::vector<Point2f> points_pic(stone_station.apex2d, stone_station.apex2d + 4);
       RotatedRect points_pic_rrect = minAreaRect(points_pic);
       stone_station.rrect = points_pic_rrect;
-      // auto bbox = points_pic_rrect.boundingRect();
 
       // 进行pnp解算,采取迭代法
       int pnp_method = SOLVEPNP_ITERATIVE;
@@ -96,14 +100,14 @@ namespace stone_station_detector
       stone_station.station3d_cam = pnp_result.station_cam;
       stone_station.euler = pnp_result.euler;
       stone_station.area = object.area;
-      stone_stations.push_back(stone_station);
+      auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_station.station3d_cam[0] + atc_.x_offset; //前伸距离
-      last_target[1] = stone_station.station3d_cam[1] + atc_.y_offset; //横移距离
-      last_target[2] = stone_station.station3d_cam[2] + atc_.z_offset; //抬升距离
+      last_target[0] = stone_stations.station3d_cam[0] + atc_.x_offset; // 前伸距离
+      last_target[1] = stone_stations.station3d_cam[1] + atc_.y_offset; // 横移距离
+      last_target[2] = stone_stations.station3d_cam[2] + atc_.z_offset; // 抬升距离
 
-      auto angle = stone_station.euler;
+      auto angle = stone_stations.euler;
 
       target_info.x_dis = last_target[0];
       target_info.y_dis = last_target[1];
@@ -117,17 +121,17 @@ namespace stone_station_detector
       {
         RCLCPP_DEBUG_ONCE(logger_, "Show target...");
 
-        std::string id_str = to_string(stone_station.id);
+        std::string id_str = to_string(stone_stations.id);
 
-        if (stone_station.color == 0)
-          putText(src.img, "B" + id_str, stone_station.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
-        if (stone_station.color == 1)
-          putText(src.img, "R" + id_str, stone_station.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
+        if (stone_stations.color == 0)
+          putText(src.img, "B" + id_str, stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
+        if (stone_stations.color == 1)
+          putText(src.img, "R" + id_str, stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
 
         for (int i = 0; i < 4; i++)
-          line(src.img, stone_station.apex2d[i % 4], stone_station.apex2d[(i + 1) % 4], {0, 255, 0}, 1);
+          line(src.img, stone_stations.apex2d[i % 4], stone_stations.apex2d[(i + 1) % 4], {0, 255, 0}, 1);
 
-        auto target_center = coordsolver_.reproject(stone_station.station3d_cam);
+        auto target_center = coordsolver_.reproject(stone_stations.station3d_cam);
         circle(src.img, target_center, 4, {0, 0, 255}, 2);
       }
 

@@ -51,9 +51,7 @@ set(dependencies
   global_user
   global_interface 
   glog
-  yaml-cpp
   PythonLibs
-  matplotlib_cpp
 
 )
 
