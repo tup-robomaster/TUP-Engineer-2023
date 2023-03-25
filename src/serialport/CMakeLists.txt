@@ -52,12 +52,12 @@ include_directories(
   
 set(node_plugins "")
   
-add_library(${PROJECT_NAME} SHARED
-  src/CRC_Check.cpp 
-  src/${PROJECT_NAME}.cpp
-  src/data_transform.cpp
-  src/${PROJECT_NAME}_node.cpp
-)
+# add_library(${PROJECT_NAME} SHARED
+#   src/CRC_Check.cpp 
+#   src/${PROJECT_NAME}.cpp
+#   src/data_transform.cpp
+#   src/${PROJECT_NAME}_node.cpp
+# )
   
 # target_compile_definitions(${PROJECT_NAME}
 # PRIVATE "COMPOSITION_BUILDING_DLL")
@@ -87,12 +87,12 @@ set(dependencies
   Ceres
 )
 
-ament_target_dependencies(${PROJECT_NAME}
-  ${dependencies}
-)
-target_link_libraries(${PROJECT_NAME}
-  yaml-cpp.so
-)
+# ament_target_dependencies(${PROJECT_NAME}
+#   ${dependencies}
+# )
+# target_link_libraries(${PROJECT_NAME}
+#   yaml-cpp
+# )
 
 include_directories(include)
 
@@ -111,10 +111,10 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 
 # register component nodes
-rclcpp_components_register_nodes(${PROJECT_NAME} 
-  PLUGIN "serialport::serial_driver"
-  EXECUTABLE ${PROJECT_NAME}_node  
-)
+# rclcpp_components_register_nodes(${PROJECT_NAME} 
+#   PLUGIN "serialport::serial_driver"
+#   EXECUTABLE ${PROJECT_NAME}_node  
+# )
 
 # set(node_plugins "${node_plugins}serialport::serial_driver;$<TARGET_FILE:serialport>\n")
 
@@ -124,13 +124,13 @@ rclcpp_components_register_nodes(${PROJECT_NAME}
 # )
 
 # Install libraries
-install(TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
+# install(TARGETS ${PROJECT_NAME}
+#   EXPORT ${PROJECT_NAME}
+#   LIBRARY DESTINATION lib
+#   ARCHIVE DESTINATION lib
+#   RUNTIME DESTINATION bin
+#   INCLUDES DESTINATION include
+# )
 
 install(TARGETS
   ${PROJECT_NAME}_node

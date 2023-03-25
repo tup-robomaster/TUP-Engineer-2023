@@ -24,17 +24,17 @@ namespace camera_driver
     }
     else
     {
-      cap.open(3);
+      cap.open(2);
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");
       }
     }
 
-    cap.set(cv::CAP_PROP_BRIGHTNESS, 0); // 亮度
+    cap.set(cv::CAP_PROP_BRIGHTNESS, -50); // 亮度
 
     cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
-    cap.set(cv::CAP_PROP_EXPOSURE, 50); // 曝光
+    cap.set(cv::CAP_PROP_EXPOSURE, -50); // 曝光
     // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
 
     last_frame = std::chrono::steady_clock::now();

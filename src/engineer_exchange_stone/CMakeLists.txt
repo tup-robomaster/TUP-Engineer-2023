@@ -94,13 +94,11 @@ ament_target_dependencies(stone_station_detector_node
 )
 
 target_link_libraries(stone_station_detector_node
-
   ${OpenCV_LIBRARIES}
   ${InferenceEngine_LIBRARIES}
   openvino::runtime 
   ${Eigen3_LIBRARIES}
-
-  yaml-cpp.so 
+  yaml-cpp
   glog.so 
   fmt.so
 )
