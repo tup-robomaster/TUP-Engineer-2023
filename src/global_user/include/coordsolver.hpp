@@ -41,6 +41,10 @@ namespace coordsolver
     PnPInfo pnp(const std::vector<Point2f> &points_pic, int method);
 
     cv::Point2f reproject(Eigen::Vector3d &xyz);
+    Eigen::Vector2d getAngle(Eigen::Vector3d &xyz_cam);
+    // inline double calcYaw(Eigen::Vector3d &xyz);
+    // inline double calcPitch(Eigen::Vector3d &xyz);
+    // inline double calcRoll(Eigen::Vector3d &xyz);
     cv::Point2f getHeading(Eigen::Vector3d &xyz_cam);
 
   private:

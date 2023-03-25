@@ -2,8 +2,8 @@
   ros__parameters:
     camera_id: 2
     frame_id: usb_cam
-    image_width: 1920
-    image_height: 1080
+    image_width: 640
+    image_height: 480
     fps: 30
     debug: true
 

@@ -86,7 +86,7 @@ namespace stone_station_detector
       show_target = true;
       show_fps = true;
       print_letency = false;
-      print_target_info = false;
+      print_target_info = true;
       save_data = false;
     }
   };

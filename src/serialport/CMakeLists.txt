@@ -15,9 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ## Export compile commands for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# link_directories(/usr/local/lib)
-# include_directories(/usr/local/include/yaml-cpp)
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -41,8 +38,6 @@ find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(Ceres REQUIRED COMPONENTS EigenSparse)
 
 include_directories(
   include
@@ -52,12 +47,12 @@ include_directories(
   
 set(node_plugins "")
   
-# add_library(${PROJECT_NAME} SHARED
-#   src/CRC_Check.cpp 
-#   src/${PROJECT_NAME}.cpp
-#   src/data_transform.cpp
-#   src/${PROJECT_NAME}_node.cpp
-# )
+add_library(${PROJECT_NAME} SHARED
+      src/CRC_Check.cpp
+      src/${PROJECT_NAME}.cpp
+      src/data_transform.cpp
+      src/${PROJECT_NAME}_node.cpp
+)
   
 # target_compile_definitions(${PROJECT_NAME}
 # PRIVATE "COMPOSITION_BUILDING_DLL")
@@ -83,19 +78,16 @@ set(dependencies
   angles 
   robot_state_publisher 
   yaml-cpp
-  Eigen3
-  Ceres
 )
 
-# ament_target_dependencies(${PROJECT_NAME}
-#   ${dependencies}
-# )
-# target_link_libraries(${PROJECT_NAME}
-#   yaml-cpp
-# )
+ament_target_dependencies(${PROJECT_NAME}
+  ${dependencies}
+)
+target_link_libraries(${PROJECT_NAME}
+  yaml-cpp
+)
 
 include_directories(include)
-
 add_executable(${PROJECT_NAME}_node
   src/CRC_Check.cpp
   src/${PROJECT_NAME}.cpp
@@ -111,10 +103,10 @@ target_link_libraries(${PROJECT_NAME}_node
 )
 
 # register component nodes
-# rclcpp_components_register_nodes(${PROJECT_NAME} 
-#   PLUGIN "serialport::serial_driver"
-#   EXECUTABLE ${PROJECT_NAME}_node  
-# )
+rclcpp_components_register_nodes(${PROJECT_NAME} 
+  PLUGIN "serialport::serial_driver"
+  EXECUTABLE ${PROJECT_NAME}_node  
+)
 
 # set(node_plugins "${node_plugins}serialport::serial_driver;$<TARGET_FILE:serialport>\n")
 
@@ -124,13 +116,13 @@ target_link_libraries(${PROJECT_NAME}_node
 # )
 
 # Install libraries
-# install(TARGETS ${PROJECT_NAME}
-#   EXPORT ${PROJECT_NAME}
-#   LIBRARY DESTINATION lib
-#   ARCHIVE DESTINATION lib
-#   RUNTIME DESTINATION bin
-#   INCLUDES DESTINATION include
-# )
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 install(TARGETS
   ${PROJECT_NAME}_node

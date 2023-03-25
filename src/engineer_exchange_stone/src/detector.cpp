@@ -92,6 +92,7 @@ namespace stone_station_detector
       stone_station.rrect = points_pic_rrect;
 
       // 进行pnp解算,采取迭代法
+      // int pnp_method = SOLVEPNP_IPPE;
       int pnp_method = SOLVEPNP_ITERATIVE;
 
       auto pnp_result = coordsolver_.pnp(points_pic, pnp_method);
@@ -103,10 +104,11 @@ namespace stone_station_detector
       auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_stations.station3d_cam[0] + atc_.x_offset; // 前伸距离
-      last_target[1] = stone_stations.station3d_cam[1] + atc_.y_offset; // 横移距离
-      last_target[2] = stone_stations.station3d_cam[2] + atc_.z_offset; // 抬升距离
+      last_target[0] = stone_stations.station3d_cam[0] + atc_.x_offset; // 横移距离
+      last_target[1] = stone_stations.station3d_cam[1] + atc_.y_offset; // 抬升距离
+      last_target[2] = stone_stations.station3d_cam[2] + atc_.z_offset; // 前伸距离
 
+      // auto angle = coordsolver_.getAngle(stone_station.euler);
       auto angle = stone_stations.euler;
 
       target_info.x_dis = last_target[0];
@@ -116,6 +118,8 @@ namespace stone_station_detector
       target_info.roll = angle[0];
       target_info.yaw = angle[1];
       target_info.pitch = angle[2];
+
+      target_info.is_target = true;
 
       if (debug_params_.show_target)
       {
@@ -162,9 +166,9 @@ namespace stone_station_detector
         if (count % 5 == 0)
         {
           RCLCPP_INFO(logger_, "-----------INFO------------");
-          RCLCPP_INFO(logger_, "Yaw: %lf", angle[0]);
-          RCLCPP_INFO(logger_, "Pitch: %lf", angle[1]);
-          RCLCPP_INFO(logger_, "Roll: %lf", angle[2]);
+          RCLCPP_INFO(logger_, "roll: %lf", angle[0]);
+          RCLCPP_INFO(logger_, "Yaw: %lf", angle[1]);
+          RCLCPP_INFO(logger_, "Pitch: %lf", angle[2]);
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
           RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
           RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);

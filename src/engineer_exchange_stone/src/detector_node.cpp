@@ -51,8 +51,6 @@ namespace stone_station_detector
     qos.durability_volatile();
     // station pub
     station_pub = this->create_publisher<TargetMsg>("/station_info", qos);
-    // time_start = std::chrono::steady_clock::now();
-    // param_timer_ = this->create_wall_timer(100ms, std::bind(&detector_node::param_callback, this));
 
     if (debug_.using_imu)
     {
@@ -64,7 +62,7 @@ namespace stone_station_detector
                                                              std::bind(&detector_node::sensorMsgCallback, this, _1));
     }
 
-    bool debug = false;
+    bool debug = true;
     this->declare_parameter<bool>("debug", true);
     this->get_parameter("debug", debug);
     if (debug)

@@ -6,11 +6,7 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
         ld = LaunchDescription()
-    # cam_config = os.path.abspath('config/camera.yml')
-
-        # DeclareLaunchArgument(name = 'param_file',
-        #                       default_value = cam_config
-        # ),
+        
         usb_cam_node = Node(
             package = 'camera_driver',
             executable = 'usb_cam_pub',

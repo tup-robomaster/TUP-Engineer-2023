@@ -59,6 +59,7 @@ include_directories(include)
 include_directories(include ${cv_bridge_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} SHARED
+  src/usb_cam_pub.cpp
   src/usb_cam.cpp
 )
 

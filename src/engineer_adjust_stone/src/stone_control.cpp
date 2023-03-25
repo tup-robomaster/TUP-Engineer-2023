@@ -14,10 +14,6 @@ namespace stone_control
     Mat gray = Mat::zeros(Src.size(), CV_8UC1);
     cvtColor(Src, gray, COLOR_BGR2GRAY);
     threshold(gray, dst, threshold_value, 255, THRESH_BINARY);
-    // erode(dst,dst,kernel_s);
-    // erode(dst,dst,kernel_big);
-    // dilate(dst,dst,kernel_big);
-    // dilate(dst,dst,kernel_s);
     bitwise_not(dst, dst);
     namedWindow("pre", WINDOW_NORMAL);
     resizeWindow("pre", 640, 480);

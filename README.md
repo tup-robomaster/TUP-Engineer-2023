@@ -25,3 +25,5 @@ Data:2023-03-17 第一阶段识别程序完工，目前问题主要有，识别�
 
 若出现： Failed to load module "canberra-gtk-module"
 一般处理方法：sudo apt-get install libcanberra-gtk-module
+
+## 使用说明

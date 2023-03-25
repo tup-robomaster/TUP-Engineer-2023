@@ -62,13 +62,69 @@ namespace coordsolver
     cv2eigen(rmat, rvec_eigen);
     cv2eigen(tvec, tvec_eigen);
 
-    // std::cout<<11111111<<std::endl;
+    std::cout<<rvec_eigen<<std::endl;
 
     result.station_cam = tvec_eigen;
     result.euler = ::global_user::rotationMatrixToEulerAngles(rvec_eigen);
     // result.R_station_cam = (rvec_eigen * R_center_world) + tvec_eigen;
     return result;
   }
+
+  // /**
+  //  * @brief 计算目标位置所需补偿
+  //  *
+  //  * @param xyz_cam 目标相机坐标系下位置
+  //  * @param rmat IMU旋转矩阵
+  //  * @return Eigen::Vector2d yaw,pitch
+  //  */
+  // Eigen::Vector2d CoordSolver::getAngle(Eigen::Vector3d &xyz_cam, Eigen::Matrix3d &rmat)
+  // {
+  //   auto xyz_offseted = staticCoordOffset(xyz_cam);
+  //   auto angle_cam = calcYawPitch(xyz_cam);
+
+  //   auto pitch_offset = dynamicCalcPitchOffset(xyz_world);
+  //   auto angle_offseted = staticAngleOffset(angle_cam);
+
+  //   return angle_offseted;
+  // }
+
+  // /**
+  //  * @brief 计算目标Yaw,Pitch,Roll角度
+  //  * @return Yaw/Pitch/Roll
+  //  */
+  // inline Eigen::Vector2d CoordSolver::calcYawPitch(Eigen::Vector3d &xyz)
+  // {
+  //   Eigen::Vector3d angle;
+  //   // Roll()
+  //   // Yaw(逆时针)
+  //   // Pitch(目标在上方为正)
+  //   angle << calcRoll(xyz), calcYaw(xyz), calcPitch(xyz);
+  //   return angle;
+  // }
+
+  // /**
+  //  * @brief 计算Yaw角度
+  //  *
+  //  * @param xyz 坐标
+  //  * @return double Yaw角度
+  //  */
+
+  // inline double CoordSolver::calcYaw(Eigen::Vector3d &xyz)
+  // {
+  //   return atan2(xyz[0], xyz[2]) * 180 / CV_PI;
+  // }
+
+  // /**
+  //  * @brief 计算Pitch角度
+  //  *
+  //  * @param xyz 坐标
+  //  * @return double Pitch角度
+  //  */
+  // inline double CoordSolver::calcPitch(Eigen::Vector3d &xyz)
+  // {
+  //   return -(atan2(xyz[1], sqrt(xyz[0] * xyz[0] + xyz[2] * xyz[2])) * 180 / CV_PI);
+  //   // return (atan2(xyz[1], sqrt(xyz[0] * xyz[0] + xyz[2] * xyz[2])) * 180 / CV_PI);
+  // }
 
   /**
    * @brief 重投影

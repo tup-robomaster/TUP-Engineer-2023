@@ -66,9 +66,6 @@ add_library(${PROJECT_NAME} SHARED
   src/detector_node.cpp
   src/detector.cpp
   src/inference.cpp
-  include/detector.hpp
-  include/inference.hpp
-  include/detector_node.hpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}
@@ -79,21 +76,25 @@ target_compile_definitions(${PROJECT_NAME}
   PRIVATE "COMPOSITION_BUILDING_DLL"
 )
 
-add_executable(stone_station_detector_node
+set(node_plugins "")
+rclcpp_components_register_nodes(${PROJECT_NAME}
+  PLUGIN "stone_station_detector::detector_node"
+  EXECUTABLE stone_station_detector
+)
+set(node_plugins "${node_plugins}stone_station_detector::detector_node;&<TARGET_FILE:detector_node\n")
+
+add_executable(${PROJECT_NAME}_node
   src/detector_node.cpp
   src/detector.cpp
   src/inference.cpp
-  include/detector.hpp
-  include/inference.hpp
-  include/detector_node.hpp
 )
 
 
-ament_target_dependencies(stone_station_detector_node
+ament_target_dependencies(${PROJECT_NAME}_node
   ${dependencies}
 )
 
-target_link_libraries(stone_station_detector_node
+target_link_libraries(${PROJECT_NAME}_node
   ${OpenCV_LIBRARIES}
   ${InferenceEngine_LIBRARIES}
   openvino::runtime 
@@ -103,14 +104,15 @@ target_link_libraries(stone_station_detector_node
   fmt.so
 )
 
-rclcpp_components_register_nodes(${PROJECT_NAME}
-  PLUGIN "stone_station_detector::detector_node"
-  EXECUTABLE stone_station_detector
+install(TARGETS 
+  ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib # 静态库安装路径
+  LIBRARY DESTINATION lib # 动态库安装路径
+  RUNTIME DESTINATION bin # 可执行文件安装路径
 )
-
   
 install(TARGETS 
-  stone_station_detector_node
+  ${PROJECT_NAME}_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
