@@ -1,7 +1,6 @@
 #include "../include/stone_control_node.hpp"
 
 using std::placeholders::_1;
-
 namespace stone_control
 {
   stone_control_node::stone_control_node(const rclcpp::NodeOptions &options)
@@ -50,5 +49,4 @@ int main(int argc, char **argv)
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-
 RCLCPP_COMPONENTS_REGISTER_NODE(stone_control::stone_control_node)

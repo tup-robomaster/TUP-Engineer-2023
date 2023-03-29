@@ -11,18 +11,10 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclpy REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(laser_geometry REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_sensor_msgs REQUIRED)
-find_package(visualization_msgs REQUIRED)
-find_package(angles REQUIRED)
 find_package(robot_state_publisher REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(image_transport REQUIRED)
@@ -30,8 +22,6 @@ find_package(camera_info_manager REQUIRED)
 find_package(camera_calibration_parsers REQUIRED)
 find_package(glog REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(PythonLibs REQUIRED)
-find_package(matplotlib_cpp REQUIRED)
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
 
@@ -44,17 +34,12 @@ set(dependencies
   image_transport
   camera_calibration_parsers
   OpenCV
-
   Eigen3
-  tf2
   sensor_msgs
   global_user
   global_interface 
   glog
   yaml-cpp
-  PythonLibs
-  matplotlib_cpp
-
 )
 
 include_directories(include)
@@ -65,7 +50,8 @@ add_library(${PROJECT_NAME} SHARED
 )
 
 target_compile_definitions(${PROJECT_NAME}
-PRIVATE "COMPOSITION_BUILDING_DLL")
+  PRIVATE "COMPOSITION_BUILDING_DLL"
+)
 
 ament_target_dependencies(${PROJECT_NAME} 
   ${dependencies}
@@ -74,8 +60,6 @@ ament_target_dependencies(${PROJECT_NAME}
 set(node_plugins "")
 rclcpp_components_register_nodes(${PROJECT_NAME} "camera_driver::usb_cam_node")
 set(node_plugins "${node_plugins}camera_driver::usb_cam_node;&<TARGET_FILE:usb_cam_node\n")
-
-
 
 add_executable(usb_cam_pub
   src/usb_cam_pub.cpp
