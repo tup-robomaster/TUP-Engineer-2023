@@ -1,8 +1,8 @@
-#include "stone_control.hpp"
+#ifndef STONE_CONTROL_NODE_HPP_
+#define STONE_CONTROL_NODE_HPP_
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/publisher.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -13,6 +13,8 @@
 #include <image_transport/publisher.hpp>
 #include <image_transport/subscriber_filter.hpp>
 #include <cv_bridge/cv_bridge.h>
+
+#include "stone_control.hpp"
 
 namespace stone_control
 {
@@ -46,3 +48,5 @@ namespace stone_control
   };
 
 }
+
+#endif

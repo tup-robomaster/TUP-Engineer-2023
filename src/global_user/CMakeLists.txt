@@ -11,16 +11,12 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(laser_geometry REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(angles REQUIRED)
 find_package(robot_state_publisher REQUIRED)
@@ -34,10 +30,6 @@ set(dependencies
   rclcpp_lifecycle
   sensor_msgs
   std_msgs
-  tf2
-  tf2_geometry_msgs
-  tf2_ros
-  tf2_sensor_msgs
   visualization_msgs
   angles
   OpenCV
@@ -61,6 +53,12 @@ add_library(${PROJECT_NAME} SHARED
 # 用于代替传统的target_link_libraries
 ament_target_dependencies(${PROJECT_NAME}
   ${dependencies}
+<<<<<<< HEAD
+=======
+  # yaml-cpp
+)
+target_link_libraries(${PROJECT_NAME}
+>>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
   yaml-cpp
 )
 
