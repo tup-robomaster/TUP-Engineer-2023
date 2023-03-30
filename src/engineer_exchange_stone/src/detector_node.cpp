@@ -109,9 +109,6 @@ namespace stone_station_detector
     if (detector_->stone_station_detect(src, target_info))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
-
-      // target_info.timestamp = src.timestamp;
-
       station_pub->publish(target_info);
     }
 
@@ -123,17 +120,15 @@ namespace stone_station_detector
 
     if (debug_.show_img)
     {
-      if(src.img.empty())
+      if (src.img.empty())
       {
-        std::cout<< "[CAMERA] Get empty image"<<std::endl;
+        std::cout << "[CAMERA] Get empty image" << std::endl;
       }
-      // std::cout<<src.img.size()<<std::endl;
 
       cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
       cv::imshow("dst", src.img);
       cv::waitKey(1);
     }
-
   }
 
   /**
@@ -160,6 +155,8 @@ namespace stone_station_detector
   {
 
     this->declare_parameter<bool>("color", true);
+
+    this->declare_parameter<double>("stone_station_conf_high_thres", 0.82);
 
     // TODO:Set by your own path.
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
@@ -194,6 +191,8 @@ namespace stone_station_detector
       detector_params_.color = RED;
     else
       detector_params_.color = BLUE;
+
+    detector_params_.stone_station_conf_high_thres = this->get_parameter("stone_station_conf_high_thres").as_double();
 
     debug_.detect_red = this->get_parameter("detect_red").as_bool();
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();

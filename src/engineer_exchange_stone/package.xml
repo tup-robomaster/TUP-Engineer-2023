@@ -16,8 +16,10 @@
   <depend>image_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf2_geometry_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>robot_state_publisher</depend>
 
   <!-- <depend>InferenceEngine</depend> -->
   <depend>OpenVINO</depend>

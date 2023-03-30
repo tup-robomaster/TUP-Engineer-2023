@@ -42,9 +42,8 @@ namespace coordsolver
 
     cv::Point2f reproject(Eigen::Vector3d &xyz);
     Eigen::Vector2d getAngle(Eigen::Vector3d &xyz_cam);
-    // inline double calcYaw(Eigen::Vector3d &xyz);
-    // inline double calcPitch(Eigen::Vector3d &xyz);
-    // inline double calcRoll(Eigen::Vector3d &xyz);
+    Eigen::Vector3d angle_process(Eigen::Vector3d &angle);
+    Eigen::Vector3d dis_process(Eigen::Vector3d &last_target);
     cv::Point2f getHeading(Eigen::Vector3d &xyz_cam);
 
   private:

@@ -1,6 +1,7 @@
 from argparse import Namespace
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
@@ -30,7 +31,23 @@ def generate_launch_description():
             output = 'screen'
         )
 
+        tf_cam_to_base_node_ = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen" ,
+        arguments=["0.217", "0.423", "0.170", "0", "0", "0", "base_link", "cam_link"]
+        )
+
+        tf_arm_to_base_node_ = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen" ,
+        arguments=["0.423", "0", "0.382", "0", "0", "0", "base_link", "arm_link"]
+        )
+
         ld.add_action(usb_cam_node)
         ld.add_action(stone_station_detector_node)
+        ld.add_action(tf_cam_to_base_node_)
+        ld.add_action(tf_arm_to_base_node_)
 
         return ld

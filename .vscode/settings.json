@@ -137,7 +137,8 @@
         "userdatacontainer": "cpp",
         "observer_ptr": "cpp",
         "ref_ptr": "cpp",
-        "plane": "cpp"
+        "plane": "cpp",
+        "specialfunctions": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/home/liyuhang/Desktop/TUP_Engineer/install/global_interface/lib/python3.8/site-packages",

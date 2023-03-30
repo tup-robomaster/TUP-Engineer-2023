@@ -28,10 +28,13 @@ namespace stone_station_detector
 
   struct DetectorParam
   {
+    double stone_station_conf_high_thres;  //矿站置信度
+
     Color color;
     DetectorParam()
     {
       color = RED;
+      stone_station_conf_high_thres = 0.60;
     }
   };
 

@@ -24,7 +24,7 @@ namespace camera_driver
     }
     else
     {
-      cap.open(2);
+      cap.open(0);
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");

@@ -9,8 +9,6 @@ namespace stone_station_detector
         path_params_(path_param), debug_params_(debug_params), logger_(rclcpp::get_logger("stone_station_detector"))
   {
     is_init_ = false;
-    // input_size = {1920, 1080};
-
     is_save_data = false;
   }
 
@@ -62,7 +60,13 @@ namespace stone_station_detector
       }
       Stone_Station stone_station;
       stone_station.color = object.color;
-      stone_station.conf = object.prob;
+      stone_station.conf = object.prob; // 置信度
+
+      // 置信度大于一定值放行
+      if (stone_station.conf >= this->detector_params_.stone_station_conf_high_thres)
+      {
+        continue;
+      }
 
       if (object.color == 0)
         stone_station.key = "B";
@@ -71,18 +75,10 @@ namespace stone_station_detector
 
       memcpy(stone_station.apex2d, object.apex, 4 * sizeof(cv::Point2f));
 
-      //   for(int i = 0; i < 4; i++)
-      //   {
-      //     stone_station.apex2d[i] += Point2f((float)roi_offset.x, (float)roi_offset.y);
-      //   }
-
       Point2f apex_sum;
       for (auto apex : stone_station.apex2d)
         apex_sum += apex;
       stone_station.center2d = apex_sum / 4.f;
-
-      for (int k = 0; k < 4; k++)
-        line(src.img, stone_station.apex2d[k % 4], stone_station.apex2d[(k + 1) % 4], {200, 100, 25}, 1);
 
       circle(src.img, stone_station.center2d, 5, {200, 100, 25}, -1);
 
@@ -108,12 +104,16 @@ namespace stone_station_detector
       last_target[1] = stone_stations.station3d_cam[1] + atc_.y_offset; // 抬升距离
       last_target[2] = stone_stations.station3d_cam[2] + atc_.z_offset; // 前伸距离
 
-      // auto angle = coordsolver_.getAngle(stone_station.euler);
       auto angle = stone_stations.euler;
+
+      coordsolver_.angle_process(angle);
+      coordsolver_.dis_process(last_target);
 
       target_info.x_dis = last_target[0];
       target_info.y_dis = last_target[1];
       target_info.z_dis = last_target[2];
+
+      angle[2] = angle[2] - CV_PI;
 
       target_info.roll = angle[0];
       target_info.yaw = angle[1];
@@ -161,14 +161,21 @@ namespace stone_station_detector
         // }
       }
 
+      double roll = double((angle[0] * 180) / CV_PI);
+      double yaw = double((angle[1] * 180) / CV_PI);
+      double pitch = double(((angle[2]) * 180) / CV_PI);
+
       if (debug_params_.print_target_info)
       {
         if (count % 5 == 0)
         {
           RCLCPP_INFO(logger_, "-----------INFO------------");
-          RCLCPP_INFO(logger_, "roll: %lf", angle[0]);
-          RCLCPP_INFO(logger_, "Yaw: %lf", angle[1]);
-          RCLCPP_INFO(logger_, "Pitch: %lf", angle[2]);
+          RCLCPP_INFO(logger_, "roll: %lf 度", roll);
+          RCLCPP_INFO(logger_, "Yaw: %lf 度", yaw);
+          RCLCPP_INFO(logger_, "Pitch: %lf 度", pitch);
+          // RCLCPP_INFO(logger_, "roll: %lf", angle[0]);
+          // RCLCPP_INFO(logger_, "Yaw: %lf", angle[1]);
+          // RCLCPP_INFO(logger_, "Pitch: %lf", angle[2]);
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
           RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
           RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);

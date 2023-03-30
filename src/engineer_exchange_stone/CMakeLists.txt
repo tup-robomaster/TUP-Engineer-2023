@@ -42,6 +42,10 @@ find_package(global_user REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(fmt REQUIRED)
 
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+
 set(dependencies 
   rclcpp
   rclpy
@@ -57,6 +61,9 @@ set(dependencies
   geometry_msgs
   global_interface
   global_user
+  tf2_geometry_msgs
+  tf2
+  tf2_ros
   
   yaml-cpp 
   fmt
