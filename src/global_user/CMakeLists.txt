@@ -53,12 +53,6 @@ add_library(${PROJECT_NAME} SHARED
 # 用于代替传统的target_link_libraries
 ament_target_dependencies(${PROJECT_NAME}
   ${dependencies}
-<<<<<<< HEAD
-=======
-  # yaml-cpp
-)
-target_link_libraries(${PROJECT_NAME}
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
   yaml-cpp
 )
 
@@ -82,11 +76,7 @@ install(DIRECTORY
   launch
   config 
   DESTINATION share/${PROJECT_NAME}
-)
-
-# specific order: dependents before dependencies
-#ament_export_targets(${PROJECT_NAME})
-#ament_export_dependencies(${dependencies})        
+)    
         
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

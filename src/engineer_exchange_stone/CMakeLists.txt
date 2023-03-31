@@ -52,13 +52,10 @@ set(dependencies
   geometry_msgs
   global_interface
   global_user
-<<<<<<< HEAD
   tf2_geometry_msgs
   tf2
   tf2_ros
   
-=======
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
   yaml-cpp 
   fmt
 )
@@ -80,7 +77,6 @@ rclcpp_components_register_nodes(${PROJECT_NAME}
   EXECUTABLE stone_station_detector
 )
 
-<<<<<<< HEAD
 set(node_plugins "")
 rclcpp_components_register_nodes(${PROJECT_NAME}
   PLUGIN "stone_station_detector::detector_node"
@@ -88,53 +84,31 @@ rclcpp_components_register_nodes(${PROJECT_NAME}
 )
 set(node_plugins "${node_plugins}stone_station_detector::detector_node;&<TARGET_FILE:detector_node\n")
 
-=======
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
 add_executable(${PROJECT_NAME}_node
   src/detector_node.cpp
   src/detector.cpp
   src/inference.cpp
 )
 
-<<<<<<< HEAD
 
 ament_target_dependencies(${PROJECT_NAME}_node
   ${dependencies}
 )
 
-=======
-ament_target_dependencies(${PROJECT_NAME}_node
-  ${dependencies}
-)
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
 target_link_libraries(${PROJECT_NAME}_node
   ${OpenCV_LIBRARIES}
   openvino::runtime 
   ${Eigen3_LIBRARIES}
-<<<<<<< HEAD
   yaml-cpp
   glog.so 
   fmt.so
-=======
-  yaml-cpp 
-  glog 
-  fmt
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
 )
 
 install(TARGETS 
   ${PROJECT_NAME}
-<<<<<<< HEAD
   ARCHIVE DESTINATION lib # 静态库安装路径
   LIBRARY DESTINATION lib # 动态库安装路径
   RUNTIME DESTINATION bin # 可执行文件安装路径
-=======
-  # EXPORT ${PROJECT_NAME}
-  ARCHIVE DESTINATION lib 
-  LIBRARY DESTINATION lib 
-  RUNTIME DESTINATION lib 
-  INCLUDES DESTINATION include
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
 )
   
 install(TARGETS 

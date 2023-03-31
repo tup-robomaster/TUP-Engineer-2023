@@ -39,12 +39,7 @@ set(dependencies
   global_user
   global_interface 
   glog
-<<<<<<< HEAD
-  PythonLibs
-
-=======
   yaml-cpp
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
 )
 
 include_directories(include)

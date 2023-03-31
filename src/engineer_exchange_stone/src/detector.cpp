@@ -119,6 +119,15 @@ namespace stone_station_detector
       target_info.yaw = angle[1];
       target_info.pitch = angle[2];
 
+      Transform tf_;
+      tf_.euler[0] = angle[0];
+      tf_.euler[1] = angle[1];
+      tf_.euler[2] = angle[2];
+
+      tf_.distance[0] = last_target[0];
+      tf_.distance[1] = last_target[1];
+      tf_.distance[2] = last_target[2];
+
       target_info.is_target = true;
 
       if (debug_params_.show_target)

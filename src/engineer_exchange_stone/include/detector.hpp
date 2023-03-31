@@ -63,6 +63,12 @@ namespace stone_station_detector
     Eigen::Vector3d euler;
   };
 
+  struct Transform
+  {
+    Eigen::Vector3d euler;
+    Eigen::Vector3d distance;
+  };
+
   struct DebugParam
   {
     bool debug_without_com;

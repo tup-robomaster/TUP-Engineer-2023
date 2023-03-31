@@ -71,6 +71,9 @@ namespace stone_station_detector
       // 动态调参回调
       callback_handle_ = this->add_on_set_parameters_callback(std::bind(&detector_node::paramsCallback, this, _1));
     }
+    // TF2-stone-station-to-cam-transform
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&detector_node::stone_station_to_cam, this));
   }
 
   detector_node::~detector_node()
@@ -93,7 +96,6 @@ namespace stone_station_detector
     // RCLCPP_INFO(this->get_logger(), "image callback ...");
     global_user::TaskData src;
     std::vector<Stone_Station> station;
-    TargetMsg target_info;
 
     auto img_sub_time = detector_->steady_clock_.now();
     src.timestamp = (img_sub_time - time_start_).nanoseconds();
@@ -149,6 +151,24 @@ namespace stone_station_detector
     detector_->debug_params_ = this->debug_;
     // param_mutex_.unlock();
     return result;
+  }
+
+  void detector_node::stone_station_to_cam()
+  {
+    geometry_msgs::msg::TransformStamped t;
+
+    t.header.stamp = this->get_clock()->now();
+    t.header.frame_id = "cam_link";
+    t.child_frame_id = "stone_station_link";
+
+    t.transform.translation.x = target_info.x_dis;
+    t.transform.translation.y = target_info.y_dis;
+    t.transform.translation.z = target_info.z_dis;
+
+    tf2::Quaternion q;
+    q.setRPY(target_info.roll, target_info.yaw, target_info.pitch);
+
+    tf_broadcaster_->sendTransform(t);
   }
 
   std::unique_ptr<detector> detector_node::init_detector()

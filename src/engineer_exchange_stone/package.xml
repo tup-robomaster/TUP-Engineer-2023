@@ -16,15 +16,11 @@
   <depend>image_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-<<<<<<< HEAD
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>robot_state_publisher</depend>
 
-  <!-- <depend>InferenceEngine</depend> -->
-=======
->>>>>>> cddc6240ecadddf1a94cd77c416da7df10c3ae32
   <depend>OpenVINO</depend>
   <depend>Ceres</depend>
   <depend>Eigen3</depend>
