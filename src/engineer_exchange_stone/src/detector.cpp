@@ -20,7 +20,7 @@ namespace stone_station_detector
     }
   }
 
-  bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info)
+  bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Transform &tf_data)
   {
     if (!is_init_)
     {
@@ -63,10 +63,10 @@ namespace stone_station_detector
       stone_station.conf = object.prob; // 置信度
 
       // 置信度大于一定值放行
-      if (stone_station.conf >= this->detector_params_.stone_station_conf_high_thres)
-      {
-        continue;
-      }
+      // if (stone_station.conf >= this->detector_params_.stone_station_conf_high_thres)
+      // {
+      //   continue;
+      // }
 
       if (object.color == 0)
         stone_station.key = "B";
@@ -100,35 +100,22 @@ namespace stone_station_detector
       auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_stations.station3d_cam[0] + atc_.x_offset; // 横移距离
-      last_target[1] = stone_stations.station3d_cam[1] + atc_.y_offset; // 抬升距离
-      last_target[2] = stone_stations.station3d_cam[2] + atc_.z_offset; // 前伸距离
+      last_target[0] = stone_stations.station3d_cam[0]; 
+      last_target[1] = stone_stations.station3d_cam[1];
+      last_target[2] = stone_stations.station3d_cam[2];
 
       auto angle = stone_stations.euler;
 
       coordsolver_.angle_process(angle);
       coordsolver_.dis_process(last_target);
 
-      target_info.x_dis = last_target[0];
-      target_info.y_dis = last_target[1];
-      target_info.z_dis = last_target[2];
+      tf_data.x_dis = last_target[0];
+      tf_data.y_dis = last_target[1];
+      tf_data.z_dis = last_target[2];
 
-      angle[2] = angle[2] - CV_PI;
-
-      target_info.roll = angle[0];
-      target_info.yaw = angle[1];
-      target_info.pitch = angle[2];
-
-      Transform tf_;
-      tf_.euler[0] = angle[0];
-      tf_.euler[1] = angle[1];
-      tf_.euler[2] = angle[2];
-
-      tf_.distance[0] = last_target[0];
-      tf_.distance[1] = last_target[1];
-      tf_.distance[2] = last_target[2];
-
-      target_info.is_target = true;
+      tf_data.roll = angle[0];
+      tf_data.yaw = angle[1];
+      tf_data.pitch = angle[2];
 
       if (debug_params_.show_target)
       {

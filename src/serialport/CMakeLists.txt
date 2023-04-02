@@ -23,12 +23,10 @@ find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(laser_geometry REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(angles REQUIRED)
-find_package(robot_state_publisher REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
@@ -62,12 +60,10 @@ set(dependencies
   global_interface
   global_user
   rclcpp_lifecycle 
-  laser_geometry 
   message_filters 
   sensor_msgs 
   visualization_msgs 
   angles 
-  robot_state_publisher 
   yaml-cpp
 )
 

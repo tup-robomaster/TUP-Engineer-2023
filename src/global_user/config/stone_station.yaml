@@ -1,16 +1,7 @@
 /stone_station_detector:
   ros__parameters:
-    # Detector params.
-    # armor_type_wh_thres: 3
-    # max_lost_cnt: 5
-    # max_armors_cnt: 8
-    # max_v: 8
-    # max_delta_t: 100
-    # no_crop_thres: 0.01
-    # hero_danger_zone: 4
     color: true # red: true
                 # blue: false
-
 
   # Camera config params.
     camera_name: "KS2A543" 
@@ -20,10 +11,10 @@
   # Network model path.
     network_path: "src/engineer_exchange_stone/model/yolox_1.onnx"
   
-  # Data saving.
-    save_data: false
-    save_path: "src/data/infer2_5.txt"
-    save_dataset: false
+  # # Data saving.
+  #   save_data: false
+  #   save_path: "src/data/infer2_5.txt"
+  #   save_dataset: false
   
   # Debug params.
     debug: true

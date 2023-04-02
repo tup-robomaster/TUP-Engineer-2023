@@ -21,9 +21,13 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include "global_interface/msg/target.hpp"
 #include "global_interface/msg/serial.hpp"
+#include "global_interface/msg/transform.hpp"
 
 using namespace global_user;
 using namespace coordsolver;
@@ -34,6 +38,7 @@ namespace stone_station_detector
   {
     typedef global_interface::msg::Target TargetMsg;
     typedef global_interface::msg::Serial SerialMsg;
+    typedef global_interface::msg::Transform TransformMsg;
 
   public:
     detector_node(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
@@ -43,8 +48,8 @@ namespace stone_station_detector
 
     std::string transport_;
 
-    // 发布矿站信息
-    rclcpp::Publisher<TargetMsg>::SharedPtr station_pub;
+    // 发布矿站tf转换信息
+    rclcpp::Publisher<TransformMsg>::SharedPtr transform_data_;
     // 订阅串口信息
     rclcpp::Subscription<SerialMsg>::SharedPtr serial_msg_sub_;
 
@@ -64,12 +69,13 @@ namespace stone_station_detector
 
   public:
     // Mutex param_mutex_;
-    SerialMsg serial_msg_;
     DetectorParam detector_params_;
     PathParam path_params_;
     DebugParam debug_;
+    SerialMsg serial_msg_;
     TargetMsg target_info;
-
+    TransformMsg tf_data;
+    
     std::unique_ptr<detector> detector_;
     std::unique_ptr<detector> init_detector();
 
@@ -79,6 +85,11 @@ namespace stone_station_detector
   geometry_msgs::msg::TransformStamped transform_;
   rclcpp::TimerBase::SharedPtr timer_;
   void stone_station_to_cam();
+
+  std::shared_ptr<tf2_ros::Buffer> tfBuffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tfListener_;
+  rclcpp::TimerBase::SharedPtr timer;
+  void tf_callback();
 
   };
 }

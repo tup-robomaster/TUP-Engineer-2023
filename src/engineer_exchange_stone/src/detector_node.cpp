@@ -49,8 +49,8 @@ namespace stone_station_detector
     qos.durability();
     // qos.transient_local();
     qos.durability_volatile();
-    // station pub
-    station_pub = this->create_publisher<TargetMsg>("/station_info", qos);
+    // transform_data_ pub
+    transform_data_ = this->create_publisher<TransformMsg>("/transform_info", qos);
 
     if (debug_.using_imu)
     {
@@ -73,7 +73,11 @@ namespace stone_station_detector
     }
     // TF2-stone-station-to-cam-transform
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&detector_node::stone_station_to_cam, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::stone_station_to_cam, this));
+
+    tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
+    timer = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::tf_callback, this)); 
   }
 
   detector_node::~detector_node()
@@ -108,10 +112,10 @@ namespace stone_station_detector
     auto img = cv_bridge::toCvShare(img_info, "bgr8")->image;
     img.copyTo(src.img);
 
-    if (detector_->stone_station_detect(src, target_info))
+    if (detector_->stone_station_detect(src, tf_data))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
-      station_pub->publish(target_info);
+      transform_data_->publish(tf_data);
     }
 
     if (debug_.show_aim_cross)
@@ -159,16 +163,50 @@ namespace stone_station_detector
 
     t.header.stamp = this->get_clock()->now();
     t.header.frame_id = "cam_link";
-    t.child_frame_id = "stone_station_link";
+    t.child_frame_id = "stone_station_frame";
 
-    t.transform.translation.x = target_info.x_dis;
-    t.transform.translation.y = target_info.y_dis;
-    t.transform.translation.z = target_info.z_dis;
+    t.transform.translation.x = tf_data.x_dis;
+    t.transform.translation.y = tf_data.y_dis;
+    t.transform.translation.z = tf_data.z_dis;
 
     tf2::Quaternion q;
-    q.setRPY(target_info.roll, target_info.yaw, target_info.pitch);
+    q.setRPY(tf_data.roll, tf_data.yaw, tf_data.pitch);
 
     tf_broadcaster_->sendTransform(t);
+  }
+
+  void detector_node::tf_callback()
+  {
+    std::string frame_a = "arm_link";
+    std::string frame_b = "stone_station_frame";
+
+    // 获取两个坐标系之间的变换关系
+    geometry_msgs::msg::TransformStamped transformStamped;
+    try
+    {
+      transformStamped = tfBuffer_->lookupTransform(frame_a, frame_b, tf2::TimePointZero);
+    }
+    catch (tf2::TransformException &ex)
+    {
+      RCLCPP_ERROR(get_logger(), ex.what());
+      return;
+    }
+
+    tf2::Quaternion q(transformStamped.transform.rotation.x,
+                      transformStamped.transform.rotation.y,
+                      transformStamped.transform.rotation.z,
+                      transformStamped.transform.rotation.w);
+    tf2Scalar roll, pitch, yaw;
+    tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
+
+    target_info.roll = roll;
+    target_info.pitch = pitch;
+    target_info.yaw = yaw;
+
+    target_info.x_dis = transformStamped.transform.translation.x;
+    target_info.y_dis = transformStamped.transform.translation.y;
+    target_info.z_dis = transformStamped.transform.translation.z;
+
   }
 
   std::unique_ptr<detector> detector_node::init_detector()

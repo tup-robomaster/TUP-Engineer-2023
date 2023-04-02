@@ -71,11 +71,6 @@ ament_target_dependencies(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   openvino::runtime 
 )
-  
-rclcpp_components_register_nodes(${PROJECT_NAME}
-  PLUGIN "stone_station_detector::detector_node"
-  EXECUTABLE stone_station_detector
-)
 
 set(node_plugins "")
 rclcpp_components_register_nodes(${PROJECT_NAME}

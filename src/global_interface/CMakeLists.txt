@@ -14,7 +14,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  # "msg/Gimbal.msg"
+  "msg/Transform.msg"
   "msg/Stone.msg"
   "msg/Target.msg"
   "msg/Serial.msg"

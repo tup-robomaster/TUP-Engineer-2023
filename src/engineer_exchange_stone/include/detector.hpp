@@ -17,6 +17,7 @@
 #include "../../global_user/include/global_user.hpp"
 #include "../../global_user/include/coordsolver.hpp"
 #include "global_interface/msg/target.hpp"
+#include "global_interface/msg/transform.hpp"
 
 namespace stone_station_detector
 {
@@ -61,12 +62,6 @@ namespace stone_station_detector
     Eigen::Vector3d station3d_cam;
     Eigen::Vector3d station3d_world;
     Eigen::Vector3d euler;
-  };
-
-  struct Transform
-  {
-    Eigen::Vector3d euler;
-    Eigen::Vector3d distance;
   };
 
   struct DebugParam
@@ -115,7 +110,7 @@ namespace stone_station_detector
 
 
   public:
-    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Target &target_info);
+    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Transform &tf_data);
     void showTarget(TaskData& src);
   public:
     std::vector<StationObject> objects;
