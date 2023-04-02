@@ -20,7 +20,7 @@ namespace stone_station_detector
     }
   }
 
-  bool detector::stone_station_detect(global_user::TaskData &src, global_interface::msg::Transform &tf_data)
+  bool detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_)
   {
     if (!is_init_)
     {
@@ -100,7 +100,7 @@ namespace stone_station_detector
       auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
-      last_target[0] = stone_stations.station3d_cam[0]; 
+      last_target[0] = stone_stations.station3d_cam[0];
       last_target[1] = stone_stations.station3d_cam[1];
       last_target[2] = stone_stations.station3d_cam[2];
 
@@ -109,13 +109,19 @@ namespace stone_station_detector
       coordsolver_.angle_process(angle);
       coordsolver_.dis_process(last_target);
 
-      tf_data.x_dis = last_target[0];
-      tf_data.y_dis = last_target[1];
-      tf_data.z_dis = last_target[2];
+      // angle[2] = angle[2]-CV_PI;
 
-      tf_data.roll = angle[0];
-      tf_data.yaw = angle[1];
-      tf_data.pitch = angle[2];
+      tf2::Quaternion qu;
+      qu.setRPY(angle[0], angle[1], angle[2]);
+      // pose_msg_.header.stamp = this->get_clock()->now();
+      pose_msg_.header.frame_id = "arm_to_cam";
+      pose_msg_.pose.position.x = last_target[0];
+      pose_msg_.pose.position.y = last_target[1];
+      pose_msg_.pose.position.z = last_target[2];
+      pose_msg_.pose.orientation.x = qu.x();
+      pose_msg_.pose.orientation.y = qu.y();
+      pose_msg_.pose.orientation.z = qu.z();
+      pose_msg_.pose.orientation.w = qu.w();
 
       if (debug_params_.show_target)
       {

@@ -9,9 +9,9 @@ namespace camera_driver
       : Node("usb_driver", option), is_filpped(false)
   {
 
-    this->declare_parameter<bool>("using_video", false);
+    this->declare_parameter<bool>("using_video", true);
     using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", "TUP-Engineer-2023/src/camera_driver/video/test.mp4");
+    this->declare_parameter<std::string>("video_path", "/home/liyuhang/Desktop/TUP-Engineer-2023/src/camera_driver/video/test.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
 
     if (using_video_)
@@ -19,12 +19,12 @@ namespace camera_driver
       cap.open(video_path_);
       if (!cap.isOpened())
       {
-        RCLCPP_ERROR(this->get_logger(), "Open camera failed!");
+        RCLCPP_ERROR(this->get_logger(), "Open video failed!");
       }
     }
     else
     {
-      cap.open(2);
+      cap.open(0);
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");

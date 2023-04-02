@@ -18,6 +18,11 @@
 #include "../../global_user/include/coordsolver.hpp"
 #include "global_interface/msg/target.hpp"
 #include "global_interface/msg/transform.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
+
+#include <rclcpp/rclcpp.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace stone_station_detector
 {
@@ -110,7 +115,7 @@ namespace stone_station_detector
 
 
   public:
-    bool stone_station_detect(global_user::TaskData &src, global_interface::msg::Transform &tf_data);
+    bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_);
     void showTarget(TaskData& src);
   public:
     std::vector<StationObject> objects;
@@ -140,7 +145,6 @@ namespace stone_station_detector
     DebugParam debug_params_;
     DetectorParam detector_params_;
     PathParam path_params_;
-
   };
 }
 

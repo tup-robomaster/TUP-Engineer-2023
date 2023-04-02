@@ -62,11 +62,8 @@ namespace coordsolver
     cv2eigen(rmat, rvec_eigen);
     cv2eigen(tvec, tvec_eigen);
 
-    // std::cout<<rvec_eigen<<std::endl;
-
     result.station_cam = tvec_eigen;
     result.euler = ::global_user::rotationMatrixToEulerAngles(rvec_eigen);
-    // result.R_station_cam = (rvec_eigen * R_center_world) + tvec_eigen;
     return result;
   }
 

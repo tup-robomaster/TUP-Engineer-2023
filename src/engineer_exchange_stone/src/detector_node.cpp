@@ -35,7 +35,7 @@ namespace stone_station_detector
 
     img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image",
                                                                                                  std::bind(&detector_node::image_callback, this, _1), transport_));
-    // // CameraType camera_type;
+    // CameraType camera_type;
     this->declare_parameter<int>("camera_type", usb);
     int camera_type = this->get_parameter("camera_type").as_int();
 
@@ -49,8 +49,6 @@ namespace stone_station_detector
     qos.durability();
     // qos.transient_local();
     qos.durability_volatile();
-    // transform_data_ pub
-    transform_data_ = this->create_publisher<TransformMsg>("/transform_info", qos);
 
     if (debug_.using_imu)
     {
@@ -78,6 +76,12 @@ namespace stone_station_detector
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
     timer = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::tf_callback, this)); 
+
+    //pose publish
+    publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
+
+    target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
+
   }
 
   detector_node::~detector_node()
@@ -112,10 +116,10 @@ namespace stone_station_detector
     auto img = cv_bridge::toCvShare(img_info, "bgr8")->image;
     img.copyTo(src.img);
 
-    if (detector_->stone_station_detect(src, tf_data))
+    if (detector_->stone_station_detect(src, pose_msg_))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
-      transform_data_->publish(tf_data);
+      publisher_pose_->publish(pose_msg_);
     }
 
     if (debug_.show_aim_cross)
@@ -131,9 +135,9 @@ namespace stone_station_detector
         std::cout << "[CAMERA] Get empty image" << std::endl;
       }
 
-      cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
-      cv::imshow("dst", src.img);
-      cv::waitKey(1);
+      // cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
+      // cv::imshow("dst", src.img);
+      cv::waitKey(1000);
     }
   }
 
@@ -165,12 +169,16 @@ namespace stone_station_detector
     t.header.frame_id = "cam_link";
     t.child_frame_id = "stone_station_frame";
 
-    t.transform.translation.x = tf_data.x_dis;
-    t.transform.translation.y = tf_data.y_dis;
-    t.transform.translation.z = tf_data.z_dis;
+    t.transform.translation.x = pose_msg_.pose.position.x;
+    t.transform.translation.y = pose_msg_.pose.position.y;
+    t.transform.translation.z = pose_msg_.pose.position.z;
 
-    tf2::Quaternion q;
-    q.setRPY(tf_data.roll, tf_data.yaw, tf_data.pitch);
+    // tf2::Quaternion q;
+    // q.setRPY(tf_data.roll, tf_data.yaw, tf_data.pitch);
+    t.transform.rotation.x = pose_msg_.pose.orientation.x;
+    t.transform.rotation.y = pose_msg_.pose.orientation.y;
+    t.transform.rotation.z = pose_msg_.pose.orientation.z;
+    t.transform.rotation.w = pose_msg_.pose.orientation.w;
 
     tf_broadcaster_->sendTransform(t);
   }
@@ -199,6 +207,8 @@ namespace stone_station_detector
     tf2Scalar roll, pitch, yaw;
     tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
 
+    // std::string name = "stone_station_to_arm";
+    // target_info.header = name;
     target_info.roll = roll;
     target_info.pitch = pitch;
     target_info.yaw = yaw;
@@ -207,6 +217,9 @@ namespace stone_station_detector
     target_info.y_dis = transformStamped.transform.translation.y;
     target_info.z_dis = transformStamped.transform.translation.z;
 
+    // target_info.is_target = true;
+
+    target_pub_->publish(target_info);
   }
 
   std::unique_ptr<detector> detector_node::init_detector()
