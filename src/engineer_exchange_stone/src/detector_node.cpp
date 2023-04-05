@@ -79,9 +79,13 @@ namespace stone_station_detector
 
     //pose publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
-
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
+    //Marker publish
+    marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
+    timers_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::marker_callback, this));
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
 
   detector_node::~detector_node()
@@ -135,9 +139,9 @@ namespace stone_station_detector
         std::cout << "[CAMERA] Get empty image" << std::endl;
       }
 
-      // cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
-      // cv::imshow("dst", src.img);
-      cv::waitKey(1000);
+      cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
+      cv::imshow("dst", src.img);
+      cv::waitKey(1);
     }
   }
 
@@ -192,7 +196,7 @@ namespace stone_station_detector
     geometry_msgs::msg::TransformStamped transformStamped;
     try
     {
-      transformStamped = tfBuffer_->lookupTransform(frame_a, frame_b, tf2::TimePointZero);
+      transformStamped = tfBuffer_->lookupTransform(frame_a, frame_b, tf2::TimePoint());
     }
     catch (tf2::TransformException &ex)
     {
@@ -207,8 +211,6 @@ namespace stone_station_detector
     tf2Scalar roll, pitch, yaw;
     tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
 
-    // std::string name = "stone_station_to_arm";
-    // target_info.header = name;
     target_info.roll = roll;
     target_info.pitch = pitch;
     target_info.yaw = yaw;
@@ -217,9 +219,43 @@ namespace stone_station_detector
     target_info.y_dis = transformStamped.transform.translation.y;
     target_info.z_dis = transformStamped.transform.translation.z;
 
-    // target_info.is_target = true;
+    target_info.is_target = true;
 
     target_pub_->publish(target_info);
+  }
+
+  void detector_node::marker_callback() 
+  {
+    if(!tf_buffer_->canTransform("cam_link", "stone_station_frame", tf2::TimePointZero))
+    {
+      RCLCPP_WARN(this->get_logger(), "Cannot get transform from cam_link to stone_station_frame");
+      return;
+    }
+
+    auto transform = tf_buffer_->lookupTransform("cam_link", "stone_station_frame", tf2::TimePointZero);
+    geometry_msgs::msg::Quaternion q;
+    tf2::convert(transform.transform.rotation, q);
+
+    auto cube_maker = std::make_unique<visualization_msgs::msg::Marker>();
+    cube_maker->header.stamp = this->now();
+    cube_maker->ns = "basic_shapes";
+    cube_maker->id = 0;
+    cube_maker->type = visualization_msgs::msg::Marker::CUBE;
+    cube_maker->action = visualization_msgs::msg::Marker::ADD;
+    cube_maker->header.frame_id = "cam_link";
+    cube_maker->pose.position.x = transform.transform.translation.x;
+    cube_maker->pose.position.y = transform.transform.translation.y;
+    cube_maker->pose.position.z = transform.transform.translation.z;
+    cube_maker->pose.orientation = q;
+    cube_maker->scale.x = 0.288;
+    cube_maker->scale.y = 0.288;
+    cube_maker->scale.z = 0.288;
+    cube_maker->color.r = 0.0f;
+    cube_maker->color.g = 1.0f;
+    cube_maker->color.b = 0.0f;
+    cube_maker->color.a = 0.80;
+
+    marker_pub_->publish(std::move(cube_maker));
   }
 
   std::unique_ptr<detector> detector_node::init_detector()

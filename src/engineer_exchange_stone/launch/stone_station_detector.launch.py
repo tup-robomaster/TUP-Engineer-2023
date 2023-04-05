@@ -35,14 +35,14 @@ def generate_launch_description():
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.217", "0.423", "0.170", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
+        arguments=["0.217", "0.423", "0.423", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
         )
 
         tf_arm_to_base_node_ = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.423", "0", "0.382", "0", "0", "0", "base_link", "arm_link"]
+        arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
         )
 
         ld.add_action(usb_cam_node)

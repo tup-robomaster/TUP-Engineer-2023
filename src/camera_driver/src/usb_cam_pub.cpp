@@ -9,7 +9,7 @@ namespace camera_driver
       : Node("usb_driver", option), is_filpped(false)
   {
 
-    this->declare_parameter<bool>("using_video", true);
+    this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
     this->declare_parameter<std::string>("video_path", "/home/liyuhang/Desktop/TUP-Engineer-2023/src/camera_driver/video/test.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
@@ -31,10 +31,10 @@ namespace camera_driver
       }
     }
 
-    cap.set(cv::CAP_PROP_BRIGHTNESS, -50); // 亮度
+    // cap.set(cv::CAP_PROP_BRIGHTNESS, -50); // 亮度
 
-    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
-    cap.set(cv::CAP_PROP_EXPOSURE, -50); // 曝光
+    // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
+    // cap.set(cv::CAP_PROP_EXPOSURE, -50); // 曝光
     // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
 
     last_frame = std::chrono::steady_clock::now();

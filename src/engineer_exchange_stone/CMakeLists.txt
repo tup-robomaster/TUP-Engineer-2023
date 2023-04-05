@@ -28,6 +28,7 @@ find_package(OpenVINO REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Ceres REQUIRED COMPONENTS EigenSparse)
 find_package(cv_bridge REQUIRED)
+find_package(visualization_msgs REQUIRED)
 # custom package
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
@@ -52,6 +53,7 @@ set(dependencies
   geometry_msgs
   global_interface
   global_user
+  visualization_msgs
   tf2_geometry_msgs
   tf2
   tf2_ros

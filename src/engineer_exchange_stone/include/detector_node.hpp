@@ -28,6 +28,8 @@
 #include "global_interface/msg/target.hpp"
 #include "global_interface/msg/serial.hpp"
 #include <geometry_msgs/msg/pose_stamped.hpp>
+// Marker
+#include <visualization_msgs/msg/marker.hpp>
 
 using namespace global_user;
 using namespace coordsolver;
@@ -92,6 +94,13 @@ namespace stone_station_detector
     // pose publish
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_pose_;
     geometry_msgs::msg::PoseStamped pose_msg_;
+
+    // Marker publish
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;
+    rclcpp::TimerBase::SharedPtr timers_;
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+    void marker_callback();
   };
 }
 
