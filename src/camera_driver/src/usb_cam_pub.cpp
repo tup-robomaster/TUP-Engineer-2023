@@ -5,7 +5,7 @@ using namespace std::chrono_literals;
 namespace camera_driver
 {
 
-  usb_cam_node::usb_cam_node(const rclcpp::NodeOptions &option)
+  UsbCamNode::UsbCamNode(const rclcpp::NodeOptions &option)
       : Node("usb_driver", option), is_filpped(false)
   {
 
@@ -13,6 +13,8 @@ namespace camera_driver
     using_video_ = this->get_parameter("using_video").as_bool();
     this->declare_parameter<std::string>("video_path", "/home/liyuhang/Desktop/TUP-Engineer-2023/src/camera_driver/video/test.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
+    this->declare_parameter<int>("cam_id", 0);
+    cam_id_ = this->get_parameter("cam_id").as_int();
 
     if (using_video_)
     {
@@ -24,7 +26,7 @@ namespace camera_driver
     }
     else
     {
-      cap.open(0);
+      cap.open(cam_id_);
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");
@@ -39,30 +41,26 @@ namespace camera_driver
 
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
-    timer_ = this->create_wall_timer(1ms, std::bind(&usb_cam_node::image_callback, this));
+    timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
   }
 
-  std::unique_ptr<usb_cam> usb_cam_node::init_usb_cam()
+  std::unique_ptr<UsbCam> UsbCamNode::init_usb_cam()
   {
-    usb_cam_params usb_cam_params_;
-
-    this->declare_parameter("camera_id", 0);
     this->declare_parameter("frame_id", "usb_image");
     this->declare_parameter("image_width", 680);
     this->declare_parameter("image_height", 480);
     this->declare_parameter("fps", 30);
 
-    usb_cam_params_.camera_id = this->get_parameter("camera_id").as_int();
     usb_cam_params_.frame_id = this->get_parameter("frame_id").as_string();
     usb_cam_params_.image_width = this->get_parameter("image_width").as_int();
     usb_cam_params_.image_height = this->get_parameter("image_height").as_int();
     usb_cam_params_.fps = this->get_parameter("fps").as_int();
 
-    printf("camera_id: %d\n", usb_cam_params_.camera_id);
-    return std::make_unique<usb_cam>(usb_cam_params_);
+    // printf("camera_id: %d\n", usb_cam_params_.camera_id);
+    return std::make_unique<UsbCam>(usb_cam_params_);
   }
 
-  std::unique_ptr<sensor_msgs::msg::Image> usb_cam_node::convert_frame_to_message(cv::Mat &frame)
+  std::unique_ptr<sensor_msgs::msg::Image> UsbCamNode::convert_frame_to_message(cv::Mat &frame)
   {
     std_msgs::msg::Header header;
     sensor_msgs::msg::Image ros_image;
@@ -81,7 +79,7 @@ namespace camera_driver
     return msg_ptr;
   }
 
-  void usb_cam_node::image_callback()
+  void UsbCamNode::image_callback()
   {
     cap >> frame;
     auto now_frame = std::chrono::steady_clock::now();
@@ -103,17 +101,11 @@ namespace camera_driver
 
 int main(int argc, char *argv[])
 {
-  setvbuf(stdout, NULL, _IONBF, BUFSIZ);
-
   rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
-  const rclcpp::NodeOptions options;
-  auto usb_cam_node = std::make_shared<camera_driver::usb_cam_node>(options);
-  exec.add_node(usb_cam_node);
-  exec.spin();
+  rclcpp::spin(std::make_shared<camera_driver::UsbCamNode>());
   rclcpp::shutdown();
   return 0;
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(camera_driver::usb_cam_node)
+RCLCPP_COMPONENTS_REGISTER_NODE(camera_driver::UsbCamNode)

@@ -1,22 +1,22 @@
 #ifndef INFERENCE_HPP_
 #define INFERENCE_HPP_
 
-//c++
+// c++
 #include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
 #include <iostream>
 
-//openvino
+// openvino
 #include <openvino/openvino.hpp>
 // #include <format_reader_ptr.h>
 
-//opencv
+// opencv
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
-//eigen
+// eigen
 #include <Eigen/Core>
 
 #include "../../global_user/include/global_user.hpp"
@@ -39,11 +39,11 @@ namespace stone_station_detector
     std::vector<cv::Point2f> pts;
   };
 
-  class Station_Detector
+  class StationDetector
   {
   public:
-    Station_Detector();
-    ~Station_Detector();
+    StationDetector();
+    ~StationDetector();
     bool detect(cv::Mat &src, std::vector<StationObject> &objects);
     bool initModel(string path);
 
@@ -60,7 +60,7 @@ namespace stone_station_detector
     string input_name;
     string output_name;
 
-    //TODO:
+    // TODO:
     Eigen::Matrix<float, 3, 3> transfrom_matrix;
   };
 }

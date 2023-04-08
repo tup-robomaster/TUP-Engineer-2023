@@ -4,7 +4,7 @@ using namespace std;
 
 namespace stone_station_detector
 {
-  detector::detector(const PathParam &path_param, const DetectorParam &detector_params, const DebugParam &debug_params)
+  Detector::Detector(const PathParam &path_param, const DetectorParam &detector_params, const DebugParam &debug_params)
       : detector_params_(detector_params),
         path_params_(path_param), debug_params_(debug_params), logger_(rclcpp::get_logger("stone_station_detector"))
   {
@@ -12,7 +12,7 @@ namespace stone_station_detector
     is_save_data = false;
   }
 
-  detector::~detector()
+  Detector::~Detector()
   {
     if (is_save_data)
     {
@@ -20,7 +20,7 @@ namespace stone_station_detector
     }
   }
 
-  bool detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_)
+  bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_)
   {
     if (!is_init_)
     {

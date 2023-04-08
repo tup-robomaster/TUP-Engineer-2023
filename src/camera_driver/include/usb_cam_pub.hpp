@@ -13,12 +13,12 @@
 
 namespace camera_driver
 {
-  class usb_cam_node : public rclcpp::Node
+  class UsbCamNode : public rclcpp::Node
   {
 
   public:
-    usb_cam_node(const rclcpp::NodeOptions &option = rclcpp::NodeOptions());
-    ~usb_cam_node(){};
+    UsbCamNode(const rclcpp::NodeOptions &option = rclcpp::NodeOptions());
+    ~UsbCamNode(){};
 
   private:
     bool is_filpped;
@@ -26,6 +26,7 @@ namespace camera_driver
     cv::Mat frame;
     bool using_video_;
     std::string video_path_;
+    int cam_id_;
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::chrono::steady_clock::time_point last_frame;
@@ -38,8 +39,9 @@ namespace camera_driver
     std::unique_ptr<sensor_msgs::msg::Image> convert_frame_to_message(cv::Mat &frame);
 
   public:
-    std::unique_ptr<usb_cam> usb_cam_;
-    std::unique_ptr<usb_cam> init_usb_cam();
+    std::unique_ptr<UsbCam> usb_cam_;
+    std::unique_ptr<UsbCam> init_usb_cam();
+    usb_cam_params usb_cam_params_;
   }; // usb_cam_node
 
 }

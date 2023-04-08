@@ -4,7 +4,7 @@
   <name>camera_driver</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="1913605045@todo.todo">liyuhang</maintainer>
+  <maintainer email="lyh15940645195@gmail.com">liyuhang</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -12,18 +12,12 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>OpenCV</depend>
-  <depend>geometry_msgs</depend>
-  <depend>fmt</depend>
-  <depend>glog</depend>
   <depend>yaml-cpp</depend>
   <depend>std_msgs</depend>
-  <depend>rclpy</depend>
   <depend>message_filters</depend>
-  <depend>sensor_msgs</depend>
   <depend>camera_info_manager</depend>
   <depend>image_transport</depend>
   <depend>camera_calibration_parsers</depend>
-  <depend>launch_ros</depend>
   <depend>global_interface</depend>
   <depend>global_user</depend>
 

@@ -298,16 +298,16 @@ namespace stone_station_detector
         }
     }
 
-    Station_Detector::Station_Detector()
+    StationDetector::StationDetector()
     {
     }
 
-    Station_Detector::~Station_Detector()
+    StationDetector::~StationDetector()
     {
     }
 
     // TODO:change to your dir
-    bool Station_Detector::initModel(std::string path)
+    bool StationDetector::initModel(std::string path)
     {
         std::cout << "Start initialize model..." << std::endl;
         // Setting Configuration Values
@@ -349,7 +349,7 @@ namespace stone_station_detector
         return true;
     }
 
-    bool Station_Detector::detect(Mat &src, std::vector<StationObject> &objects)
+    bool StationDetector::detect(Mat &src, std::vector<StationObject> &objects)
     {
         if (src.empty())
         {

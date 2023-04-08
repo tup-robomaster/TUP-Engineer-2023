@@ -36,14 +36,14 @@ using namespace coordsolver;
 
 namespace stone_station_detector
 {
-  class detector_node : public rclcpp::Node
+  class DetectorNode : public rclcpp::Node
   {
     typedef global_interface::msg::Target TargetMsg;
     typedef global_interface::msg::Serial SerialMsg;
 
   public:
-    detector_node(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-    ~detector_node();
+    DetectorNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+    ~DetectorNode();
 
     std::shared_ptr<image_transport::Subscriber> img_sub;
 
@@ -76,8 +76,8 @@ namespace stone_station_detector
     TargetMsg target_info;
     // TransformMsg tf_data;
 
-    std::unique_ptr<detector> detector_;
-    std::unique_ptr<detector> init_detector();
+    std::unique_ptr<Detector> detector_;
+    std::unique_ptr<Detector> init_detector();
 
     // TF2
   private:

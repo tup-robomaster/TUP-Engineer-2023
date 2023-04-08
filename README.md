@@ -27,14 +27,17 @@ Data:2023-03-25 由于解算出现误差，查找资料，做了多种尝试，�
 
 Data:2023-04-01 加入了TF2，包括相机系，矿站系，车体系，车臂系的转换关系，将自义定消息换成geometry_msgs中的消息，最后发布。
 
+Data:2023-04-08 加入Marker,可以看到矿站实体化，重新整合代码，规范代码，写成组件形式启动，研究并尝试moveit开发。
+
 ## 问题
 若出现： Failed to load module "canberra-gtk-module"
-一般处理方法：sudo apt-get install libcanberra-gtk-module
+
+sudo apt-get install libcanberra-gtk-module
 
 若出现： Could not find a package configuration file provided by
   "camera_info_manager" with any of the following names
 
-sudo apt install ros-noetic-camera-info-manager 
+sudo apt install ros-galactic-camera-info-manager 
 
 若出现： Could not find a package configuration file provided by "tf2_geometry_msgs"
   with any of the following names
@@ -48,7 +51,7 @@ sudo apt install ros-galactic-tf2-geometry-msgs
     . install/setup.bash
     colcon build --symlink-install
     . install/setup.bash
-#### 1.自瞄调试
+#### 1.矿站识别调试
     调试说明：
     参数配置文件位置：src/global_user/config/stone_station.yaml
     对应的launch文件位置：src/global_user/launch/engineer_exchange_stone_bringup.launch.py

@@ -4,13 +4,13 @@ using namespace std::placeholders;
 
 namespace stone_station_detector
 {
-  detector_node::detector_node(const rclcpp::NodeOptions &options)
+  DetectorNode::DetectorNode(const rclcpp::NodeOptions &options)
       : Node("stone_station_detector", options)
   {
     RCLCPP_WARN(this->get_logger(), "Starting station_detector node...");
 
     try
-    { // detector类初始化
+    {
       this->detector_ = init_detector();
     }
     catch (const std::exception &e)
@@ -34,20 +34,15 @@ namespace stone_station_detector
     transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
 
     img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image",
-                                                                                                 std::bind(&detector_node::image_callback, this, _1), transport_));
-    // CameraType camera_type;
-    this->declare_parameter<int>("camera_type", usb);
-    int camera_type = this->get_parameter("camera_type").as_int();
+                                                                                                 std::bind(&DetectorNode::image_callback, this, _1), transport_));
 
     time_start_ = detector_->steady_clock_.now();
 
     // Qos
     rclcpp::QoS qos(0);
-    qos.keep_last(5);
-    qos.best_effort();
+    qos.keep_last(1);
     qos.reliable();
-    qos.durability();
-    // qos.transient_local();
+    qos.transient_local();
     qos.durability_volatile();
 
     if (debug_.using_imu)
@@ -57,7 +52,7 @@ namespace stone_station_detector
       serial_msg_.mode = this->declare_parameter<int>("vision_mode", 1);
       // imu msg sub.
       serial_msg_sub_ = this->create_subscription<SerialMsg>("/serial_msg", qos,
-                                                             std::bind(&detector_node::sensorMsgCallback, this, _1));
+                                                             std::bind(&DetectorNode::sensorMsgCallback, this, _1));
     }
 
     bool debug = true;
@@ -67,32 +62,32 @@ namespace stone_station_detector
     {
       RCLCPP_INFO(this->get_logger(), "debug...");
       // 动态调参回调
-      callback_handle_ = this->add_on_set_parameters_callback(std::bind(&detector_node::paramsCallback, this, _1));
+      callback_handle_ = this->add_on_set_parameters_callback(std::bind(&DetectorNode::paramsCallback, this, _1));
     }
     // TF2-stone-station-to-cam-transform
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::stone_station_to_cam, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::stone_station_to_cam, this));
 
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
-    timer = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::tf_callback, this)); 
+    timer = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::tf_callback, this));
 
-    //pose publish
+    // Pose publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
-    //Marker publish
+    // Marker publish
     marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
-    timers_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&detector_node::marker_callback, this));
+    timers_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::marker_callback, this));
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
 
-  detector_node::~detector_node()
+  DetectorNode::~DetectorNode()
   {
   }
 
-  void detector_node::sensorMsgCallback(const SerialMsg &serial_msg)
+  void DetectorNode::sensorMsgCallback(const SerialMsg &serial_msg)
   {
     // msg_mutex_.lock();
     serial_msg_.imu.header.stamp = this->get_clock()->now();
@@ -103,9 +98,8 @@ namespace stone_station_detector
     return;
   }
 
-  void detector_node::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info)
+  void DetectorNode::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info)
   {
-    // RCLCPP_INFO(this->get_logger(), "image callback ...");
     global_user::TaskData src;
     std::vector<Stone_Station> station;
 
@@ -151,7 +145,7 @@ namespace stone_station_detector
    * @param params 参数服务器参数（发生改变的参数）
    * @return rcl_interfaces::msg::SetParametersResult
    */
-  rcl_interfaces::msg::SetParametersResult detector_node::paramsCallback(const std::vector<rclcpp::Parameter> &params)
+  rcl_interfaces::msg::SetParametersResult DetectorNode::paramsCallback(const std::vector<rclcpp::Parameter> &params)
   {
     rcl_interfaces::msg::SetParametersResult result;
     result.successful = false;
@@ -165,7 +159,7 @@ namespace stone_station_detector
     return result;
   }
 
-  void detector_node::stone_station_to_cam()
+  void DetectorNode::stone_station_to_cam()
   {
     geometry_msgs::msg::TransformStamped t;
 
@@ -177,8 +171,6 @@ namespace stone_station_detector
     t.transform.translation.y = pose_msg_.pose.position.y;
     t.transform.translation.z = pose_msg_.pose.position.z;
 
-    // tf2::Quaternion q;
-    // q.setRPY(tf_data.roll, tf_data.yaw, tf_data.pitch);
     t.transform.rotation.x = pose_msg_.pose.orientation.x;
     t.transform.rotation.y = pose_msg_.pose.orientation.y;
     t.transform.rotation.z = pose_msg_.pose.orientation.z;
@@ -187,7 +179,7 @@ namespace stone_station_detector
     tf_broadcaster_->sendTransform(t);
   }
 
-  void detector_node::tf_callback()
+  void DetectorNode::tf_callback()
   {
     std::string frame_a = "arm_link";
     std::string frame_b = "stone_station_frame";
@@ -224,9 +216,9 @@ namespace stone_station_detector
     target_pub_->publish(target_info);
   }
 
-  void detector_node::marker_callback() 
+  void DetectorNode::marker_callback()
   {
-    if(!tf_buffer_->canTransform("cam_link", "stone_station_frame", tf2::TimePointZero))
+    if (!tf_buffer_->canTransform("cam_link", "stone_station_frame", tf2::TimePointZero))
     {
       RCLCPP_WARN(this->get_logger(), "Cannot get transform from cam_link to stone_station_frame");
       return;
@@ -258,7 +250,7 @@ namespace stone_station_detector
     marker_pub_->publish(std::move(cube_maker));
   }
 
-  std::unique_ptr<detector> detector_node::init_detector()
+  std::unique_ptr<Detector> DetectorNode::init_detector()
   {
 
     this->declare_parameter<bool>("color", true);
@@ -269,11 +261,11 @@ namespace stone_station_detector
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
     this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_1.onnx");
-    this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
+    // this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
 
     // Debug.
     this->declare_parameter("debug_without_com", true);
-    this->declare_parameter("using_imu", false);
+    // this->declare_parameter("using_imu", false);
     // this->declare_parameter("using_roi", true);
     this->declare_parameter("show_aim_cross", true);
     this->declare_parameter("show_img", true);
@@ -283,15 +275,14 @@ namespace stone_station_detector
     this->declare_parameter("print_target_info", true);
     this->declare_parameter("show_target", true);
     this->declare_parameter("save_data", false);
-    this->declare_parameter("save_dataset", false);
 
     // Update param from param server.
     updateParam();
 
-    return std::make_unique<detector>(path_params_, detector_params_, debug_);
+    return std::make_unique<Detector>(path_params_, detector_params_, debug_);
   }
 
-  bool detector_node::updateParam()
+  bool DetectorNode::updateParam()
   {
     bool det_red = this->get_parameter("color").as_bool();
     if (det_red)
@@ -305,19 +296,17 @@ namespace stone_station_detector
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
     debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
     debug_.show_img = this->get_parameter("show_img").as_bool();
-    debug_.using_imu = this->get_parameter("using_imu").as_bool();
+    // debug_.using_imu = this->get_parameter("using_imu").as_bool();
     // debug_.using_roi = this->get_parameter("using_roi").as_bool();
     debug_.show_fps = this->get_parameter("show_fps").as_bool();
     debug_.print_letency = this->get_parameter("print_letency").as_bool();
     debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
     debug_.show_target = this->get_parameter("show_target").as_bool();
     debug_.save_data = this->get_parameter("save_data").as_bool();
-    debug_.save_dataset = this->get_parameter("save_dataset").as_bool();
 
     path_params_.camera_name = this->get_parameter("camera_name").as_string();
     path_params_.camera_param_path = this->get_parameter("camera_param_path").as_string();
     path_params_.network_path = this->get_parameter("network_path").as_string();
-    path_params_.save_path = this->get_parameter("save_path").as_string();
 
     return true;
   }
@@ -327,10 +316,10 @@ namespace stone_station_detector
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<stone_station_detector::detector_node>());
+  rclcpp::spin(std::make_shared<stone_station_detector::DetectorNode>());
   rclcpp::shutdown();
   return 0;
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(stone_station_detector::detector_node)
+RCLCPP_COMPONENTS_REGISTER_NODE(stone_station_detector::DetectorNode)

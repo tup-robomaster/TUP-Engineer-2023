@@ -17,7 +17,6 @@
 #include "../../global_user/include/global_user.hpp"
 #include "../../global_user/include/coordsolver.hpp"
 #include "global_interface/msg/target.hpp"
-#include "global_interface/msg/transform.hpp"
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -34,7 +33,7 @@ namespace stone_station_detector
 
   struct DetectorParam
   {
-    double stone_station_conf_high_thres;  //矿站置信度
+    double stone_station_conf_high_thres; // 矿站置信度
 
     Color color;
     DetectorParam()
@@ -82,7 +81,6 @@ namespace stone_station_detector
     bool print_letency;
     bool print_target_info;
     bool save_data;
-    bool save_dataset;
 
     DebugParam()
     {
@@ -107,16 +105,16 @@ namespace stone_station_detector
     float y_offset = 0;
     float z_offset = 0;
   };
-  class detector
+  class Detector
   {
   public:
-    detector(const PathParam& path_param, const DetectorParam& detector_params, const DebugParam& debug_params);
-    ~detector();
-
+    Detector(const PathParam &path_param, const DetectorParam &detector_params, const DebugParam &debug_params);
+    ~Detector();
 
   public:
     bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_);
-    void showTarget(TaskData& src);
+    void showTarget(TaskData &src);
+
   public:
     std::vector<StationObject> objects;
     std::vector<Stone_Station> stone_stations;
@@ -127,7 +125,7 @@ namespace stone_station_detector
 
   public:
     coordsolver::CoordSolver coordsolver_;
-    Station_Detector station_detector_;
+    StationDetector station_detector_;
     arm_to_camera atc_;
     rclcpp::Logger logger_;
     rclcpp::Clock steady_clock_{RCL_STEADY_TIME};

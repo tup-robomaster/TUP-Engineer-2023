@@ -14,13 +14,12 @@ namespace camera_driver
   struct usb_cam_params
   {
     std::string frame_id = "usb_cam";
-    int camera_id = 2;
     int image_width = 480;
     int image_height = 480;
     int fps = 30;
   };
 
-  class usb_cam
+  class UsbCam
   {
   public:
     usb_cam_params usb_cam_params_;
@@ -31,8 +30,8 @@ namespace camera_driver
     cv::Mat src;
 
   public:
-    usb_cam(usb_cam_params usb_params);
-    ~usb_cam();
+    UsbCam(usb_cam_params usb_params);
+    ~UsbCam();
 
     void init();
   };

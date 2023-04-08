@@ -12,9 +12,6 @@ find_package(rclcpp_components REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(rclpy REQUIRED)
-find_package(message_filters REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(camera_info_manager REQUIRED)
@@ -27,18 +24,16 @@ find_package(global_user REQUIRED)
 set(dependencies 
   rclcpp
   rclcpp_components
-  sensor_msgs
   std_msgs
   camera_info_manager
   image_transport
   camera_calibration_parsers
   OpenCV
   Eigen3
-  sensor_msgs
+  yaml-cpp
+
   global_user
   global_interface 
-  glog
-  yaml-cpp
 )
 
 include_directories(include)
@@ -57,9 +52,7 @@ ament_target_dependencies(${PROJECT_NAME}
   ${dependencies}
 )
 
-set(node_plugins "")
-rclcpp_components_register_nodes(${PROJECT_NAME} "camera_driver::usb_cam_node")
-set(node_plugins "${node_plugins}camera_driver::usb_cam_node;&<TARGET_FILE:usb_cam_node\n")
+rclcpp_components_register_nodes(${PROJECT_NAME} "camera_driver::UsbCamNode")
 
 add_executable(usb_cam_pub
   src/usb_cam_pub.cpp

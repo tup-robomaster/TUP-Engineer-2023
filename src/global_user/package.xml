@@ -4,7 +4,7 @@
   <name>global_user</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="liyuhang@todo.todo">liubiao</maintainer>
+  <maintainer email="lyh15940645195@gmail.com">liyuhang</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
@@ -18,6 +18,9 @@
   <depend>sensor_msgs</depend>
   <depend>robot_state_publisher</depend>
   <depend>yaml-cpp</depend>
+
+  <depend>tf2_geometry_msgs</depend> 
+  <depend>tf2_ros</depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

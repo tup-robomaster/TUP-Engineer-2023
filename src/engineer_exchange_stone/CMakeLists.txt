@@ -1,17 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(stone_station_detector)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17 -Os -pthread -g")
-
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
-  
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -19,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(message_filters REQUIRED)
@@ -33,17 +23,23 @@ find_package(visualization_msgs REQUIRED)
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(fmt REQUIRED)
 
-find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+
+include_directories(
+  include
+  ${OpenCV_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${OpenVINO_INCLUDE_DIRS}
+)
 
 set(dependencies 
   rclcpp
   rclpy
   OpenCV 
   message_filters 
+  rclcpp_components
   image_transport
   sensor_msgs
   OpenVINO
@@ -51,15 +47,13 @@ set(dependencies
   Eigen3
   cv_bridge
   geometry_msgs
-  global_interface
-  global_user
   visualization_msgs
   tf2_geometry_msgs
-  tf2
-  tf2_ros
-  
-  yaml-cpp 
-  fmt
+  tf2_ros 
+  yaml-cpp
+
+  global_interface
+  global_user
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -67,26 +61,25 @@ add_library(${PROJECT_NAME} SHARED
   src/detector.cpp
   src/inference.cpp
 )
+
 ament_target_dependencies(${PROJECT_NAME}
   ${dependencies}  
 )
+
 target_link_libraries(${PROJECT_NAME}
   openvino::runtime 
+  yaml-cpp
 )
 
-set(node_plugins "")
-rclcpp_components_register_nodes(${PROJECT_NAME}
-  PLUGIN "stone_station_detector::detector_node"
-  EXECUTABLE stone_station_detector
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE "COMPOSITION_BUILDING_DLL"
 )
-set(node_plugins "${node_plugins}stone_station_detector::detector_node;&<TARGET_FILE:detector_node\n")
 
 add_executable(${PROJECT_NAME}_node
   src/detector_node.cpp
   src/detector.cpp
   src/inference.cpp
 )
-
 
 ament_target_dependencies(${PROJECT_NAME}_node
   ${dependencies}
@@ -97,15 +90,20 @@ target_link_libraries(${PROJECT_NAME}_node
   openvino::runtime 
   ${Eigen3_LIBRARIES}
   yaml-cpp
-  glog.so 
-  fmt.so
+  fmt
+)
+
+rclcpp_components_register_nodes(${PROJECT_NAME} 
+  PLUGIN "stone_station_detector::DetectorNode" 
+  # EXECUTABLE stone_station_detector_node
 )
 
 install(TARGETS 
   ${PROJECT_NAME}
-  ARCHIVE DESTINATION lib # 静态库安装路径
-  LIBRARY DESTINATION lib # 动态库安装路径
-  RUNTIME DESTINATION bin # 可执行文件安装路径
+  ARCHIVE DESTINATION lib 
+  LIBRARY DESTINATION lib 
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
   
 install(TARGETS 

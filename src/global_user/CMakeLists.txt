@@ -7,33 +7,34 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(rclpy REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
 find_package(message_filters REQUIRED)
-find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
-find_package(angles REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Ceres REQUIRED COMPONENTS EigenSparse)
 find_package(yaml-cpp REQUIRED)
 
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+
 set(dependencies
+  rclcpp_components
   geometry_msgs
-  rclcpp
-  rclcpp_lifecycle
   sensor_msgs
+  rclcpp
   std_msgs
   visualization_msgs
-  angles
   OpenCV
   Eigen3
-  Ceres
   yaml-cpp
+
+  tf2_geometry_msgs
+  tf2_ros 
 )
 
 include_directories(
@@ -44,7 +45,7 @@ include_directories(
 
 # 添加源文件，生成库
 add_library(${PROJECT_NAME} SHARED
-  src/${PROJECT_NAME}.cpp
+  src/global_user.cpp
   src/coordsolver.cpp
 )
 
@@ -53,10 +54,13 @@ ament_target_dependencies(${PROJECT_NAME}
   ${dependencies}
   yaml-cpp
 )
-
+   
+target_link_libraries(${PROJECT_NAME}
+  yaml-cpp
+)
 # 注册 导出头文件
 install(
-  DIRECTORY include/
+  DIRECTORY include
   DESTINATION include
 )
 

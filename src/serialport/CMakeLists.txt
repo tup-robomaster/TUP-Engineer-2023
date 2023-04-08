@@ -8,10 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
 # SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
-# ## By adding -Wall and -Werror, the compiler does not ignore warnings anymore,
-# ## enforcing cleaner code.
-# add_definitions(-Wall -Werror)
-
 # ## Export compile commands for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -24,13 +20,11 @@ find_package(std_msgs REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(message_filters REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(angles REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(global_interface REQUIRED)
 find_package(global_user REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 include_directories(
@@ -47,21 +41,15 @@ add_library(${PROJECT_NAME} SHARED
       src/data_transform.cpp
       src/${PROJECT_NAME}_node.cpp
 )
-  
-# target_compile_definitions(${PROJECT_NAME}
-# PRIVATE "COMPOSITION_BUILDING_DLL")
 
 set(dependencies 
   rclcpp
   rclcpp_components
   std_msgs
-  sensor_msgs
   OpenCV
   global_interface
   global_user
   rclcpp_lifecycle 
-  message_filters 
-  sensor_msgs 
   visualization_msgs 
   angles 
   yaml-cpp
@@ -94,11 +82,6 @@ rclcpp_components_register_nodes(${PROJECT_NAME}
   PLUGIN "serialport::serial_driver"
   EXECUTABLE ${PROJECT_NAME}_node  
 )
-
-# Install executable nodes
-# install(TARGETS ${PROJECT_NAME}
-#   DESTINATION lib/${PROJECT_NAME}
-# )
 
 # Install libraries
 install(TARGETS ${PROJECT_NAME}

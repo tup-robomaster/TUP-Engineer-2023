@@ -42,10 +42,10 @@ namespace serialport
         float pitch_angle; // 偏航角
         float yaw_angle;   // 俯仰角
         float roll_angle;  // 翻滚角
-        //右手系
-        float x_dis;       // 横移距离
-        float y_dis;       // 抬升距离
-        float z_dis;       // 前伸距离
+        // 右手系
+        float x_dis; // 横移距离
+        float y_dis; // 抬升距离
+        float z_dis; // 前伸距离
 
         int isFindTarget; // 当识别的图片范围内有目标
 

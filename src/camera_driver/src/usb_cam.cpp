@@ -2,14 +2,14 @@
 
 namespace camera_driver
 {
-  usb_cam::usb_cam(usb_cam_params usb_params)
+  UsbCam::UsbCam(usb_cam_params usb_params)
   {
     this->usb_cam_params_ = usb_params;
   }
-  usb_cam::~usb_cam()
+  UsbCam::~UsbCam()
   {
   }
-  void usb_cam::init()
+  void UsbCam::init()
   {
   }
 }

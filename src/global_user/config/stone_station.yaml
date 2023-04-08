@@ -14,7 +14,6 @@
   # # Data saving.
   #   save_data: false
   #   save_path: "src/data/infer2_5.txt"
-  #   save_dataset: false
   
   # Debug params.
     debug: true
@@ -24,6 +23,6 @@
     print_letency: true
     print_target_info: true
     detect_red: true
-    print_target_info: true
+    show_aim_cross: true
     show_target: true
 
