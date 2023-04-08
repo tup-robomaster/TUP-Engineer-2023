@@ -15,7 +15,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
     detector_node_launch_file = os.path.join(get_package_share_directory('stone_station_detector'), 'launch/stone_station_detector.launch.py')
     
-    # camera_param_file = os.path.join(get_package_share_directory('global_user'), 'config/camera_ros.yaml')
+    camera_param_file = os.path.join(get_package_share_directory('global_user'), 'config/camera_ros.yaml')
     stone_station_param_file = os.path.join(get_package_share_directory('global_user'), 'config/stone_station.yaml')
     
     # camera_type = LaunchConfiguration('camera_type')
@@ -33,8 +33,8 @@ def generate_launch_description():
     #     description='debug without serial port.'
     # )
 
-    # with open(camera_param_file, 'r') as f:
-    #     usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
+    with open(camera_param_file, 'r') as f:
+        usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
 
     with open(stone_station_param_file, 'r') as f:
         stone_station_detector_params = yaml.safe_load(f)['/stone_station_detector']['ros__parameters']
@@ -70,7 +70,7 @@ def generate_launch_description():
                     package='camera_driver',
                     plugin='camera_driver::UsbCamNode',
                     name='camera_driver',
-                    # parameters=[usb_cam_params],
+                    parameters=[usb_cam_params],
                     extra_arguments=[{
                         'use_intra_process_comms':True
                     }]

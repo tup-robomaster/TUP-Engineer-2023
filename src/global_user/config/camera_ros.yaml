@@ -1,23 +1,23 @@
 /usb_cam_driver:
   ros__parameters:
-    camera_id: 2
+    cam_id: 2
     frame_id: usb_cam
     image_width: 640
     image_height: 480
     fps: 30
     debug: true
 
-/video_driver:
-  ros__parameters:
-    camera_id: 0
-    frame_id: video
-    image_width: 640
-    image_height: 480
-    fps: 30
-    debug: true
-    using_video: false
-    # video_path: "src/camera_driver/recorder/video/gyro_video.webm"
-    # video_path: "src/camera_driver/recorder/video/gyro_transition_fusion.webm"
-    # video_path: "src/camera_driver/recorder/video/buff.webm"
-    video_path: src/camera_driver/video/2022-06-23_19_36_54(1).avi
-    save_video: false
+# /video_driver:
+#   ros__parameters:
+#     camera_id: 0
+#     frame_id: video
+#     image_width: 640
+#     image_height: 480
+#     fps: 30
+#     debug: true
+#     using_video: false
+#     # video_path: "src/camera_driver/recorder/video/gyro_video.webm"
+#     # video_path: "src/camera_driver/recorder/video/gyro_transition_fusion.webm"
+#     # video_path: "src/camera_driver/recorder/video/buff.webm"
+#     video_path: src/camera_driver/video/2022-06-23_19_36_54(1).avi
+#     save_video: false
