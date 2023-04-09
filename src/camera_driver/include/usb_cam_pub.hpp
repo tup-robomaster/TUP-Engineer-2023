@@ -27,6 +27,7 @@ namespace camera_driver
     bool using_video_;
     std::string video_path_;
     int cam_id_;
+    bool save_video_;
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::chrono::steady_clock::time_point last_frame;

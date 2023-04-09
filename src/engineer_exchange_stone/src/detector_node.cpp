@@ -66,11 +66,11 @@ namespace stone_station_detector
     }
     // TF2-stone-station-to-cam-transform
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::stone_station_to_cam, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::stone_station_to_cam, this));
 
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
-    timer = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::tf_callback, this));
+    timer = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::tf_callback, this));
 
     // Pose publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
@@ -78,7 +78,7 @@ namespace stone_station_detector
 
     // Marker publish
     marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
-    timers_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&DetectorNode::marker_callback, this));
+    timers_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::marker_callback, this));
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }

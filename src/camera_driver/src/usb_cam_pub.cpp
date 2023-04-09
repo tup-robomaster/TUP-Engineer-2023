@@ -11,10 +11,12 @@ namespace camera_driver
 
     this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", "/home/liyuhang/Desktop/TUP-Engineer-2023/src/camera_driver/video/test.mp4");
+    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/test.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
     this->declare_parameter<int>("cam_id", 0);
     cam_id_ = this->get_parameter("cam_id").as_int();
+    this->declare_parameter<bool>("save_video", false);
+    save_video_ = this->get_parameter("save_video").as_bool();
 
     if (using_video_)
     {
@@ -42,6 +44,38 @@ namespace camera_driver
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
     timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
+
+    if (save_video_)
+    {
+      // int frame_cnt = 0;
+      auto src = frame;
+      const std::string &storage_location = "src/camera_driver/data/";
+      char now[64];
+      std::time_t tt;
+      struct tm *ttime;
+      int width = 640;
+      int height = 480;
+      tt = time(nullptr);
+      ttime = localtime(&tt);
+      strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
+      std::string now_string(now);
+      std::string path(std::string(storage_location + now_string).append(".avi"));
+      auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
+      std::future<void> write_video;
+      // write_video = std::async(std::launch::async, [&](){writer.write(frame);});
+      // bool is_first_loop = true;
+      // int frame_cnt = 0;
+      // frame_cnt++;
+      // if (frame_cnt % 3 == 0)
+      // {
+      //   frame_cnt = 0;
+      //   write_video.wait();
+      write_video = std::async(std::launch::async, [&]()
+                               { writer.write(src); });
+      // }
+
+      RCLCPP_INFO(this->get_logger(), "Saving video...");
+    }
   }
 
   std::unique_ptr<UsbCam> UsbCamNode::init_usb_cam()
@@ -83,6 +117,7 @@ namespace camera_driver
   {
     cap >> frame;
     auto now_frame = std::chrono::steady_clock::now();
+
     if (cap.isOpened())
     {
       this->last_frame = now_frame;
