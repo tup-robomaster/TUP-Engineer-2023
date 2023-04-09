@@ -1,8 +1,5 @@
-# TUP_Engineer
-沈阳航空航天大学TUP战队2023赛季工程视觉开发
-
-## Version
-V1.0
-
-程序基于ros-galactic框架
-
+## Organization: Shenyang Aerospace University 
+## Name: tup team
+## Author: Li Yuhang
+## Intro: Vision programs develop!
+## Date: 2022.11.11
