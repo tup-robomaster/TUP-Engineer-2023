@@ -31,8 +31,7 @@ namespace serialport
         }
     }
 
-    SerialPort::SerialPort()
-        : logger_(rclcpp::get_logger("serial_port"))
+    SerialPort::SerialPort() : logger_(rclcpp::get_logger("serial_port"))
     {
     }
 

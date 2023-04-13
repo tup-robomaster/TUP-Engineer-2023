@@ -8,7 +8,6 @@ namespace camera_driver
   UsbCamNode::UsbCamNode(const rclcpp::NodeOptions &option)
       : Node("usb_driver", option), is_filpped(false)
   {
-
     this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
     this->declare_parameter<std::string>("video_path", "src/camera_driver/video/test.mp4");
@@ -70,8 +69,7 @@ namespace camera_driver
       // {
       //   frame_cnt = 0;
       //   write_video.wait();
-      write_video = std::async(std::launch::async, [&]()
-                               { writer.write(src); });
+      write_video = std::async(std::launch::async, [&](){ writer.write(src); });
       // }
 
       RCLCPP_INFO(this->get_logger(), "Saving video...");

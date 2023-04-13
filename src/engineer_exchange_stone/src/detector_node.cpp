@@ -66,11 +66,11 @@ namespace stone_station_detector
     }
     // TF2-stone-station-to-cam-transform
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::stone_station_to_cam, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::stone_station_to_cam, this));
 
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
-    timer = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::tf_callback, this));
+    timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
 
     // Pose publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
@@ -78,7 +78,7 @@ namespace stone_station_detector
 
     // Marker publish
     marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
-    timers_ = this->create_wall_timer(std::chrono::milliseconds(5), std::bind(&DetectorNode::marker_callback, this));
+    timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::marker_callback, this));
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
@@ -203,13 +203,28 @@ namespace stone_station_detector
     tf2Scalar roll, pitch, yaw;
     tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
 
-    target_info.roll = roll;
-    target_info.pitch = pitch;
-    target_info.yaw = yaw;
+    Eigen::Vector3d angle_last_(0, 0, 0);
+    angle_last_[0] = roll;
+    angle_last_[1] = pitch;
+    angle_last_[2] = yaw;
 
-    target_info.x_dis = transformStamped.transform.translation.x;
-    target_info.y_dis = transformStamped.transform.translation.y;
-    target_info.z_dis = transformStamped.transform.translation.z;
+    Eigen::Vector3d location_last_(0, 0, 0);
+    location_last_[0] = transformStamped.transform.translation.x;
+    location_last_[1] = transformStamped.transform.translation.y;
+    location_last_[2] = transformStamped.transform.translation.z;
+
+    // location_last_ = data_process_.location_last_process(location_last_);
+    // angle_last_ = data_process_.angle_last_process(angle_last_);
+
+    target_info.roll = angle_last_[0];
+    target_info.pitch = angle_last_[1];
+    target_info.yaw = angle_last_[2];
+
+    target_info.x_dis = location_last_[0];
+    target_info.y_dis = location_last_[1];
+    target_info.z_dis = location_last_[2];
+
+    // std::cout << "location_last_ = " << location_last_[2] << std::endl;
 
     target_info.is_target = true;
 

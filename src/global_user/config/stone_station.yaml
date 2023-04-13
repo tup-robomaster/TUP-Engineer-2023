@@ -20,7 +20,7 @@
     using_imu: false
     show_img: true
     show_fps: true
-    print_letency: true
+    print_letency: false
     print_target_info: true
     detect_red: true
     show_aim_cross: true

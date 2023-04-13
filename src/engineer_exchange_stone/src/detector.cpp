@@ -106,9 +106,6 @@ namespace stone_station_detector
 
       auto angle = stone_stations.euler;
 
-      coordsolver_.angle_process(angle);
-      coordsolver_.dis_process(last_target);
-
       // angle[2] = angle[2]-CV_PI;
 
       tf2::Quaternion qu;

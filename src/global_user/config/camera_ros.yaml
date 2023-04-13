@@ -9,3 +9,9 @@
     using_video: false
     video_path: "src/camera_driver/video/test.mp4"
     save_video: false
+
+/serialport:
+  ros__parameters:
+    debug_without_com: true
+    baud: 115200
+

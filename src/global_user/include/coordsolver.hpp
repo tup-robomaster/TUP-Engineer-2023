@@ -40,12 +40,12 @@ namespace coordsolver
 
     PnPInfo pnp(const std::vector<Point2f> &points_pic, int method);
 
+    Eigen::Vector3d location_last_process(Eigen::Vector3d &location_last_);
+    Eigen::Vector3d angle_last_process(Eigen::Vector3d &angle_last_);
+
     cv::Point2f reproject(Eigen::Vector3d &xyz);
     Eigen::Vector2d getAngle(Eigen::Vector3d &xyz_cam);
-    Eigen::Vector3d angle_process(Eigen::Vector3d &angle);
-    Eigen::Vector3d dis_process(Eigen::Vector3d &last_target);
     cv::Point2f getHeading(Eigen::Vector3d &xyz_cam);
-
   private:
     Mat intrinsic;
     Mat dis_coeff;

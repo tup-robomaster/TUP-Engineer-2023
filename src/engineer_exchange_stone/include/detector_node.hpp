@@ -79,6 +79,8 @@ namespace stone_station_detector
     std::unique_ptr<Detector> detector_;
     std::unique_ptr<Detector> init_detector();
 
+    coordsolver::CoordSolver data_process_;
+
     // TF2
   private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

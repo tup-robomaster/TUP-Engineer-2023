@@ -27,11 +27,11 @@ def generate_launch_description():
     #     description='usb usb_01 usb_02'
     # )
 
-    # declare_use_serial = DeclareLaunchArgument(
-    #     name='using_imu',
-    #     default_value='False',
-    #     description='debug without serial port.'
-    # )
+    declare_use_serial = DeclareLaunchArgument(
+        name='using_imu',
+        default_value='False',
+        description='debug without serial port.'
+    )
 
     with open(camera_param_file, 'r') as f:
         usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
@@ -41,18 +41,18 @@ def generate_launch_description():
     
     return LaunchDescription([
         # declare_camera_type,
-        # declare_use_serial,
+        declare_use_serial,
 
         # Node(
         #     package='serialport',
         #     executable='serialport_node',
         #     name='serialport',
         #     output='screen',
-        #     # emulate_tty=True,
-        #     # parameters=[{
-        #     #     'using_imu': False,
-        #     #     'debug_without_com': True
-        #     # }],
+        #     emulate_tty=True,
+        #     parameters=[{
+        #         # 'using_imu': False,
+        #         'debug_without_com': True
+        #     }],
         #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
         # ),
         
@@ -91,14 +91,22 @@ def generate_launch_description():
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
+        # （x, y, z, yaw, pitch, roll）顺时针为正
+        # 无偏转角相机坐标系
         arguments=["0.217", "0.423", "0.423", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
+        # 实际相机坐标系（有偏转角仰角75度，绕y轴20度）
+        # arguments=["0.217", "0.423", "0.423", "-1.570796325", "-0.349066", "-2.879794325", "base_link", "cam_link"]
         ),
 
         Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
+        # 吸中间
+        # arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
+        
+        # 吸上部
+        arguments=["0.423", "0", "0.371", "0", "0", "0", "base_link", "arm_link"]
         )
 
     ])

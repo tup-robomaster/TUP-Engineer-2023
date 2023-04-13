@@ -84,43 +84,55 @@ namespace coordsolver
   }
 
   /**
-   * @brief 数据处理
+   * @brief 发送数据处理
    *
    * @param
-   * @return 数据处理结果
+   * @return 发送数据数据处理结果
    */
 
-  Eigen::Vector3d CoordSolver::angle_process(Eigen::Vector3d &angle)
+  Eigen::Vector3d CoordSolver::location_last_process(Eigen::Vector3d &location_last_)
   {
-    Eigen::Vector3d angle_(0, 0, 0);
-    for (int k = 0; k < 10; k++)
+    int count = 0;
+    Eigen::Vector3d data_location(0, 0, 0);
+    loop:
+    if (count <= 100)
     {
-      angle_[0] += angle[0];
-      angle_[1] += angle[1];
-      angle_[2] += angle[2];
+      data_location[0] += location_last_[0];
+      data_location[1] += location_last_[1];
+      data_location[2] += location_last_[2];
+
+      count++;
+      goto loop;
     }
 
-    angle[0] = angle_[0] / 10;
-    angle[1] = angle_[1] / 10;
-    angle[2] = angle_[2] / 10;
-
-    return angle;
+    data_location[0] = data_location[0] / 100;
+    data_location[1] = data_location[1] / 100;
+    data_location[2] = data_location[2] / 100;
+    return data_location;
   }
 
-  Eigen::Vector3d CoordSolver::dis_process(Eigen::Vector3d &last_target)
+  Eigen::Vector3d CoordSolver::angle_last_process(Eigen::Vector3d &angle_last_)
   {
-    Eigen::Vector3d last_target_(0, 0, 0);
-    for (int k = 0; k < 10; k++)
+    int count = 0;
+    Eigen::Vector3d data_angle(0, 0, 0);
+    if (count <= 100)
     {
-      last_target_[0] += last_target[0];
-      last_target_[1] += last_target[1];
-      last_target_[2] += last_target[2];
-    }
-    last_target[0] = last_target_[0] / 10;
-    last_target[1] = last_target_[1] / 10;
-    last_target[2] = last_target_[2] / 10;
+      data_angle[0] += angle_last_[0];
+      data_angle[1] += angle_last_[1];
+      data_angle[2] += angle_last_[2];
 
-    return last_target;
+      count++;
+    }
+    else
+    {
+
+    }
+
+    data_angle[0] = data_angle[0] / 100;
+    data_angle[1] = data_angle[1] / 100;
+    data_angle[2] = data_angle[2] / 100;
+
+    return data_angle;
   }
 
 } // namespace coordsolver
