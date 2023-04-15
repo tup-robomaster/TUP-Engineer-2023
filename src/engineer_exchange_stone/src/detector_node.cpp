@@ -33,8 +33,7 @@ namespace stone_station_detector
 
     transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
 
-    img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image",
-                                                                                                 std::bind(&DetectorNode::image_callback, this, _1), transport_));
+    img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image", std::bind(&DetectorNode::image_callback, this, _1), transport_));
 
     time_start_ = detector_->steady_clock_.now();
 
@@ -51,8 +50,7 @@ namespace stone_station_detector
       serial_msg_.imu.header.frame_id = "imu_link";
       serial_msg_.mode = this->declare_parameter<int>("vision_mode", 1);
       // imu msg sub.
-      serial_msg_sub_ = this->create_subscription<SerialMsg>("/serial_msg", qos,
-                                                             std::bind(&DetectorNode::sensorMsgCallback, this, _1));
+      serial_msg_sub_ = this->create_subscription<SerialMsg>("/serial_msg", qos, std::bind(&DetectorNode::sensorMsgCallback, this, _1));
     }
 
     bool debug = true;
@@ -224,7 +222,7 @@ namespace stone_station_detector
     target_info.y_dis = location_last_[1];
     target_info.z_dis = location_last_[2];
 
-    // std::cout << "location_last_ = " << location_last_[2] << std::endl;
+    std::cout << "location_last_ = " << location_last_[2] << std::endl;
 
     target_info.is_target = true;
 
@@ -239,7 +237,7 @@ namespace stone_station_detector
       return;
     }
 
-    auto transform = tf_buffer_->lookupTransform("cam_link", "stone_station_frame", tf2::TimePointZero);
+    auto transform = tf_buffer_->lookupTransform("cam_link", "stone_station_frame", tf2::TimePoint());
     geometry_msgs::msg::Quaternion q;
     tf2::convert(transform.transform.rotation, q);
 

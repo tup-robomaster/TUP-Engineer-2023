@@ -30,22 +30,28 @@ Data:2023-04-01 加入了TF2，包括相机系，矿站系，车体系，车臂�
 Data:2023-04-08 加入Marker,可以看到矿站实体化，重新整合代码，规范代码，写成组件形式启动，研究并尝试MoveIt2开发。
 
 ## 问题
-若出现： Failed to load module "canberra-gtk-module"
+1.若出现： Failed to load module "canberra-gtk-module"
 
 sudo apt-get install libcanberra-gtk-module
 
-若出现： Could not find a package configuration file provided by
+2.若出现： Could not find a package configuration file provided by
   "camera_info_manager" with any of the following names
 
 sudo apt install ros-galactic-camera-info-manager 
 
-若出现： Could not find a package configuration file provided by "tf2_geometry_msgs"
+3.若出现： Could not find a package configuration file provided by "tf2_geometry_msgs"
   with any of the following names
 
 sudo apt install ros-galactic-tf2-geometry-msgs
 
+4.串口权限永久解决：
+    
+    1) whoami --查看用户名
+    2) sudo usermod -aG dialout username
+
 ## 使用说明
 ### 1）Env
+    OpenVINO:https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/download.html
 ### 2）Compile
     colcon build --symlink-install --packages-up-to global_user global_interface
     . install/setup.bash

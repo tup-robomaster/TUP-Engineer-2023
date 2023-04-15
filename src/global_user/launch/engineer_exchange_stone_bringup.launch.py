@@ -21,17 +21,11 @@ def generate_launch_description():
     # camera_type = LaunchConfiguration('camera_type')
     # use_serial = LaunchConfiguration('using_imu')
 
-    # declare_camera_type = DeclareLaunchArgument(
-    #     name='camera_type',
-    #     default_value='usb',
-    #     description='usb usb_01 usb_02'
+    # declare_use_serial = DeclareLaunchArgument(
+    #     name='using_imu',
+    #     default_value='False',
+    #     description='debug without serial port.'
     # )
-
-    declare_use_serial = DeclareLaunchArgument(
-        name='using_imu',
-        default_value='False',
-        description='debug without serial port.'
-    )
 
     with open(camera_param_file, 'r') as f:
         usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
@@ -41,20 +35,20 @@ def generate_launch_description():
     
     return LaunchDescription([
         # declare_camera_type,
-        declare_use_serial,
+        # declare_use_serial,
 
-        # Node(
-        #     package='serialport',
-        #     executable='serialport_node',
-        #     name='serialport',
-        #     output='screen',
-        #     emulate_tty=True,
-        #     parameters=[{
-        #         # 'using_imu': False,
-        #         'debug_without_com': True
-        #     }],
-        #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
-        # ),
+        Node(
+            package='serialport',
+            executable='serialport_node',
+            name='serialport',
+            output='screen',
+            emulate_tty=True,
+            parameters=[{
+                'using_port': True,
+                'print_serial_info': False
+            }],
+            # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
+        ),
         
 
         ComposableNodeContainer(
@@ -63,7 +57,6 @@ def generate_launch_description():
             output='screen',
             package='rclcpp_components',
             executable='component_container',
-            # condition=IfCondition(PythonExpression(["'", camera_type, "' == 'usb'"])),
             composable_node_descriptions=[
 
                 ComposableNode(
@@ -101,7 +94,7 @@ def generate_launch_description():
         Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        output="screen" ,
+        output="screen",
         # 吸中间
         # arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
         

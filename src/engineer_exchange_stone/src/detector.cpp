@@ -120,16 +120,18 @@ namespace stone_station_detector
       pose_msg_.pose.orientation.z = qu.z();
       pose_msg_.pose.orientation.w = qu.w();
 
+      std::cout<<stone_stations.color<<std::endl;
+
       if (debug_params_.show_target)
       {
         RCLCPP_DEBUG_ONCE(logger_, "Show target...");
 
-        std::string id_str = to_string(stone_stations.id);
+        // std::string id_str = to_string(stone_stations.id);
 
         if (stone_stations.color == 0)
-          putText(src.img, "B" + id_str, stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
+          putText(src.img, "B0", stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
         if (stone_stations.color == 1)
-          putText(src.img, "R" + id_str, stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
+          putText(src.img, "R1", stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {0, 0, 255}, 2);
 
         for (int i = 0; i < 4; i++)
           line(src.img, stone_stations.apex2d[i % 4], stone_stations.apex2d[(i + 1) % 4], {0, 255, 0}, 1);

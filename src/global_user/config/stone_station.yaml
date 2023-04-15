@@ -22,7 +22,7 @@
     show_fps: true
     print_letency: false
     print_target_info: true
-    detect_red: true
+    detect_red: false
     show_aim_cross: true
     show_target: true
 

@@ -154,6 +154,7 @@ namespace stone_station_detector
 
                 obj.cls = box_class;
                 obj.color = box_color;
+                // std::cout<<obj.color<<std::endl;
                 obj.prob = box_prob;
 
                 objects.push_back(obj);

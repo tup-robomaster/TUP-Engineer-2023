@@ -36,7 +36,7 @@ namespace serialport
 
     public:
         void receiveData();
-        void sendData();
+        // void sendData();
         void TargetMsgSub(TargetMsg::SharedPtr msg);
         void StoneMsgSub(StoneMsg::SharedPtr msg);
         void serialWatcher();
@@ -51,7 +51,6 @@ namespace serialport
 
         mutex mutex_;
         bool using_port_;
-        bool tracking_target_;
         atomic<int> mode_;
         atomic<bool> flag_;
         // VisionData vision_data_;

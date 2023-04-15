@@ -19,24 +19,20 @@ namespace serialport
 
         // QoS
         rclcpp::QoS qos(0);
-        qos.keep_last(10);
+        qos.keep_last(1);
         qos.best_effort();
         qos.reliable();
         qos.durability();
         qos.durability_volatile();
 
-        // 矿站检测msg订阅
-        // TargetMsg target_info;
-        // std::cout << (float)target_info.x_dis << std::endl;
-
-        // 检测信息订阅
+        // detector_information订阅
         RCLCPP_WARN(this->get_logger(), "Detect!!!");
         target_info_sub_ = this->create_subscription<TargetMsg>(
-            "/station_info",
+            "/target_pub",
             qos,
             std::bind(&SerialPortNode::TargetMsgSub, this, _1));
 
-        // 矿石msg订阅
+        // stone_msg订阅
         stone_info_sub_ = this->create_subscription<StoneMsg>(
             "/stone_msg",
             qos,
@@ -46,15 +42,15 @@ namespace serialport
         //  timer_ = this->create_wall_timer(5ms, std::bind(&SerialPortNode::sendData, this));
         timer_ = rclcpp::create_timer(this, this->get_clock(), 500ms, std::bind(&SerialPortNode::serialWatcher, this));
 
-        if (using_port_)
-        { // Use serial port.
-            if (serial_port_->openPort())
-            {
-                serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
-                // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
-                receive_thread_ = std::thread(&SerialPortNode::receiveData, this);
-            }
-        }
+        // if (using_port_)
+        // { // Use serial port.
+        //     if (serial_port_->openPort())
+        //     {
+        //         serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
+        //         // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
+        //         receive_thread_ = std::thread(&SerialPortNode::receiveData, this);
+        //     }
+        // }
     }
 
     SerialPortNode::~SerialPortNode()
@@ -75,81 +71,54 @@ namespace serialport
         }
     }
 
-    void SerialPortNode::receiveData()
-    {
-        while (1)
-        {
-            // 若串口离线则跳过数据发送
-            if (!serial_port_->serial_data_.is_initialized)
-            {
-                RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "Serial port offline!!!");
-                usleep(5000);
-                continue;
-            }
+    // void SerialPortNode::receiveData()
+    // {
+    //     while (1)
+    //     {
+    //         // 若串口离线则跳过数据发送
+    //         if (!serial_port_->serial_data_.is_initialized)
+    //         {
+    //             RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "Serial port offline!!!");
+    //             usleep(5000);
+    //             continue;
+    //         }
 
-            // 数据读取不成功进行循环
-            while (!serial_port_->receiveData())
-            {
-                RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "CHECKSUM FAILED OR NO DATA RECVIED!!!");
-                usleep(5000);
-            }
+    //         // 数据读取不成功进行循环
+    //         // while (!serial_port_->receiveData())
+    //         // {
+    //             // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "CHECKSUM FAILED OR NO DATA RECVIED!!!");
+    //             // usleep(5000);
+    //         // }
 
-            uchar mode = serial_port_->serial_data_.rdata[1];
-            mode_ = mode;
-            RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
-            // RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
+    //         // uchar mode = serial_port_->serial_data_.rdata[1];
+    //         uchar mode = 1;
+    //         mode_ = mode;
+    //         RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
+    //         // RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
 
-            if (mode)
-            {
-                // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
+    //         // if (mode)
+    //         // {
+    //         //     // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
 
-                if (print_serial_info_)
-                {
-                    RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
-                }
+    //         //     if (print_serial_info_)
+    //         //     {
+    //         //         RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
+    //         //     }
 
-                SerialMsg serial_msg;
-                serial_msg.imu.header.frame_id = "imu_link";
-                serial_msg.imu.header.stamp = this->get_clock()->now();
-                serial_msg.mode = mode;
-                serial_msg_pub_->publish(std::move(serial_msg));
-            }
-        }
-    }
-
-    /**
-     * @brief 数据发送回调函数
-     *
-     */
-    void SerialPortNode::sendData()
-    {
-        // VisionData vision_data_ = {0.0, (float)0.0, (float)0.0, (float)0.0, 0, 1, 0, 0};
-        // if (flag_)
-        // {
-        //     auto now = (serial_port_->steady_clock_.now().nanoseconds() / 1e6);
-        //     mutex_.lock();
-        //     if (abs(now - vision_data.timestamp) < 30) //(ms)，若时间差过大，则忽略此帧数据
-        //     {
-        //         vision_data_ = vision_data;
-        //     }
-        //     mutex_.unlock();
-        //     flag_ = false;
-        // }
-        // // 根据不同mode进行对应的数据转换
-        // data_transform_->transformData(mode_, vision_data_, serial_port_->Tdata);
-        // // 数据发送
-        // serial_port_->sendData();
-
-        // return;
-    }
+    //         //     SerialMsg serial_msg;
+    //         //     serial_msg.imu.header.frame_id = "imu_link";
+    //         //     serial_msg.imu.header.stamp = this->get_clock()->now();
+    //         //     serial_msg.mode = mode;
+    //         //     serial_msg_pub_->publish(std::move(serial_msg));
+    //         // }
+    //     }
+    // }
 
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
-        // std::cout << 11111111111 << std::endl;
-        int mode = mode_;
-        // int mode = 1;
-        std::cout << (float)target_info->pitch << std::endl;
-        RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
+        // int mode = mode_;
+        int mode = 1;
+        // std::cout<<(int)target_info->is_target<<std::endl;
         if (this->using_port_)
         {
             VisionData vision_data;
@@ -184,7 +153,7 @@ namespace serialport
         }
     }
 
-    void SerialPortNode::StoneMsgSub(StoneMsg::SharedPtr stnoe_info)
+    void SerialPortNode::StoneMsgSub(StoneMsg::SharedPtr stone_info)
     {
         int mode = mode_;
         RCLCPP_WARN(this->get_logger(), "Mode:%d", mode);
@@ -197,10 +166,10 @@ namespace serialport
                 vision_data =
                     {
                         (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
-                        (float)stnoe_info->up,
-                        (float)stnoe_info->down,
-                        (float)stnoe_info->left,
-                        (float)stnoe_info->right,
+                        (float)stone_info->up,
+                        (float)stone_info->down,
+                        (float)stone_info->left,
+                        (float)stone_info->right,
                     };
 
                 // 根据不同mode进行对应的数据转换
@@ -227,9 +196,6 @@ namespace serialport
             break;
         case 1:
             this->baud_ = param.as_int();
-            break;
-        case 2:
-            this->tracking_target_ = param.as_bool();
             break;
         case 3:
             this->print_serial_info_ = param.as_bool();
@@ -258,7 +224,6 @@ namespace serialport
             {
                 {"using_port", 0},
                 {"baud", 1},
-                {"tracking_target", 2},
                 {"print_serial_info", 3}};
 
         this->declare_parameter<std::string>("port_id", "483/5740/200");
@@ -269,9 +234,6 @@ namespace serialport
 
         this->declare_parameter<bool>("using_port", false);
         this->get_parameter("using_port", using_port_);
-
-        this->declare_parameter<bool>("tracking_target", false);
-        this->get_parameter("tracking_target", tracking_target_);
 
         this->declare_parameter("print_serial_info", false);
         this->get_parameter("print_serial_info", this->print_serial_info_);

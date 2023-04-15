@@ -68,10 +68,6 @@ namespace serialport
         {
             return true;
         }
-        if (serial_data_.rdata[0] == 0xB5 && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3) && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
-        {
-            return true;
-        }
 
         return false;
     }

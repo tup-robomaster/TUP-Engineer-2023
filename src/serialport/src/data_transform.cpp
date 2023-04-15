@@ -25,10 +25,11 @@ namespace serialport
         crc_check_.Append_CRC8_Check_Sum(trans_data, 3);
         if (mode == STONE_STATION_DETECT)
         {
-            float float_data[] = {vision_data.pitch_angle, vision_data.yaw_angle, vision_data.roll_angle, vision_data.x_dis, vision_data.y_dis, vision_data.z_dis};
-            float2UcharRawArray(float_data, 3, &trans_data[3]);
-            trans_data[20] = vision_data.isFindTarget;
-            trans_data[21] = 0x00;
+            float float_data[] = {vision_data.pitch_angle, vision_data.yaw_angle, vision_data.roll_angle, 
+            vision_data.x_dis, vision_data.y_dis, vision_data.z_dis};
+            float2UcharRawArray(float_data, 6, &trans_data[6]);
+            trans_data[20] = 0x01;
+            // trans_data[21] = 0x00;
             crc_check_.Append_CRC16_Check_Sum(trans_data, 64);
         }
         if (mode == STONE_DETECT)
@@ -36,59 +37,6 @@ namespace serialport
         }
     }
 
-    /**
-     * @brief 获取四元数
-     *
-     * @param raw_data 原数据
-     * @param quat 转化后得到的四元数
-     */
-    void DataTransform::getQuatData(uchar *raw_data, vector<float> &quat)
-    {
-        ucharRaw2FloatVector(raw_data, 16, quat);
-        return;
-    }
-
-    /**
-     * @brief 获取角速度
-     *
-     * @param raw_data 原数据
-     * @param gyro 角速度数据
-     */
-    void DataTransform::getGyroData(uchar *raw_data, vector<float> &gyro)
-    {
-        ucharRaw2FloatVector(raw_data, 12, gyro);
-        return;
-    }
-
-    /**
-     * @brief 获取加速度数据
-     *
-     * @param raw_data 原数据
-     * @param acc 加速度数据
-     */
-    void DataTransform::getAccData(uchar *raw_data, vector<float> &acc)
-    {
-        ucharRaw2FloatVector(raw_data, 12, acc);
-        return;
-    }
-
-    /**
-     * @brief 获取裁判系统弹速
-     *
-     * @param raw_data 原数据
-     * @param bullet_speed 弹速
-     */
-    void DataTransform::getBulletSpeed(uchar *raw_data, float &bullet_speed)
-    {
-        bullet_speed = ucharRaw2Float(raw_data);
-        return;
-    }
-
-    void DataTransform::getThetaAngle(uchar *raw_data, float &theta)
-    {
-        theta = ucharRaw2Float(raw_data);
-        return;
-    }
 
     /**
      * @brief 将4个uchar转换为float
