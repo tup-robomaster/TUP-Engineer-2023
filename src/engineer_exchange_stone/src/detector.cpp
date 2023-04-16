@@ -120,7 +120,7 @@ namespace stone_station_detector
       pose_msg_.pose.orientation.z = qu.z();
       pose_msg_.pose.orientation.w = qu.w();
 
-      std::cout<<stone_stations.color<<std::endl;
+      // std::cout<<stone_stations.color<<std::endl;
 
       if (debug_params_.show_target)
       {
@@ -155,11 +155,6 @@ namespace stone_station_detector
           RCLCPP_INFO(logger_, "Infer: %lfms", (dr_infer_ns / 1e6));
           RCLCPP_INFO(logger_, "Total: %lfms", (dr_full_ns / 1e6));
         }
-
-        // if (is_save_data_)
-        // {
-        //   data_save_ << setprecision(3) << (float)(dr_infer_ns / 1e6) << endl;
-        // }
       }
 
       double roll = double((angle[0] * 180) / CV_PI);

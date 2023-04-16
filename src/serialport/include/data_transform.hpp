@@ -64,12 +64,6 @@ namespace serialport
         ~DataTransform();
 
         void transformData(int mode, const VisionData &data, uchar *trans_data);
-        void getQuatData(uchar *raw_data, vector<float> &quat);
-        void getGyroData(uchar *raw_data, vector<float> &gyro);
-        void getAccData(uchar *raw_data, vector<float> &acc);
-        void getBulletSpeed(uchar *raw_data, float &bullet_speed);
-        void getThetaAngle(uchar *raw_data, float &theta);
-
         int mode_;
         rclcpp::Logger logger_;
 

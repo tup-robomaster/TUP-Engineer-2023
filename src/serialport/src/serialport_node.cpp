@@ -118,7 +118,7 @@ namespace serialport
     {
         // int mode = mode_;
         int mode = 1;
-        // std::cout<<(int)target_info->is_target<<std::endl;
+        std::cout<<target_info->is_target<<std::endl;
         if (this->using_port_)
         {
             VisionData vision_data;
@@ -135,7 +135,7 @@ namespace serialport
                         (float)target_info->x_dis,
                         (float)target_info->y_dis,
                         (float)target_info->z_dis,
-                        (int)target_info->is_target,
+                        target_info->is_target,
                         // 1
                     };
 

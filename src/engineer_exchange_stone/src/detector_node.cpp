@@ -222,7 +222,7 @@ namespace stone_station_detector
     target_info.y_dis = location_last_[1];
     target_info.z_dis = location_last_[2];
 
-    std::cout << "location_last_ = " << location_last_[2] << std::endl;
+    // std::cout << "location_last_ = " << location_last_[2] << std::endl;
 
     target_info.is_target = true;
 
