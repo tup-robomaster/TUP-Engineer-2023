@@ -20,7 +20,7 @@ namespace stone_station_detector
     }
   }
 
-  bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_)
+  bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool& is_target)
   {
     if (!is_init_)
     {
@@ -41,6 +41,7 @@ namespace stone_station_detector
 
     if (!station_detector_.detect(input, objects))
     {
+      is_target = false;
       return false;
     }
 
@@ -159,8 +160,8 @@ namespace stone_station_detector
 
       double roll = double((angle[0] * 180) / CV_PI);
       double yaw = double((angle[1] * 180) / CV_PI);
-      double pitch = double(((angle[2]) * 180) / CV_PI);
-
+      double pitch = double((angle[2] * 180) / CV_PI);
+      
       if (debug_params_.print_target_info)
       {
         if (count % 5 == 0)
@@ -194,7 +195,7 @@ namespace stone_station_detector
       //   return false;
       // }
     }
-
+    is_target = true;
     return true;
   }
 

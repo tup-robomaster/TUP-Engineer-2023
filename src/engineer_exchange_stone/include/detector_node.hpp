@@ -74,13 +74,13 @@ namespace stone_station_detector
     DebugParam debug_;
     SerialMsg serial_msg_;
     TargetMsg target_info;
+    bool is_target = false;
     // TransformMsg tf_data;
 
     std::unique_ptr<Detector> detector_;
     std::unique_ptr<Detector> init_detector();
 
     coordsolver::CoordSolver data_process_;
-
     // TF2
   private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

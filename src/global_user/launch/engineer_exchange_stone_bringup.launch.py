@@ -37,24 +37,24 @@ def generate_launch_description():
         # declare_camera_type,
         # declare_use_serial,
 
-        Node(
-            package='serialport',
-            executable='serialport_node',
-            name='serialport',
-            output='screen',
-            emulate_tty=True,
-            parameters=[{
-                'using_port': True,
-                'print_serial_info': False
-            }],
-            # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
-        ),
+        # Node(
+        #     package='serialport',
+        #     executable='serialport_node',
+        #     name='serialport',
+        #     output='screen',
+        #     emulate_tty=True,
+        #     parameters=[{
+        #         'using_port': False,
+        #         'print_serial_info': False
+        #     }],
+        #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
+        # ),
         
 
         ComposableNodeContainer(
             name='stone_station_detector_container',
             namespace='',
-            output='screen',
+            output='log',
             package='rclcpp_components',
             executable='component_container',
             composable_node_descriptions=[
@@ -83,7 +83,7 @@ def generate_launch_description():
         Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        output="screen" ,
+        output="log" ,
         # （x, y, z, yaw, pitch, roll）顺时针为正
         # 无偏转角相机坐标系
         arguments=["0.217", "0.423", "0.423", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
@@ -94,7 +94,7 @@ def generate_launch_description():
         Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        output="screen",
+        output="log",
         # 吸中间
         # arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
         

@@ -39,7 +39,6 @@ namespace stone_station_detector
     DetectorParam()
     {
       color = RED;
-      stone_station_conf_high_thres = 0.60;
     }
   };
 
@@ -81,6 +80,7 @@ namespace stone_station_detector
     bool print_letency;
     bool print_target_info;
     bool save_data;
+    bool show_transform;
 
     DebugParam()
     {
@@ -95,6 +95,7 @@ namespace stone_station_detector
       print_letency = false;
       print_target_info = true;
       save_data = false;
+      show_transform = false;
     }
   };
 
@@ -112,7 +113,7 @@ namespace stone_station_detector
     ~Detector();
 
   public:
-    bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_);
+    bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool& is_target);
     void showTarget(TaskData &src);
 
   public:

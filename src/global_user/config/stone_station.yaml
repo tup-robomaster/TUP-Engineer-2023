@@ -9,7 +9,7 @@
     camera_param_path: "src/global_user/config/camera.yaml"
 
   # Network model path.
-    network_path: "src/engineer_exchange_stone/model/yolox_1.onnx"
+    network_path: "src/engineer_exchange_stone/model/yolox_last.onnx"
   
   # # Data saving.
   #   save_data: false
@@ -25,4 +25,5 @@
     detect_red: false
     show_aim_cross: true
     show_target: true
+    show_transform: true
 

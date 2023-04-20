@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "Disabled",
-    "cmake.sourceDirectory": "${workspaceFolder}/**",
+    "cmake.sourceDirectory": "${workspaceFolder}/src/engineer_arm_control",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",

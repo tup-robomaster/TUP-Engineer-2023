@@ -112,7 +112,7 @@ namespace stone_station_detector
     auto img = cv_bridge::toCvShare(img_info, "bgr8")->image;
     img.copyTo(src.img);
 
-    if (detector_->stone_station_detect(src, pose_msg_))
+    if (detector_->stone_station_detect(src, pose_msg_, is_target))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
       publisher_pose_->publish(pose_msg_);
@@ -131,6 +131,7 @@ namespace stone_station_detector
         std::cout << "[CAMERA] Get empty image" << std::endl;
       }
 
+      std::cout<<src.img.size()<<std::endl;
       cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
       cv::imshow("dst", src.img);
       cv::waitKey(1);
@@ -211,9 +212,6 @@ namespace stone_station_detector
     location_last_[1] = transformStamped.transform.translation.y;
     location_last_[2] = transformStamped.transform.translation.z;
 
-    // location_last_ = data_process_.location_last_process(location_last_);
-    // angle_last_ = data_process_.angle_last_process(angle_last_);
-
     target_info.roll = angle_last_[0];
     target_info.pitch = angle_last_[1];
     target_info.yaw = angle_last_[2];
@@ -221,10 +219,25 @@ namespace stone_station_detector
     target_info.x_dis = location_last_[0];
     target_info.y_dis = location_last_[1];
     target_info.z_dis = location_last_[2];
+    target_info.is_target = is_target;
 
-    // std::cout << "location_last_ = " << location_last_[2] << std::endl;
+    double roll_ = double((angle_last_[0] * 180) / CV_PI);
+    double yaw_ = double((angle_last_[1] * 180) / CV_PI);
+    double pitch_ = double((angle_last_[2] * 180) / CV_PI);
 
-    target_info.is_target = true;
+    if (debug_.show_transform)
+    {
+      RCLCPP_INFO(get_logger(), "-----------INFO------------");
+      RCLCPP_INFO(get_logger(), "roll: %lf 度", roll_);
+      RCLCPP_INFO(get_logger(), "Yaw: %lf 度", yaw_);
+      RCLCPP_INFO(get_logger(), "Pitch: %lf 度", pitch_);
+      // RCLCPP_INFO(get_logger(), "roll: %lf", angle_last_[0]);
+      // RCLCPP_INFO(get_logger(), "Yaw: %lf", angle_last_[1]);
+      // RCLCPP_INFO(get_logger(), "Pitch: %lf", angle_last_[2]);
+      RCLCPP_INFO(get_logger(), "X_dis: %lf", location_last_[0]);
+      RCLCPP_INFO(get_logger(), "Y_dis: %lf", location_last_[1]);
+      RCLCPP_INFO(get_logger(), "Z_dis: %lf", location_last_[2]);
+    }
 
     target_pub_->publish(target_info);
   }
@@ -278,14 +291,13 @@ namespace stone_station_detector
 
     // Debug.
     this->declare_parameter("debug_without_com", true);
-    // this->declare_parameter("using_imu", false);
-    // this->declare_parameter("using_roi", true);
     this->declare_parameter("show_aim_cross", true);
     this->declare_parameter("show_img", true);
+    this->declare_parameter("show_transform", false);
     this->declare_parameter("detect_red", true);
     this->declare_parameter("show_fps", true);
     this->declare_parameter("print_letency", false);
-    this->declare_parameter("print_target_info", true);
+    this->declare_parameter("print_target_info", false);
     this->declare_parameter("show_target", true);
     this->declare_parameter("save_data", false);
 
@@ -309,12 +321,11 @@ namespace stone_station_detector
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
     debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
     debug_.show_img = this->get_parameter("show_img").as_bool();
-    // debug_.using_imu = this->get_parameter("using_imu").as_bool();
-    // debug_.using_roi = this->get_parameter("using_roi").as_bool();
     debug_.show_fps = this->get_parameter("show_fps").as_bool();
     debug_.print_letency = this->get_parameter("print_letency").as_bool();
     debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
     debug_.show_target = this->get_parameter("show_target").as_bool();
+    debug_.show_target = this->get_parameter("show_transform").as_bool();
     debug_.save_data = this->get_parameter("save_data").as_bool();
 
     path_params_.camera_name = this->get_parameter("camera_name").as_string();

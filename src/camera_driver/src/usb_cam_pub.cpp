@@ -28,17 +28,21 @@ namespace camera_driver
     else
     {
       cap.open(cam_id_);
+
       if (cap.isOpened())
       {
         RCLCPP_INFO(this->get_logger(), "Open camera success!");
+      }
+      else
+      {
+        RCLCPP_INFO(this->get_logger(), "Open camera failed!");
       }
     }
 
     // cap.set(cv::CAP_PROP_BRIGHTNESS, -50); // 亮度
 
     // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
-    // cap.set(cv::CAP_PROP_EXPOSURE, -50); // 曝光
-    // std::cout<<cap.get(cv::CAP_PROP_EXPOSURE)<<std::endl;
+    // cap.set(cv::CAP_PROP_EXPOSURE, -1); // 曝光
 
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
@@ -115,6 +119,10 @@ namespace camera_driver
   {
     cap >> frame;
     auto now_frame = std::chrono::steady_clock::now();
+
+    double alpha = 0.5; // 降低曝光的参数
+    double beta = 0;    // 降低曝光的参数
+    frame.convertTo(frame, -1, alpha, beta);
 
     if (cap.isOpened())
     {
