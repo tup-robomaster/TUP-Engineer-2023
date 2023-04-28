@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<robot name="engineer">
+  <link name="base_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.236"/>
+      <geometry>
+        <box size="0.580 0.580 0.472"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_left_wheel"/>
+    <origin rpy="1.57075 0 0" xyz="0.2 0.2 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="front_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0791" length="0.02"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="front_right_wheel"/>
+    <origin rpy="1.57075 0 0" xyz="0.2 -0.2 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="front_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0791" length="0.02"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_left_wheel"/>
+    <origin rpy="1.57075 0 0" xyz="-0.2 0.2 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="rear_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0791" length="0.02"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="rear_right_wheel"/>
+    <origin rpy="1.57075 0 0" xyz="-0.2 -0.2 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="rear_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0791" length="0.02"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="lifting_mechanism_link" type="prismatic">
+    <parent link="base_link"/>
+    <child link="lifting_mechanism"/>
+    <origin xyz="0 0 0.3635"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="0.920" effort="30" velocity="0.5"/>
+  </joint>
+  <link name="lifting_mechanism">
+    <visual>
+      <geometry>
+        <box size="0.550 0.294 0.113"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="${255/255} ${108/255} ${10/255} 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="link0" type="revolute">
+    <parent link="lifting_mechanism"/>
+    <child link="link0"/>
+    <origin xyz="0.400 0 0.005"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="30" velocity="0.5"/>
+  </joint>
+  <link name="link0">
+    <visual>
+      <geometry>
+        <box size="0.550 0.1582 0.100"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="${255/255} ${108/255} ${10/255} 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="link1" type="fixed">
+    <parent link="link0"/>
+    <child link="link1"/>
+    <origin xyz="0.29 0 0"/>
+  </joint>
+  <link name="link1">
+    <visual>
+      <geometry>
+        <sphere radius="0.03"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="link2" type="continuous">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0.065 0 0"/>
+    <axis xyz="1 1 0"/>
+  </joint>
+  <link name="link2">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="1 0.4 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="cam_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="cam_link"/>
+    <origin xyz="0.290 0.290 0.472"/>
+  </joint>
+  <link name="cam_link">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="1 0.4 0 1"/>
+      </material>
+    </visual>
+  </link>
+</robot>
