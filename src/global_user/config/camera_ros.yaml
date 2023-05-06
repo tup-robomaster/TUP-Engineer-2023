@@ -1,13 +1,13 @@
 /usb_cam_driver:
   ros__parameters:
-    cam_id: 2
+    cam_id: 0
     frame_id: usb_cam
     image_width: 640
     image_height: 480
     fps: 30
     debug: true
-    using_video: false
-    video_path: "src/camera_driver/video/official.mp4"
+    using_video: true
+    video_path: "src/camera_driver/video/red_.mp4"
     save_video: false
 
 /serialport:

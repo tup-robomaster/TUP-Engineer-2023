@@ -14,8 +14,8 @@ namespace stone_station_detector
     static constexpr int NUM_CLASSES = 1; // Number of classes
     static constexpr int NUM_COLORS = 2;  // Number of color
     static constexpr int TOPK = 128;      // TopK
-    static constexpr float NMS_THRESH = 0.4;
-    static constexpr float BBOX_CONF_THRESH = 0.45;
+    static constexpr float NMS_THRESH = 0.3;
+    static constexpr float BBOX_CONF_THRESH = 0.65;
     static constexpr float MERGE_CONF_ERROR = 0.15;
     static constexpr float MERGE_MIN_IOU = 0.50;
 
@@ -56,7 +56,7 @@ namespace stone_station_detector
         cv::resize(img, re, Size(unpad_w, unpad_h));
         Mat out;
         cv::copyMakeBorder(re, out, dh, dh, dw, dw, cv::BORDER_CONSTANT);
-        // cout << dw << " " << dh << " " << rescale_ratio << endl;
+
         return out;
     }
 
@@ -79,7 +79,9 @@ namespace stone_station_detector
             {
                 for (int g0 = 0; g0 < num_grid_w; g0++)
                 {
-                    grid_strides.push_back((global_user::GridAndStride){g0, g1, stride});
+                    GridAndStride grid_stride = {g0, g1, stride};
+                    grid_strides.emplace_back(grid_stride);
+                    // grid_strides.push_back((global_user::GridAndStride){g0, g1, stride});
                 }
             }
         }
@@ -199,19 +201,10 @@ namespace stone_station_detector
             }
         }
 
-#pragma omp parallel sections
-        {
-#pragma omp section
-            {
-                if (left < j)
-                    qsort_descent_inplace(faceobjects, left, j);
-            }
-#pragma omp section
-            {
-                if (i < right)
-                    qsort_descent_inplace(faceobjects, i, right);
-            }
-        }
+        if (left < j)
+            qsort_descent_inplace(faceobjects, left, j);
+        if (i < right)
+            qsort_descent_inplace(faceobjects, i, right);
     }
 
     static void qsort_descent_inplace(std::vector<StationObject> &objects)
@@ -276,7 +269,7 @@ namespace stone_station_detector
      * @param img_h Height of Image.
      */
     static void decodeOutputs(const float *prob, std::vector<StationObject> &objects,
-                              Eigen::Matrix<float, 3, 3> &transform_matrix, const int img_w, const int img_h)
+                              Eigen::Matrix<float, 3, 3> &transform_matrix)
     {
         std::vector<StationObject> proposals;
         std::vector<int> strides = {8, 16, 32};
@@ -355,14 +348,10 @@ namespace stone_station_detector
         if (src.empty())
         {
             fmt::print(fmt::fg(fmt::color::red), "[DETECT] ERROR: 传入了空的src\n");
-#ifdef SAVE_AUTOAIM_LOG
-            LOG(ERROR) << "[DETECT] ERROR: 传入了空的src";
-#endif // SAVE_AUTOAIM_LOG
             return false;
         }
-        // std::cout<<1111<<endl;
         cv::Mat pr_img = scaledResize(src, transfrom_matrix);
-        // std::cout<<2222<<endl;
+
         // dw = this->dw;
         // if (true)
         if (false)
@@ -404,10 +393,10 @@ namespace stone_station_detector
 
         // std::cout << &output << std::endl;
 
-        int img_w = src.cols;
-        int img_h = src.rows;
+        // int img_w = src.cols;
+        // int img_h = src.rows;
 
-        decodeOutputs(output, objects, transfrom_matrix, img_w, img_h);
+        decodeOutputs(output, objects, transfrom_matrix);
 
         // std::cout << 15 << std::endl;
         for (auto object = objects.begin(); object != objects.end(); ++object)

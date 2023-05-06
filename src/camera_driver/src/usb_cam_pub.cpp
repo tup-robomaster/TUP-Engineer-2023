@@ -43,9 +43,15 @@ namespace camera_driver
 
     // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
     // cap.set(cv::CAP_PROP_EXPOSURE, -1); // 曝光
+    rclcpp::QoS qos(0);
+    qos.keep_last(1);
+    // qos.reliable();
+    qos.best_effort();
+    qos.transient_local();
+    qos.durability_volatile();
 
     last_frame = std::chrono::steady_clock::now();
-    image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", 1);
+    image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", qos);
     timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
 
     if (save_video_)
@@ -117,27 +123,28 @@ namespace camera_driver
 
   void UsbCamNode::image_callback()
   {
+    rclcpp::Time st = this->get_clock()->now();
     cap >> frame;
     auto now_frame = std::chrono::steady_clock::now();
 
-    double alpha = 0.5; // 降低曝光的参数
-    double beta = 0;    // 降低曝光的参数
-    frame.convertTo(frame, -1, alpha, beta);
+    // double alpha = 0.5; // 降低曝光的参数
+    // double beta = 0;    // 降低曝光的参数
+    // frame.convertTo(frame, -1, alpha, beta);
 
-    if (cap.isOpened())
+    if (!frame.empty())
     {
       this->last_frame = now_frame;
       rclcpp::Time timestamp = this->get_clock()->now();
       sensor_msgs::msg::Image::UniquePtr msg = convert_frame_to_message(frame);
-
       image_publisher_->publish(std::move(msg));
       // RCLCPP_INFO(this->get_logger(), "msg_ptr ...");
       // cv::namedWindow("raw_image", cv::WINDOW_AUTOSIZE);
       // cv::imshow("raw_image", frame);
       // cv::waitKey(1);
+      rclcpp::Time end = this->get_clock()->now();
+      // RCLCPP_WARN(this->get_logger(), "img_pub_delay:%.3fms", (end - st).nanoseconds() / 1e6);
     }
   }
-
 }
 
 int main(int argc, char *argv[])

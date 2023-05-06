@@ -20,7 +20,7 @@ namespace stone_station_detector
     }
   }
 
-  bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool& is_target)
+  bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool &is_target)
   {
     if (!is_init_)
     {
@@ -38,7 +38,7 @@ namespace stone_station_detector
 
     time_crop = steady_clock_.now();
     objects.clear();
-
+    
     if (!station_detector_.detect(input, objects))
     {
       is_target = false;
@@ -62,12 +62,6 @@ namespace stone_station_detector
       Stone_Station stone_station;
       stone_station.color = object.color;
       stone_station.conf = object.prob; // 置信度
-
-      // 置信度大于一定值放行
-      // if (stone_station.conf >= this->detector_params_.stone_station_conf_high_thres)
-      // {
-      //   continue;
-      // }
 
       if (object.color == 0)
         stone_station.key = "B";
@@ -121,13 +115,11 @@ namespace stone_station_detector
       pose_msg_.pose.orientation.z = qu.z();
       pose_msg_.pose.orientation.w = qu.w();
 
-      // std::cout<<stone_stations.color<<std::endl;
+      is_target = true; 
 
       if (debug_params_.show_target)
       {
         RCLCPP_DEBUG_ONCE(logger_, "Show target...");
-
-        // std::string id_str = to_string(stone_stations.id);
 
         if (stone_stations.color == 0)
           putText(src.img, "B0", stone_stations.apex2d[0], FONT_HERSHEY_SIMPLEX, 1, {255, 100, 0}, 2);
@@ -166,13 +158,13 @@ namespace stone_station_detector
       {
         if (count % 5 == 0)
         {
-          RCLCPP_INFO(logger_, "-----------INFO------------");
-          RCLCPP_INFO(logger_, "roll: %lf 度", roll);
-          RCLCPP_INFO(logger_, "Yaw: %lf 度", yaw);
-          RCLCPP_INFO(logger_, "Pitch: %lf 度", pitch);
-          // RCLCPP_INFO(logger_, "roll: %lf", angle[0]);
-          // RCLCPP_INFO(logger_, "Yaw: %lf", angle[1]);
-          // RCLCPP_INFO(logger_, "Pitch: %lf", angle[2]);
+          RCLCPP_WARN(logger_, "-----------CAM_TO_STATION_INFO------------");
+          // RCLCPP_INFO(logger_, "roll: %lf 度", roll);
+          // RCLCPP_INFO(logger_, "Yaw: %lf 度", yaw);
+          // RCLCPP_INFO(logger_, "Pitch: %lf 度", pitch);
+          RCLCPP_INFO(logger_, "roll: %lf", angle[0]);
+          RCLCPP_INFO(logger_, "Yaw: %lf", angle[1]);
+          RCLCPP_INFO(logger_, "Pitch: %lf", angle[2]);
           RCLCPP_INFO(logger_, "X_dis: %lf", last_target[0]);
           RCLCPP_INFO(logger_, "Y_dis: %lf", last_target[1]);
           RCLCPP_INFO(logger_, "Z_dis: %lf", last_target[2]);
@@ -191,11 +183,10 @@ namespace stone_station_detector
       // // 若预测出错取消本次数据发送
       // if (isnan(angle[0]) || isnan(angle[1]) || isnan(angle[3]) || isnan(last_target[0]) || isnan(last_target[1]) || isnan(last_target[2]))
       // {
-      //   LOG(ERROR)<<"NAN Detected! Data Transmit Aborted!";
+      //   RCLCPP_WARN(logger_, "NAN Detected! Data Transmit Aborted!");
       //   return false;
       // }
     }
-    is_target = true;
     return true;
   }
 

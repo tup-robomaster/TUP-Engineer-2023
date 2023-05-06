@@ -37,18 +37,18 @@ def generate_launch_description():
         # declare_camera_type,
         # declare_use_serial,
 
-        # Node(
-        #     package='serialport',
-        #     executable='serialport_node',
-        #     name='serialport',
-        #     output='screen',
-        #     emulate_tty=True,
-        #     parameters=[{
-        #         'using_port': False,
-        #         'print_serial_info': False
-        #     }],
-        #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
-        # ),
+        Node(
+            package='serialport',
+            executable='serialport_node',
+            name='serialport',
+            output='screen',
+            emulate_tty=True,
+            parameters=[{
+                'using_port': True,
+                # 'print_serial_info': False
+            }],
+            # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
+        ),
         
 
         ComposableNodeContainer(

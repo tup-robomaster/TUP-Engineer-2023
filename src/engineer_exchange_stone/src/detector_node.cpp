@@ -31,18 +31,20 @@ namespace stone_station_detector
       detector_->is_init_ = true;
     }
 
-    transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
-
-    img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image", std::bind(&DetectorNode::image_callback, this, _1), transport_));
-
-    time_start_ = detector_->steady_clock_.now();
-
     // Qos
     rclcpp::QoS qos(0);
-    qos.keep_last(1);
+    qos.keep_last(3);
     qos.reliable();
     qos.transient_local();
     qos.durability_volatile();
+
+    rmw_qos_profile_t my_rmw(rmw_qos_profile_sensor_data);
+    my_rmw.depth = 1;
+
+    transport_ = this->declare_parameter("subscribe_compressed", false) ? "compressed" : "raw";
+    img_sub = std::make_shared<image_transport::Subscriber>(image_transport::create_subscription(this, "usb_image", std::bind(&DetectorNode::image_callback, this, _1), transport_, my_rmw));
+
+    time_start_ = detector_->steady_clock_.now();
 
     if (debug_.using_imu)
     {
@@ -79,6 +81,8 @@ namespace stone_station_detector
     timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::marker_callback, this));
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
+    // detect_thread_ = std::thread(&DetectorNode::detectCallback, this);
   }
 
   DetectorNode::~DetectorNode()
@@ -96,26 +100,37 @@ namespace stone_station_detector
     return;
   }
 
-  void DetectorNode::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_info)
+  void DetectorNode::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_ptr)
   {
-    global_user::TaskData src;
-    std::vector<Stone_Station> station;
-
-    auto img_sub_time = detector_->steady_clock_.now();
-    src.timestamp = (img_sub_time - time_start_).nanoseconds();
-
-    if (!img_info)
+    if (!img_ptr)
     {
       return;
     }
 
-    auto img = cv_bridge::toCvShare(img_info, "bgr8")->image;
+    global_user::TaskData src;
+    auto img_sub_time = detector_->steady_clock_.now();
+    src.timestamp = (img_sub_time - time_start_).nanoseconds();
+    cv::Mat img = cv_bridge::toCvShare(img_ptr, "bgr8")->image;
     img.copyTo(src.img);
 
+    std::vector<Stone_Station> station;
     if (detector_->stone_station_detect(src, pose_msg_, is_target))
     {
       RCLCPP_INFO(this->get_logger(), "stone_station detector ...");
       publisher_pose_->publish(pose_msg_);
+    }
+    if (is_target == false)
+    {
+      target_info.is_target = is_target;
+
+      target_info.pitch = 0;
+      target_info.roll = 0;
+      target_info.yaw = 0;
+      target_info.x_dis = 0;
+      target_info.y_dis = 0;
+      target_info.z_dis = 0;
+
+      target_pub_->publish(target_info);
     }
 
     if (debug_.show_aim_cross)
@@ -131,7 +146,6 @@ namespace stone_station_detector
         std::cout << "[CAMERA] Get empty image" << std::endl;
       }
 
-      std::cout<<src.img.size()<<std::endl;
       cv::namedWindow("dst", cv::WINDOW_AUTOSIZE);
       cv::imshow("dst", src.img);
       cv::waitKey(1);
@@ -212,6 +226,14 @@ namespace stone_station_detector
     location_last_[1] = transformStamped.transform.translation.y;
     location_last_[2] = transformStamped.transform.translation.z;
 
+    // target_info.roll = 0;
+    // target_info.pitch = 0;
+    // target_info.yaw = 0;
+
+    // target_info.x_dis = 0;
+    // target_info.y_dis = 0;
+    // target_info.z_dis = 0;
+
     target_info.roll = angle_last_[0];
     target_info.pitch = angle_last_[1];
     target_info.yaw = angle_last_[2];
@@ -219,6 +241,7 @@ namespace stone_station_detector
     target_info.x_dis = location_last_[0];
     target_info.y_dis = location_last_[1];
     target_info.z_dis = location_last_[2];
+
     target_info.is_target = is_target;
 
     double roll_ = double((angle_last_[0] * 180) / CV_PI);
@@ -227,19 +250,21 @@ namespace stone_station_detector
 
     if (debug_.show_transform)
     {
-      RCLCPP_INFO(get_logger(), "-----------INFO------------");
-      RCLCPP_INFO(get_logger(), "roll: %lf 度", roll_);
-      RCLCPP_INFO(get_logger(), "Yaw: %lf 度", yaw_);
-      RCLCPP_INFO(get_logger(), "Pitch: %lf 度", pitch_);
-      // RCLCPP_INFO(get_logger(), "roll: %lf", angle_last_[0]);
-      // RCLCPP_INFO(get_logger(), "Yaw: %lf", angle_last_[1]);
-      // RCLCPP_INFO(get_logger(), "Pitch: %lf", angle_last_[2]);
+      RCLCPP_WARN(get_logger(), "-----------ARM_TO_STATION_INFO------------");
+      // RCLCPP_INFO(get_logger(), "roll: %lf 度", roll_);
+      // RCLCPP_INFO(get_logger(), "Yaw: %lf 度", yaw_);
+      // RCLCPP_INFO(get_logger(), "Pitch: %lf 度", pitch_);
+      RCLCPP_INFO(get_logger(), "roll: %lf", angle_last_[0]);
+      RCLCPP_INFO(get_logger(), "Yaw: %lf", angle_last_[1]);
+      RCLCPP_INFO(get_logger(), "Pitch: %lf", angle_last_[2]);
       RCLCPP_INFO(get_logger(), "X_dis: %lf", location_last_[0]);
       RCLCPP_INFO(get_logger(), "Y_dis: %lf", location_last_[1]);
       RCLCPP_INFO(get_logger(), "Z_dis: %lf", location_last_[2]);
     }
-
-    target_pub_->publish(target_info);
+    if (is_target == true)
+    {
+      target_pub_->publish(target_info);
+    }
   }
 
   void DetectorNode::marker_callback()
@@ -286,7 +311,7 @@ namespace stone_station_detector
     // TODO:Set by your own path.
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
-    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_1.onnx");
+    this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_123.onnx");
     // this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
 
     // Debug.
@@ -325,7 +350,7 @@ namespace stone_station_detector
     debug_.print_letency = this->get_parameter("print_letency").as_bool();
     debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
     debug_.show_target = this->get_parameter("show_target").as_bool();
-    debug_.show_target = this->get_parameter("show_transform").as_bool();
+    debug_.show_transform = this->get_parameter("show_transform").as_bool();
     debug_.save_data = this->get_parameter("save_data").as_bool();
 
     path_params_.camera_name = this->get_parameter("camera_name").as_string();

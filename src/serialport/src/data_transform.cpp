@@ -32,9 +32,9 @@ namespace serialport
             trans_data[28] = 0x00;
             crc_check_.Append_CRC16_Check_Sum(trans_data, 64);
         }
-        if (mode == STONE_DETECT)
-        {
-        }
+        // if (mode == STONE_DETECT)
+        // {
+        // }
     }
 
 

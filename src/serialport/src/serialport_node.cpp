@@ -118,7 +118,16 @@ namespace serialport
     {
         // int mode = mode_;
         int mode = 1;
-        // std::cout<<target_info->is_target<<std::endl;
+
+        // std::cout<<"Send_Message_Info"<<std::endl;
+        // std::cout<<"x_dis: "<<target_info->x_dis<<std::endl;
+        // std::cout<<"y_dis: "<<target_info->y_dis<<std::endl;
+        // std::cout<<"z_dis: "<<target_info->z_dis<<std::endl;
+        // std::cout<<"pitch: "<<target_info->pitch<<std::endl;
+        // std::cout<<"yaw: "<<target_info->yaw<<std::endl;
+        // std::cout<<"roll: "<<target_info->roll<<std::endl;
+        // std::cout<<"is_target: "<<target_info->is_target<<std::endl;
+
         if (this->using_port_)
         {
             VisionData vision_data;
@@ -126,6 +135,7 @@ namespace serialport
             {
                 RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
                 mutex_.lock();
+
                 vision_data =
                     {
                         (serial_port_->steady_clock_.now().nanoseconds() / 1e6),
@@ -135,6 +145,7 @@ namespace serialport
                         (float)target_info->x_dis,
                         (float)target_info->y_dis,
                         (float)target_info->z_dis,
+
                         target_info->is_target
                     };
 

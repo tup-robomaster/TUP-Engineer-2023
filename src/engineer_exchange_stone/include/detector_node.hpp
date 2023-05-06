@@ -74,7 +74,7 @@ namespace stone_station_detector
     DebugParam debug_;
     SerialMsg serial_msg_;
     TargetMsg target_info;
-    bool is_target = false;
+    bool is_target;
     // TransformMsg tf_data;
 
     std::unique_ptr<Detector> detector_;

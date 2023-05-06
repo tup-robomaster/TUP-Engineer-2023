@@ -99,13 +99,6 @@ namespace stone_station_detector
     }
   };
 
-  // 暂时位置（待改）
-  struct arm_to_camera
-  {
-    float x_offset = 0;
-    float y_offset = 0;
-    float z_offset = 0;
-  };
   class Detector
   {
   public:
@@ -113,7 +106,7 @@ namespace stone_station_detector
     ~Detector();
 
   public:
-    bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool& is_target);
+    bool stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool &is_target);
     void showTarget(TaskData &src);
 
   public:
@@ -127,7 +120,6 @@ namespace stone_station_detector
   public:
     coordsolver::CoordSolver coordsolver_;
     StationDetector station_detector_;
-    arm_to_camera atc_;
     rclcpp::Logger logger_;
     rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
 
