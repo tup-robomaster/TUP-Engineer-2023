@@ -42,15 +42,15 @@ namespace serialport
         //  timer_ = this->create_wall_timer(5ms, std::bind(&SerialPortNode::sendData, this));
         timer_ = rclcpp::create_timer(this, this->get_clock(), 500ms, std::bind(&SerialPortNode::serialWatcher, this));
 
-        // if (using_port_)
-        // { // Use serial port.
-        //     if (serial_port_->openPort())
-        //     {
-        //         serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
-        //         // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
-        //         receive_thread_ = std::thread(&SerialPortNode::receiveData, this);
-        //     }
-        // }
+        if (using_port_)
+        { // Use serial port.
+            if (serial_port_->openPort())
+            {
+                serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
+                // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
+                receive_thread_ = std::thread(&SerialPortNode::receiveData, this);
+            }
+        }
     }
 
     SerialPortNode::~SerialPortNode()
@@ -71,55 +71,54 @@ namespace serialport
         }
     }
 
-    // void SerialPortNode::receiveData()
-    // {
-    //     while (1)
-    //     {
-    //         // 若串口离线则跳过数据发送
-    //         if (!serial_port_->serial_data_.is_initialized)
-    //         {
-    //             RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "Serial port offline!!!");
-    //             usleep(5000);
-    //             continue;
-    //         }
+    // 接受数据
+    void SerialPortNode::receiveData()
+    {
+        vector<float> vehicle_pos_info;
+        while (true)
+        {
+            // 若串口离线则跳过数据发送
+            if (!serial_port_->serial_data_.is_initialized)
+            {
+                RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "Serial port offline!!!");
+                usleep(1000);
+                continue;
+            }
 
-    //         // 数据读取不成功进行循环
-    //         // while (!serial_port_->receiveData())
-    //         // {
-    //             // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "CHECKSUM FAILED OR NO DATA RECVIED!!!");
-    //             // usleep(5000);
-    //         // }
+            // 数据读取不成功进行循环
+            bool is_receive_data = false;
+            while (!is_receive_data)
+            {
+                mutex_.lock();
+                is_receive_data = serial_port_->receiveData();
+                mutex_.unlock();
+                if (!is_receive_data)
+                {
+                    RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "CHECKSUM FAILED OR NO DATA RECVIED!!!");
+                    usleep(1000);
+                }
+            }
 
-    //         // uchar mode = serial_port_->serial_data_.rdata[1];
-    //         uchar mode = 1;
-    //         mode_ = mode;
-    //         RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
-    //         // RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
+            uchar flag = serial_port_->serial_data_.rdata[0];
+            uchar mode = serial_port_->serial_data_.rdata[1];
+            mode_ = mode;
+            // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
+            // RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
 
-    //         // if (mode)
-    //         // {
-    //         //     // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
-
-    //         //     if (print_serial_info_)
-    //         //     {
-    //         //         RCLCPP_INFO(this->get_logger(), "mode:%d", mode);
-    //         //     }
-
-    //         //     SerialMsg serial_msg;
-    //         //     serial_msg.imu.header.frame_id = "imu_link";
-    //         //     serial_msg.imu.header.stamp = this->get_clock()->now();
-    //         //     serial_msg.mode = mode;
-    //         //     serial_msg_pub_->publish(std::move(serial_msg));
-    //         // }
-    //     }
-    // }
+            if (flag == 0xA5)
+            {
+                // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
+            }
+           
+        }
+    }
 
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
-        // int mode = mode_;
-        int mode = 1;
-
-        // std::cout<<"Send_Message_Info"<<std::endl;
+        int mode = mode_;
+        // int mode = 1;
+        // std::cout<<"------Send_Message_Info--------"<<std::endl;
+        // std::cout<<"mode= "<<mode<<endl;
         // std::cout<<"x_dis: "<<target_info->x_dis<<std::endl;
         // std::cout<<"y_dis: "<<target_info->y_dis<<std::endl;
         // std::cout<<"z_dis: "<<target_info->z_dis<<std::endl;
@@ -134,7 +133,6 @@ namespace serialport
             if (mode == STONE_STATION_DETECT)
             {
                 RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
-                mutex_.lock();
 
                 vision_data =
                     {
@@ -146,12 +144,12 @@ namespace serialport
                         (float)target_info->y_dis,
                         (float)target_info->z_dis,
 
-                        target_info->is_target
-                    };
+                        target_info->is_target};
 
-                // 根据不同mode进行对应的数据转换
+                // 数据转换
                 data_transform_->transformData(mode, vision_data, serial_port_->Tdata);
                 // 数据发送
+                mutex_.lock();
                 serial_port_->sendData();
                 mutex_.unlock();
                 flag_ = true;

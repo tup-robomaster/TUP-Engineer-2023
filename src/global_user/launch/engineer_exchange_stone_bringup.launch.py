@@ -44,7 +44,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters=[{
-                'using_port': True,
+                'using_port': False,
                 # 'print_serial_info': False
             }],
             # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))

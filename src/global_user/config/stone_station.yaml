@@ -25,5 +25,5 @@
     detect_red: true
     show_aim_cross: false
     show_target: true
-    show_transform: true
+    show_transform: false
 
