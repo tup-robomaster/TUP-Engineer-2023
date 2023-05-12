@@ -11,10 +11,6 @@
   # Network model path.
     network_path: "src/engineer_exchange_stone/model/yolox_123.onnx"
   
-  # # Data saving.
-  #   save_data: false
-  #   save_path: "src/data/infer2_5.txt"
-  
   # Debug params.
     debug: true
     using_imu: false
@@ -24,6 +20,6 @@
     print_target_info: false
     detect_red: true
     show_aim_cross: false
-    show_target: true
+    show_target: false
     show_transform: false
 

@@ -5,6 +5,7 @@
 
 // C++
 #include <iostream>
+#include "rclcpp/clock.hpp"
 #include <algorithm>
 #include <vector>
 #include <string>
@@ -25,6 +26,12 @@
 
 namespace stone_station_detector
 {
+
+  // struct TargetInfo
+  // {
+  //   Eigen::Vector3d location_last_(0, 0, 0);
+  //   Eigen::Vector3d angle_last_(0, 0, 0);
+  // };
   enum Color
   {
     BLUE,
@@ -79,7 +86,6 @@ namespace stone_station_detector
     bool show_fps;
     bool print_letency;
     bool print_target_info;
-    bool save_data;
     bool show_transform;
 
     DebugParam()
@@ -94,7 +100,6 @@ namespace stone_station_detector
       show_fps = true;
       print_letency = false;
       print_target_info = true;
-      save_data = false;
       show_transform = false;
     }
   };
@@ -114,7 +119,6 @@ namespace stone_station_detector
     std::vector<Stone_Station> stone_stations;
     Eigen::Vector3d last_target;
     ofstream data_save;
-    bool is_save_data;
     bool is_init_;
 
   public:
@@ -136,6 +140,19 @@ namespace stone_station_detector
     DebugParam debug_params_;
     DetectorParam detector_params_;
     PathParam path_params_;
+
+  public:
+    // struct TargetInfo
+    // {
+    //   Eigen::Vector3d location_last_(0, 0, 0);
+    //   Eigen::Vector3d angle_last_(0, 0, 0);
+    // };
+    // const int history_deque_len = 12;                                     //队列长度
+    // const int min_fitting_len = 10;                                         //最短队列长度
+    // Eigen::Vector3d sum_location = {0, 0, 0};
+    // Eigen::Vector3d sum_angle = {0, 0, 0};
+    // Eigen::Vector3d total_sum_distance = {0, 0, 0};
+    // Eigen::Vector3d total_sum_angle = {0, 0, 0};
   };
 }
 

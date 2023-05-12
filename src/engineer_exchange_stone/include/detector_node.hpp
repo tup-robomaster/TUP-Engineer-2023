@@ -46,6 +46,7 @@ namespace stone_station_detector
     ~DetectorNode();
 
     std::shared_ptr<image_transport::Subscriber> img_sub;
+    std_msgs::msg::Header img_header_;
 
     std::string transport_;
 
@@ -103,6 +104,13 @@ namespace stone_station_detector
     std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     void marker_callback();
+
+  public:
+    struct TargetInfo
+    {
+      Eigen::Vector3d kk;
+      Eigen::Vector3d mm;
+    };
   };
 }
 

@@ -31,13 +31,10 @@ namespace camera_driver
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::chrono::steady_clock::time_point last_frame;
-    std::shared_ptr<sensor_msgs::msg::Image> image_msg;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_publisher_;
-    std::shared_ptr<camera_info_manager::CameraInfoManager> cam_info_manager;
 
   public:
     void image_callback();
-    std::unique_ptr<sensor_msgs::msg::Image> convert_frame_to_message(cv::Mat &frame);
 
   public:
     std::unique_ptr<UsbCam> usb_cam_;

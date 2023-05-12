@@ -10,9 +10,9 @@ namespace camera_driver
   {
     this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/test.mp4");
+    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/red.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
-    this->declare_parameter<int>("cam_id", 0);
+    this->declare_parameter<int>("cam_id", 2);
     cam_id_ = this->get_parameter("cam_id").as_int();
     this->declare_parameter<bool>("save_video", false);
     save_video_ = this->get_parameter("save_video").as_bool();
@@ -50,6 +50,9 @@ namespace camera_driver
     qos.transient_local();
     qos.durability_volatile();
 
+    rmw_qos_profile_t rmw_qos(rmw_qos_profile_default);
+    rmw_qos.depth = 1;
+
     last_frame = std::chrono::steady_clock::now();
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", qos);
     timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
@@ -79,7 +82,8 @@ namespace camera_driver
       // {
       //   frame_cnt = 0;
       //   write_video.wait();
-      write_video = std::async(std::launch::async, [&](){ writer.write(src); });
+      write_video = std::async(std::launch::async, [&]()
+                               { writer.write(src); });
       // }
 
       RCLCPP_INFO(this->get_logger(), "Saving video...");
@@ -98,34 +102,12 @@ namespace camera_driver
     usb_cam_params_.image_height = this->get_parameter("image_height").as_int();
     usb_cam_params_.fps = this->get_parameter("fps").as_int();
 
-    // printf("camera_id: %d\n", usb_cam_params_.camera_id);
     return std::make_unique<UsbCam>(usb_cam_params_);
-  }
-
-  std::unique_ptr<sensor_msgs::msg::Image> UsbCamNode::convert_frame_to_message(cv::Mat &frame)
-  {
-    std_msgs::msg::Header header;
-    sensor_msgs::msg::Image ros_image;
-
-    ros_image.header = header;
-    ros_image.height = frame.rows;
-    ros_image.width = frame.cols;
-    ros_image.encoding = "bgr8"; // 图像的编码格式
-
-    ros_image.step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
-    ros_image.is_bigendian = false; // 图像数据的大小端存储模式
-    ros_image.data.assign(frame.datastart, frame.dataend);
-
-    auto msg_ptr = std::make_unique<sensor_msgs::msg::Image>(ros_image);
-
-    return msg_ptr;
   }
 
   void UsbCamNode::image_callback()
   {
-    rclcpp::Time st = this->get_clock()->now();
     cap >> frame;
-    auto now_frame = std::chrono::steady_clock::now();
 
     // double alpha = 0.5; // 降低曝光的参数
     // double beta = 0;    // 降低曝光的参数
@@ -133,16 +115,28 @@ namespace camera_driver
 
     if (!frame.empty())
     {
-      this->last_frame = now_frame;
+      // if(frame.cols != 640 || frame.rows != 480)
+      // {
+        cv::resize(frame, frame, cv::Size(640, 480));
+      // }
+      sensor_msgs::msg::Image::UniquePtr image_msg = std::make_unique<sensor_msgs::msg::Image>();
       rclcpp::Time timestamp = this->get_clock()->now();
-      sensor_msgs::msg::Image::UniquePtr msg = convert_frame_to_message(frame);
-      image_publisher_->publish(std::move(msg));
+
+      image_msg->header.frame_id = "usb_image";
+      image_msg->header.stamp = timestamp;
+      image_msg->encoding = "bgr8";
+      image_msg->height = frame.rows;
+      image_msg->width = frame.cols;
+      image_msg->step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
+      image_msg->is_bigendian = false;
+      image_msg->data.assign(frame.datastart, frame.dataend);
+
+      image_publisher_->publish(std::move(image_msg));
       // RCLCPP_INFO(this->get_logger(), "msg_ptr ...");
       // cv::namedWindow("raw_image", cv::WINDOW_AUTOSIZE);
       // cv::imshow("raw_image", frame);
       // cv::waitKey(1);
       rclcpp::Time end = this->get_clock()->now();
-      // RCLCPP_WARN(this->get_logger(), "img_pub_delay:%.3fms", (end - st).nanoseconds() / 1e6);
     }
   }
 }

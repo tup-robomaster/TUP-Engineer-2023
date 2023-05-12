@@ -9,26 +9,16 @@ namespace stone_station_detector
         path_params_(path_param), debug_params_(debug_params), logger_(rclcpp::get_logger("stone_station_detector"))
   {
     is_init_ = false;
-    is_save_data = false;
   }
 
   Detector::~Detector()
   {
-    if (is_save_data)
-    {
-      data_save.close();
-    }
   }
 
   bool Detector::stone_station_detect(global_user::TaskData &src, geometry_msgs::msg::PoseStamped &pose_msg_, bool &is_target)
   {
     if (!is_init_)
     {
-      if (is_save_data)
-      {
-        data_save.open("src/data/dis_info_1.txt", ios::out | ios::trunc);
-        data_save << fixed;
-      }
       is_init_ = true;
     }
 
@@ -38,7 +28,7 @@ namespace stone_station_detector
 
     time_crop = steady_clock_.now();
     objects.clear();
-    
+
     if (!station_detector_.detect(input, objects))
     {
       is_target = false;
@@ -83,8 +73,8 @@ namespace stone_station_detector
       stone_station.rrect = points_pic_rrect;
 
       // 进行pnp解算,采取迭代法
-      // int pnp_method = SOLVEPNP_IPPE;
-      int pnp_method = SOLVEPNP_ITERATIVE;
+      int pnp_method = SOLVEPNP_IPPE;
+      // int pnp_method = SOLVEPNP_ITERATIVE;
 
       auto pnp_result = coordsolver_.pnp(points_pic, pnp_method);
 
@@ -102,7 +92,10 @@ namespace stone_station_detector
       auto angle = stone_stations.euler;
 
       // angle[2] = angle[2]-CV_PI;
-
+      int i = 0;
+      i++;
+      cout<<i<<endl;
+      
       tf2::Quaternion qu;
       qu.setRPY(angle[0], angle[1], angle[2]);
       // pose_msg_.header.stamp = this->get_clock()->now();

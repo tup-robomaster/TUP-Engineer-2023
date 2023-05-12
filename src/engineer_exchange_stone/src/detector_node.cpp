@@ -23,11 +23,6 @@ namespace stone_station_detector
       RCLCPP_INFO(this->get_logger(), "Initializing network model...");
       detector_->station_detector_.initModel(path_params_.network_path);
       detector_->coordsolver_.loadParam(path_params_.camera_param_path, path_params_.camera_name);
-      if (detector_->is_save_data)
-      {
-        detector_->data_save.open(path_params_.save_path, ios::out | ios::trunc);
-        detector_->data_save << fixed;
-      }
       detector_->is_init_ = true;
     }
 
@@ -72,17 +67,15 @@ namespace stone_station_detector
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
     timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
 
-    // Pose publish
+    // Pose(ston-station-to-arm) publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
-    // Marker publish
+    // Marker(stone station visualization) publish
     marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
     timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::marker_callback, this));
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
-    // detect_thread_ = std::thread(&DetectorNode::detectCallback, this);
   }
 
   DetectorNode::~DetectorNode()
@@ -100,6 +93,10 @@ namespace stone_station_detector
     return;
   }
 
+  /**
+   * 相机图像数据的回调函数，用于接收相机发布的图像，进行识别处理，并发布相机与矿站之间的位置关系
+   */
+
   void DetectorNode::image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &img_ptr)
   {
     if (!img_ptr)
@@ -108,11 +105,18 @@ namespace stone_station_detector
     }
 
     global_user::TaskData src;
-    auto img_sub_time = detector_->steady_clock_.now();
-    src.timestamp = (img_sub_time - time_start_).nanoseconds();
-    cv::Mat img = cv_bridge::toCvShare(img_ptr, "bgr8")->image;
-    img.copyTo(src.img);
+    img_header_ = img_ptr->header;
+    rclcpp::Time time = img_ptr->header.stamp;
+    rclcpp::Time now = this->get_clock()->now();
+    double dura = (now.nanoseconds() - time.nanoseconds()) / 1e6;
 
+    if ((dura) > 20.0)
+      return;
+
+    rclcpp::Time stamp = img_ptr->header.stamp;
+    src.timestamp = stamp.nanoseconds();
+    src.img = cv_bridge::toCvShare(img_ptr, "bgr8")->image;
+    
     std::vector<Stone_Station> station;
     if (detector_->stone_station_detect(src, pose_msg_, is_target))
     {
@@ -172,6 +176,10 @@ namespace stone_station_detector
     return result;
   }
 
+  /**
+   * 将stone_station_frame到cam_link姿态信息转换，通过tf_broadcaster_发布转换关系。
+   */
+
   void DetectorNode::stone_station_to_cam()
   {
     geometry_msgs::msg::TransformStamped t;
@@ -192,10 +200,21 @@ namespace stone_station_detector
     tf_broadcaster_->sendTransform(t);
   }
 
+  /**
+   * 从TF树上查询获取arm_link、stone_station_frame两个坐标系之间的变换关系，并将其转换为欧拉角和坐标系的位置信息，
+   * 最终将这些信息通过 ROS 发布出去。
+   */
+
   void DetectorNode::tf_callback()
   {
     std::string frame_a = "arm_link";
     std::string frame_b = "stone_station_frame";
+    const int history_deque_len = 12; // 队列长度
+    const int min_fitting_len = 10;   // 最短队列长度
+    Eigen::Vector3d sum_location(0, 0, 0);
+    Eigen::Vector3d sum_angle(0, 0, 0);
+    // Eigen::Vector3d total_sum_distance = {0, 0, 0};
+    // Eigen::Vector3d total_sum_angle = {0, 0, 0};
 
     // 获取两个坐标系之间的变换关系
     geometry_msgs::msg::TransformStamped transformStamped;
@@ -226,17 +245,35 @@ namespace stone_station_detector
     location_last_[1] = transformStamped.transform.translation.y;
     location_last_[2] = transformStamped.transform.translation.z;
 
-    // target_info.roll = 0;
-    // target_info.pitch = 0;
-    // target_info.yaw = 0;
+    TargetInfo target = {angle_last_, location_last_};
+    std::deque<TargetInfo> history_info;
 
-    // target_info.x_dis = 0;
-    // target_info.y_dis = 0;
-    // target_info.z_dis = 0;
+    history_info.push_back(target);
+    //  cout<<history_info.size()<<endl;
+
+    // history_info.push_back(target);
+    // cout<<history_info.size()<<endl;
+    if (history_info.size() < 4)
+    {
+    }
+    else if (min_fitting_len < history_info.size() < history_deque_len)
+    {
+      // for (int i = 0; i < 10; i++)
+      // {
+      //   sum_location += history_info.at(i).location_last_;
+      //   sum_angle += history_info.at(i).angle_last_;
+      // }
+    }
+    else if (history_info.size() > history_deque_len)
+    {
+      // history_info.pop_front();
+    }
+    // total_sum_distance = sum_location / 10;
+    // total_sum_angle = sum_angle / 10;
 
     target_info.roll = angle_last_[0];
-    target_info.pitch = angle_last_[1];
-    target_info.yaw = angle_last_[2];
+    target_info.pitch = angle_last_[1] + 1.57;
+    target_info.yaw = angle_last_[2] - 3.14;
 
     target_info.x_dis = location_last_[0];
     target_info.y_dis = location_last_[1];
@@ -244,19 +281,19 @@ namespace stone_station_detector
 
     target_info.is_target = is_target;
 
-    double roll_ = double((angle_last_[0] * 180) / CV_PI);
-    double yaw_ = double((angle_last_[1] * 180) / CV_PI);
-    double pitch_ = double((angle_last_[2] * 180) / CV_PI);
+    // double roll_ = double((angle_last_[0] * 180) / CV_PI);
+    // double yaw_ = double((angle_last_[1] * 180) / CV_PI);
+    // double pitch_ = double((angle_last_[2] * 180) / CV_PI);
 
     if (debug_.show_transform)
     {
       RCLCPP_WARN(get_logger(), "-----------ARM_TO_STATION_INFO------------");
-      // RCLCPP_INFO(get_logger(), "roll: %lf 度", roll_);
-      // RCLCPP_INFO(get_logger(), "Yaw: %lf 度", yaw_);
+      // RCLCPP_INFO(get_logger(), "Roll: %lf 度", roll_);
       // RCLCPP_INFO(get_logger(), "Pitch: %lf 度", pitch_);
-      RCLCPP_INFO(get_logger(), "roll: %lf", angle_last_[0]);
-      RCLCPP_INFO(get_logger(), "Yaw: %lf", angle_last_[1]);
-      RCLCPP_INFO(get_logger(), "Pitch: %lf", angle_last_[2]);
+      // RCLCPP_INFO(get_logger(), "Yaw: %lf 度", yaw_);
+      RCLCPP_INFO(get_logger(), "Roll: %lf", angle_last_[0]);
+      RCLCPP_INFO(get_logger(), "Pitch: %lf", angle_last_[1]);
+      RCLCPP_INFO(get_logger(), "Yaw: %lf", angle_last_[2]);
       RCLCPP_INFO(get_logger(), "X_dis: %lf", location_last_[0]);
       RCLCPP_INFO(get_logger(), "Y_dis: %lf", location_last_[1]);
       RCLCPP_INFO(get_logger(), "Z_dis: %lf", location_last_[2]);
@@ -300,7 +337,7 @@ namespace stone_station_detector
 
     marker_pub_->publish(std::move(cube_maker));
   }
-
+  // 参数初始化
   std::unique_ptr<Detector> DetectorNode::init_detector()
   {
 
@@ -312,7 +349,6 @@ namespace stone_station_detector
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
     this->declare_parameter("network_path", "src/engineer_exchange_stone/model/yolox_123.onnx");
-    // this->declare_parameter("save_path", "src/data/old_infer1_2.txt");
 
     // Debug.
     this->declare_parameter("debug_without_com", true);
@@ -324,14 +360,13 @@ namespace stone_station_detector
     this->declare_parameter("print_letency", false);
     this->declare_parameter("print_target_info", false);
     this->declare_parameter("show_target", true);
-    this->declare_parameter("save_data", false);
 
     // Update param from param server.
     updateParam();
 
     return std::make_unique<Detector>(path_params_, detector_params_, debug_);
   }
-
+  // 参数更新
   bool DetectorNode::updateParam()
   {
     bool det_red = this->get_parameter("color").as_bool();
@@ -339,8 +374,6 @@ namespace stone_station_detector
       detector_params_.color = RED;
     else
       detector_params_.color = BLUE;
-
-    detector_params_.stone_station_conf_high_thres = this->get_parameter("stone_station_conf_high_thres").as_double();
 
     debug_.detect_red = this->get_parameter("detect_red").as_bool();
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
@@ -351,7 +384,6 @@ namespace stone_station_detector
     debug_.print_target_info = this->get_parameter("print_target_info").as_bool();
     debug_.show_target = this->get_parameter("show_target").as_bool();
     debug_.show_transform = this->get_parameter("show_transform").as_bool();
-    debug_.save_data = this->get_parameter("save_data").as_bool();
 
     path_params_.camera_name = this->get_parameter("camera_name").as_string();
     path_params_.camera_param_path = this->get_parameter("camera_param_path").as_string();
