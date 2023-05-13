@@ -106,11 +106,20 @@ namespace stone_station_detector
     void marker_callback();
 
   public:
+
     struct TargetInfo
     {
-      Eigen::Vector3d kk;
-      Eigen::Vector3d mm;
+      Eigen::Vector3d angle;
+      Eigen::Vector3d distance;
     };
+    struct Target_Info_
+    {
+      Eigen::Vector3d angle_;
+      Eigen::Vector3d distance_;
+    };
+
+    std::vector<TargetInfo> history_info;
+    std::vector<Target_Info_> history_info_;
   };
 }
 

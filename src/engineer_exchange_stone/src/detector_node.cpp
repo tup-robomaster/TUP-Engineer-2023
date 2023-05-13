@@ -116,7 +116,7 @@ namespace stone_station_detector
     rclcpp::Time stamp = img_ptr->header.stamp;
     src.timestamp = stamp.nanoseconds();
     src.img = cv_bridge::toCvShare(img_ptr, "bgr8")->image;
-    
+
     std::vector<Stone_Station> station;
     if (detector_->stone_station_detect(src, pose_msg_, is_target))
     {
@@ -209,13 +209,12 @@ namespace stone_station_detector
   {
     std::string frame_a = "arm_link";
     std::string frame_b = "stone_station_frame";
-    const int history_deque_len = 12; // 队列长度
-    const int min_fitting_len = 10;   // 最短队列长度
-    Eigen::Vector3d sum_location(0, 0, 0);
-    Eigen::Vector3d sum_angle(0, 0, 0);
-    // Eigen::Vector3d total_sum_distance = {0, 0, 0};
-    // Eigen::Vector3d total_sum_angle = {0, 0, 0};
-
+    Eigen::Vector3d sum_location;
+    Eigen::Vector3d sum_angle;
+    Eigen::Vector3d total_sum_distance;
+    Eigen::Vector3d total_sum_angle;
+    Eigen::Vector3d val_distance;
+    
     // 获取两个坐标系之间的变换关系
     geometry_msgs::msg::TransformStamped transformStamped;
     try
@@ -246,40 +245,112 @@ namespace stone_station_detector
     location_last_[2] = transformStamped.transform.translation.z;
 
     TargetInfo target = {angle_last_, location_last_};
-    std::deque<TargetInfo> history_info;
-
+    Target_Info_ target_;
     history_info.push_back(target);
-    //  cout<<history_info.size()<<endl;
 
-    // history_info.push_back(target);
-    // cout<<history_info.size()<<endl;
-    if (history_info.size() < 4)
+    // history_info_.at(1).distance_[0];
+
+    if (!history_info.empty())
     {
+      // cout<<history_info.size()<<endl;
+
+      if (history_info.size() == 20)
+      {
+        // history_info
+        for (int i = 0; i < history_info.size(); i++)
+        {
+          // cout << "history_info.at(i).distance[2] = " << history_info.at(i).distance[2] << endl;
+
+          sum_location[0] += history_info.at(i).distance[0];
+          sum_location[1] += history_info.at(i).distance[1];
+          sum_location[2] += history_info.at(i).distance[2];
+
+          sum_angle[0] += history_info.at(i).angle[0];
+          sum_angle[1] += history_info.at(i).angle[1];
+          sum_angle[2] += history_info.at(i).angle[2];
+        }
+
+        total_sum_angle[0] = 0;
+        total_sum_angle[1] = 0;
+        total_sum_angle[2] = 0;
+
+        total_sum_distance[0] = 0;
+        total_sum_distance[1] = 0;
+        total_sum_distance[2] = 0;
+
+        total_sum_distance[0] = sum_location[0] / 20;
+        total_sum_distance[1] = sum_location[1] / 20;
+        total_sum_distance[2] = sum_location[2] / 20;
+
+        total_sum_angle[0] = sum_angle[0] / 20;
+        total_sum_angle[1] = sum_angle[1] / 20;
+        total_sum_angle[2] = sum_angle[2] / 20;
+
+        float angel_last_roll_1 = history_info.at(18).angle[0];
+        float angel_last_roll_2 = history_info.at(19).angle[0];
+        float angel_last_pitch_1 = history_info.at(18).angle[1];
+        float angel_last_pitch_2 = history_info.at(19).angle[1];
+        float angel_last_yaw_1 = history_info.at(18).angle[2];
+        float angel_last_yaw_2 = history_info.at(19).angle[2];
+        float distance_last_x_1 = history_info.at(18).distance[0];
+        float distance_last_x_2 = history_info.at(19).distance[0];
+        float distance_last_y_1 = history_info.at(18).distance[1];
+        float distance_last_y_2 = history_info.at(19).distance[1];
+        float distance_last_z_1 = history_info.at(18).distance[2];
+        float distance_last_z_2 = history_info.at(19).distance[2];
+
+        if (abs(val_distance[2] - total_sum_distance[2]) < 0.01 && abs(distance_last_z_2 - total_sum_distance[2]) < 0.005)
+        {
+          // cout << "total_sum_distance[2] = " << total_sum_distance[2] << endl;
+          // cout << "total_sum_distance[2] = " << total_sum_distance[2] << endl;
+          target_ = {total_sum_angle, total_sum_distance};
+          if (history_info_.size() <= 99)
+          {
+            history_info_.push_back(target_);
+          }
+        }
+        else
+        {
+          val_distance[2] = total_sum_distance[2];
+
+          total_sum_angle[0] = (angel_last_roll_1 + angel_last_roll_2) / 2;
+          total_sum_angle[1] = (angel_last_pitch_1 + angel_last_pitch_2) / 2;
+          total_sum_angle[2] = (angel_last_yaw_1 + angel_last_yaw_2) / 2;
+          total_sum_distance[0] = (distance_last_x_1 + distance_last_x_2) / 2;
+          total_sum_distance[1] = (distance_last_y_1 + distance_last_y_2) / 2;
+          total_sum_distance[2] = (distance_last_z_1 + distance_last_z_2) / 2;
+
+          // cout << "xxxxxxxxxxxxxxx" << total_sum_distance[2] << endl;
+          target_ = {total_sum_angle, total_sum_distance};
+          if (history_info_.size() <= 99)
+          {
+            history_info_.push_back(target_);
+          }
+        }
+
+        // cout << "history_info_.back().distance_[2] = " << history_info_.back().distance_[2] << endl;
+
+        history_info.clear();
+      }
     }
-    else if (min_fitting_len < history_info.size() < history_deque_len)
+    // cout<<"history_info_.size() = "<<history_info_.size()<<endl;
+    if (!history_info_.empty() && history_info_.size() == 100)
     {
-      // for (int i = 0; i < 10; i++)
-      // {
-      //   sum_location += history_info.at(i).location_last_;
-      //   sum_angle += history_info.at(i).angle_last_;
-      // }
+      target_info.roll = history_info_.back().angle_[0];
+      target_info.pitch = history_info_.back().angle_[1] + CV_PI / 2;
+      target_info.yaw = history_info_.back().angle_[2] - CV_PI;
+
+      target_info.x_dis = history_info_.back().distance_[0];
+      target_info.y_dis = history_info_.back().distance_[1];
+      target_info.z_dis = history_info_.back().distance_[2];
+      cout << "history_info_.back().distance_[2] =  " << history_info_.back().distance_[2] << endl;
+      target_info.is_target = is_target;
+
+      if (is_target == true)
+      {
+        target_pub_->publish(target_info);
+      }
     }
-    else if (history_info.size() > history_deque_len)
-    {
-      // history_info.pop_front();
-    }
-    // total_sum_distance = sum_location / 10;
-    // total_sum_angle = sum_angle / 10;
-
-    target_info.roll = angle_last_[0];
-    target_info.pitch = angle_last_[1] + 1.57;
-    target_info.yaw = angle_last_[2] - 3.14;
-
-    target_info.x_dis = location_last_[0];
-    target_info.y_dis = location_last_[1];
-    target_info.z_dis = location_last_[2];
-
-    target_info.is_target = is_target;
 
     // double roll_ = double((angle_last_[0] * 180) / CV_PI);
     // double yaw_ = double((angle_last_[1] * 180) / CV_PI);
@@ -297,10 +368,6 @@ namespace stone_station_detector
       RCLCPP_INFO(get_logger(), "X_dis: %lf", location_last_[0]);
       RCLCPP_INFO(get_logger(), "Y_dis: %lf", location_last_[1]);
       RCLCPP_INFO(get_logger(), "Z_dis: %lf", location_last_[2]);
-    }
-    if (is_target == true)
-    {
-      target_pub_->publish(target_info);
     }
   }
 

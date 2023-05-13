@@ -10,9 +10,9 @@ namespace camera_driver
   {
     this->declare_parameter<bool>("using_video", false);
     using_video_ = this->get_parameter("using_video").as_bool();
-    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/red.mp4");
+    this->declare_parameter<std::string>("video_path", "src/camera_driver/video/red_.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
-    this->declare_parameter<int>("cam_id", 2);
+    this->declare_parameter<int>("cam_id", 0);
     cam_id_ = this->get_parameter("cam_id").as_int();
     this->declare_parameter<bool>("save_video", false);
     save_video_ = this->get_parameter("save_video").as_bool();
@@ -115,10 +115,8 @@ namespace camera_driver
 
     if (!frame.empty())
     {
-      // if(frame.cols != 640 || frame.rows != 480)
-      // {
-        cv::resize(frame, frame, cv::Size(640, 480));
-      // }
+
+      // cv::resize(frame, frame, cv::Size(640, 480));
       sensor_msgs::msg::Image::UniquePtr image_msg = std::make_unique<sensor_msgs::msg::Image>();
       rclcpp::Time timestamp = this->get_clock()->now();
 
