@@ -1,6 +1,6 @@
 /usb_cam_driver:
   ros__parameters:
-    cam_id: 3
+    cam_id: 2
     frame_id: usb_cam
     image_width: 640
     image_height: 480

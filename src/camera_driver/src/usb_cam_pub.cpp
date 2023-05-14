@@ -12,7 +12,7 @@ namespace camera_driver
     using_video_ = this->get_parameter("using_video").as_bool();
     this->declare_parameter<std::string>("video_path", "src/camera_driver/video/red_.mp4");
     video_path_ = this->get_parameter("video_path").as_string();
-    this->declare_parameter<int>("cam_id", 0);
+    this->declare_parameter<int>("cam_id", 2);
     cam_id_ = this->get_parameter("cam_id").as_int();
     this->declare_parameter<bool>("save_video", false);
     save_video_ = this->get_parameter("save_video").as_bool();

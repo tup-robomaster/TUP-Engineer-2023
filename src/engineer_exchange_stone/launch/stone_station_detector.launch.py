@@ -35,19 +35,34 @@ def generate_launch_description():
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.217", "0.423", "0.423", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
+        arguments=["-0.210", "0.173", "0.530", "-0.349066", "0", "-1.308998", "base_link", "cam_link"]
         )
 
         tf_arm_to_base_node_ = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.423", "0", "0.421", "0", "0", "0", "base_link", "arm_link"]
+        # arguments=["0", "0.368", "0.371", "0", "0", "0", "base_link", "arm_link"]
+         arguments=["0", "0.368", "0.371", "0", "3.14", "-1.570796325", "base_link", "arm_link"]
         )
+        
+        # serialport_node = Node(
+        #     package='serialport',
+        #     executable='serialport_node',
+        #     name='serialport',serialport_node
+        #     output='screen',
+        #     emulate_tty=True,
+        #     parameters=[{
+        #         'using_port': True,
+        #         # 'print_serial_info': False
+        #     }],
+        #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
+        # ),
 
         ld.add_action(usb_cam_node)
         ld.add_action(stone_station_detector_node)
         ld.add_action(tf_cam_to_base_node_)
         ld.add_action(tf_arm_to_base_node_)
+        # ld.add_action(serialport_node)
 
         return ld

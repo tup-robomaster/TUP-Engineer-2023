@@ -73,8 +73,8 @@ namespace stone_station_detector
       stone_station.rrect = points_pic_rrect;
 
       // 进行pnp解算,采取迭代法
-      int pnp_method = SOLVEPNP_IPPE;
-      // int pnp_method = SOLVEPNP_ITERATIVE;
+      // int pnp_method = SOLVEPNP_IPPE;
+      int pnp_method = SOLVEPNP_ITERATIVE;
 
       auto pnp_result = coordsolver_.pnp(points_pic, pnp_method);
 
@@ -99,7 +99,7 @@ namespace stone_station_detector
       tf2::Quaternion qu;
       qu.setRPY(angle[0], angle[1], angle[2]);
       // pose_msg_.header.stamp = this->get_clock()->now();
-      pose_msg_.header.frame_id = "arm_to_cam";
+      pose_msg_.header.frame_id = "station_to_cam";
       pose_msg_.pose.position.x = last_target[0];
       pose_msg_.pose.position.y = last_target[1];
       pose_msg_.pose.position.z = last_target[2];

@@ -44,9 +44,7 @@ namespace stone_station_detector
     if (debug_.using_imu)
     {
       RCLCPP_INFO(this->get_logger(), "Using imu...");
-      serial_msg_.imu.header.frame_id = "imu_link";
-      serial_msg_.mode = this->declare_parameter<int>("vision_mode", 1);
-      // imu msg sub.
+      // serial_msg.header.frame_id = "serial";
       serial_msg_sub_ = this->create_subscription<SerialMsg>("/serial_msg", qos, std::bind(&DetectorNode::sensorMsgCallback, this, _1));
     }
 
@@ -71,11 +69,16 @@ namespace stone_station_detector
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
-    // Marker(stone station visualization) publish
-    marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("visualization_marker", qos);
-    timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::marker_callback, this));
-    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
-    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+    // Marker(stone station visualization detector) publish
+    cam_marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("cam_visualization_marker", qos);
+    cam_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::cam_marker_callback, this));
+    cam_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    cam_tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*cam_tf_buffer_);
+    // Marker(stone station visualization acquisition) publis
+    arm_marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("arm_visualization_marker", qos);
+    arm_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::arm_marker_callback, this));
+    arm_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    arm_tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*arm_tf_buffer_);
   }
 
   DetectorNode::~DetectorNode()
@@ -84,12 +87,12 @@ namespace stone_station_detector
 
   void DetectorNode::sensorMsgCallback(const SerialMsg &serial_msg)
   {
-    // msg_mutex_.lock();
-    serial_msg_.imu.header.stamp = this->get_clock()->now();
-    if (serial_msg.mode == 1 || serial_msg.mode == 2)
-      serial_msg_.mode = serial_msg.mode;
-    serial_msg_.imu = serial_msg.imu;
-    // msg_mutex_.unlock();
+    msg_mutex_.lock();
+    mode = serial_msg.mode;
+    // if (serial_msg.mode == 1 || serial_msg.mode == 2)
+    //   serial_msg_.mode = serial_msg.mode;
+    // serial_msg_.imu = serial_msg.imu;
+    msg_mutex_.unlock();
     return;
   }
 
@@ -169,10 +172,10 @@ namespace stone_station_detector
     result.reason = "debug";
     result.successful = updateParam();
 
-    // param_mutex_.lock();
+    param_mutex_.lock();
     detector_->detector_params_ = this->detector_params_;
     detector_->debug_params_ = this->debug_;
-    // param_mutex_.unlock();
+    param_mutex_.unlock();
     return result;
   }
 
@@ -214,7 +217,7 @@ namespace stone_station_detector
     Eigen::Vector3d total_sum_distance;
     Eigen::Vector3d total_sum_angle;
     Eigen::Vector3d val_distance;
-    
+
     // 获取两个坐标系之间的变换关系
     geometry_msgs::msg::TransformStamped transformStamped;
     try
@@ -241,117 +244,130 @@ namespace stone_station_detector
 
     Eigen::Vector3d location_last_(0, 0, 0);
     location_last_[0] = transformStamped.transform.translation.x;
-    location_last_[1] = transformStamped.transform.translation.y;
-    location_last_[2] = transformStamped.transform.translation.z;
+    location_last_[1] = transformStamped.transform.translation.z;
+    location_last_[2] = transformStamped.transform.translation.y;
 
     TargetInfo target = {angle_last_, location_last_};
     Target_Info_ target_;
     history_info.push_back(target);
 
-    // history_info_.at(1).distance_[0];
-
-    if (!history_info.empty())
+    if (mode == 0)
     {
-      // cout<<history_info.size()<<endl;
-
-      if (history_info.size() == 20)
-      {
-        // history_info
-        for (int i = 0; i < history_info.size(); i++)
-        {
-          // cout << "history_info.at(i).distance[2] = " << history_info.at(i).distance[2] << endl;
-
-          sum_location[0] += history_info.at(i).distance[0];
-          sum_location[1] += history_info.at(i).distance[1];
-          sum_location[2] += history_info.at(i).distance[2];
-
-          sum_angle[0] += history_info.at(i).angle[0];
-          sum_angle[1] += history_info.at(i).angle[1];
-          sum_angle[2] += history_info.at(i).angle[2];
-        }
-
-        total_sum_angle[0] = 0;
-        total_sum_angle[1] = 0;
-        total_sum_angle[2] = 0;
-
-        total_sum_distance[0] = 0;
-        total_sum_distance[1] = 0;
-        total_sum_distance[2] = 0;
-
-        total_sum_distance[0] = sum_location[0] / 20;
-        total_sum_distance[1] = sum_location[1] / 20;
-        total_sum_distance[2] = sum_location[2] / 20;
-
-        total_sum_angle[0] = sum_angle[0] / 20;
-        total_sum_angle[1] = sum_angle[1] / 20;
-        total_sum_angle[2] = sum_angle[2] / 20;
-
-        float angel_last_roll_1 = history_info.at(18).angle[0];
-        float angel_last_roll_2 = history_info.at(19).angle[0];
-        float angel_last_pitch_1 = history_info.at(18).angle[1];
-        float angel_last_pitch_2 = history_info.at(19).angle[1];
-        float angel_last_yaw_1 = history_info.at(18).angle[2];
-        float angel_last_yaw_2 = history_info.at(19).angle[2];
-        float distance_last_x_1 = history_info.at(18).distance[0];
-        float distance_last_x_2 = history_info.at(19).distance[0];
-        float distance_last_y_1 = history_info.at(18).distance[1];
-        float distance_last_y_2 = history_info.at(19).distance[1];
-        float distance_last_z_1 = history_info.at(18).distance[2];
-        float distance_last_z_2 = history_info.at(19).distance[2];
-
-        if (abs(val_distance[2] - total_sum_distance[2]) < 0.01 && abs(distance_last_z_2 - total_sum_distance[2]) < 0.005)
-        {
-          // cout << "total_sum_distance[2] = " << total_sum_distance[2] << endl;
-          // cout << "total_sum_distance[2] = " << total_sum_distance[2] << endl;
-          target_ = {total_sum_angle, total_sum_distance};
-          if (history_info_.size() <= 99)
-          {
-            history_info_.push_back(target_);
-          }
-        }
-        else
-        {
-          val_distance[2] = total_sum_distance[2];
-
-          total_sum_angle[0] = (angel_last_roll_1 + angel_last_roll_2) / 2;
-          total_sum_angle[1] = (angel_last_pitch_1 + angel_last_pitch_2) / 2;
-          total_sum_angle[2] = (angel_last_yaw_1 + angel_last_yaw_2) / 2;
-          total_sum_distance[0] = (distance_last_x_1 + distance_last_x_2) / 2;
-          total_sum_distance[1] = (distance_last_y_1 + distance_last_y_2) / 2;
-          total_sum_distance[2] = (distance_last_z_1 + distance_last_z_2) / 2;
-
-          // cout << "xxxxxxxxxxxxxxx" << total_sum_distance[2] << endl;
-          target_ = {total_sum_angle, total_sum_distance};
-          if (history_info_.size() <= 99)
-          {
-            history_info_.push_back(target_);
-          }
-        }
-
-        // cout << "history_info_.back().distance_[2] = " << history_info_.back().distance_[2] << endl;
-
-        history_info.clear();
-      }
-    }
-    // cout<<"history_info_.size() = "<<history_info_.size()<<endl;
-    if (!history_info_.empty() && history_info_.size() == 100)
-    {
-      target_info.roll = history_info_.back().angle_[0];
-      target_info.pitch = history_info_.back().angle_[1] + CV_PI / 2;
-      target_info.yaw = history_info_.back().angle_[2] - CV_PI;
-
-      target_info.x_dis = history_info_.back().distance_[0];
-      target_info.y_dis = history_info_.back().distance_[1];
-      target_info.z_dis = history_info_.back().distance_[2];
-      cout << "history_info_.back().distance_[2] =  " << history_info_.back().distance_[2] << endl;
       target_info.is_target = is_target;
-
+      target_info.roll = angle_last_[0];
+      target_info.pitch = angle_last_[1] - CV_PI / 2;
+      target_info.yaw = angle_last_[2] + CV_PI;
+      target_info.x_dis = location_last_[0];
+      target_info.y_dis = location_last_[1];
+      target_info.z_dis = location_last_[2];
+      if (mode_  == 1)
+      {
+        mode_ = 0;
+        history_info_.clear();
+      }
       if (is_target == true)
       {
         target_pub_->publish(target_info);
       }
     }
 
+    if (mode == 1)
+    {
+      mode_  = mode;
+      if (!history_info.empty())
+      {
+        if (history_info.size() == 20)
+        {
+          // history_info
+          for (int i = 0; i < history_info.size(); i++)
+          {
+            sum_location[0] += history_info.at(i).distance[0];
+            sum_location[1] += history_info.at(i).distance[1];
+            sum_location[2] += history_info.at(i).distance[2];
+
+            sum_angle[0] += history_info.at(i).angle[0];
+            sum_angle[1] += history_info.at(i).angle[1];
+            sum_angle[2] += history_info.at(i).angle[2];
+          }
+
+          total_sum_angle[0] = 0;
+          total_sum_angle[1] = 0;
+          total_sum_angle[2] = 0;
+
+          total_sum_distance[0] = 0;
+          total_sum_distance[1] = 0;
+          total_sum_distance[2] = 0;
+
+          total_sum_distance[0] = sum_location[0] / 20;
+          total_sum_distance[1] = sum_location[1] / 20;
+          total_sum_distance[2] = sum_location[2] / 20;
+
+          total_sum_angle[0] = sum_angle[0] / 20;
+          total_sum_angle[1] = sum_angle[1] / 20;
+          total_sum_angle[2] = sum_angle[2] / 20;
+
+          float angel_last_roll_1 = history_info.at(18).angle[0];
+          float angel_last_roll_2 = history_info.at(19).angle[0];
+          float angel_last_pitch_1 = history_info.at(18).angle[1];
+          float angel_last_pitch_2 = history_info.at(19).angle[1];
+          float angel_last_yaw_1 = history_info.at(18).angle[2];
+          float angel_last_yaw_2 = history_info.at(19).angle[2];
+          float distance_last_x_1 = history_info.at(18).distance[0];
+          float distance_last_x_2 = history_info.at(19).distance[0];
+          float distance_last_y_1 = history_info.at(18).distance[1];
+          float distance_last_y_2 = history_info.at(19).distance[1];
+          float distance_last_z_1 = history_info.at(18).distance[2];
+          float distance_last_z_2 = history_info.at(19).distance[2];
+
+          if (abs(val_distance[2] - total_sum_distance[2]) < 0.01 && abs(distance_last_z_2 - total_sum_distance[2]) < 0.005)
+          {
+            target_ = {total_sum_angle, total_sum_distance};
+            if (history_info_.size() <= 99)
+            {
+              history_info_.push_back(target_);
+            }
+          }
+          else
+          {
+            val_distance[2] = total_sum_distance[2];
+
+            total_sum_angle[0] = (angel_last_roll_1 + angel_last_roll_2) / 2;
+            total_sum_angle[1] = (angel_last_pitch_1 + angel_last_pitch_2) / 2;
+            total_sum_angle[2] = (angel_last_yaw_1 + angel_last_yaw_2) / 2;
+            total_sum_distance[0] = (distance_last_x_1 + distance_last_x_2) / 2;
+            total_sum_distance[1] = (distance_last_y_1 + distance_last_y_2) / 2;
+            total_sum_distance[2] = (distance_last_z_1 + distance_last_z_2) / 2;
+
+            target_ = {total_sum_angle, total_sum_distance};
+            if (history_info_.size() <= 49)
+            {
+              history_info_.push_back(target_);
+            }
+          }
+
+          history_info.clear();
+        }
+      }
+
+      if (!history_info_.empty() && history_info_.size() == 50)
+      {
+        target_info.roll = history_info_.back().angle_[0];
+        target_info.pitch = history_info_.back().angle_[1] - CV_PI / 2;
+        target_info.yaw = history_info_.back().angle_[2] + CV_PI;
+
+        target_info.x_dis = history_info_.back().distance_[0];
+        target_info.y_dis = history_info_.back().distance_[1];
+        target_info.z_dis = history_info_.back().distance_[2];
+        // cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
+        target_info.is_target = is_target;
+        is_send = true;
+      }
+
+      if (is_target == true && is_send == true)
+      {
+        target_pub_->publish(target_info);
+      }
+    }
     // double roll_ = double((angle_last_[0] * 180) / CV_PI);
     // double yaw_ = double((angle_last_[1] * 180) / CV_PI);
     // double pitch_ = double((angle_last_[2] * 180) / CV_PI);
@@ -371,15 +387,15 @@ namespace stone_station_detector
     }
   }
 
-  void DetectorNode::marker_callback()
+  void DetectorNode::cam_marker_callback()
   {
-    if (!tf_buffer_->canTransform("cam_link", "stone_station_frame", tf2::TimePointZero))
+    if (!cam_tf_buffer_->canTransform("cam_link", "stone_station_frame", tf2::TimePointZero))
     {
       RCLCPP_WARN(this->get_logger(), "Cannot get transform from cam_link to stone_station_frame");
       return;
     }
 
-    auto transform = tf_buffer_->lookupTransform("cam_link", "stone_station_frame", tf2::TimePoint());
+    auto transform = arm_tf_buffer_->lookupTransform("cam_link", "stone_station_frame", tf2::TimePoint());
     geometry_msgs::msg::Quaternion q;
     tf2::convert(transform.transform.rotation, q);
 
@@ -402,7 +418,41 @@ namespace stone_station_detector
     cube_maker->color.b = 0.0f;
     cube_maker->color.a = 0.80;
 
-    marker_pub_->publish(std::move(cube_maker));
+    arm_marker_pub_->publish(std::move(cube_maker));
+  }
+
+  void DetectorNode::arm_marker_callback()
+  {
+    if (!arm_tf_buffer_->canTransform("arm_link", "stone_station_frame", tf2::TimePointZero))
+    {
+      RCLCPP_WARN(this->get_logger(), "Cannot get transform from arm_link to stone_station_frame");
+      return;
+    }
+
+    auto transform_ = arm_tf_buffer_->lookupTransform("arm_link", "stone_station_frame", tf2::TimePoint());
+    geometry_msgs::msg::Quaternion q;
+    tf2::convert(transform_.transform.rotation, q);
+
+    auto cube_maker_ = std::make_unique<visualization_msgs::msg::Marker>();
+    cube_maker_->header.stamp = this->now();
+    cube_maker_->ns = "basic_shapes";
+    cube_maker_->id = 1;
+    cube_maker_->type = visualization_msgs::msg::Marker::CUBE;
+    cube_maker_->action = visualization_msgs::msg::Marker::ADD;
+    cube_maker_->header.frame_id = "arm_link";
+    cube_maker_->pose.position.x = transform_.transform.translation.x;
+    cube_maker_->pose.position.y = transform_.transform.translation.y;
+    cube_maker_->pose.position.z = transform_.transform.translation.z;
+    cube_maker_->pose.orientation = q;
+    cube_maker_->scale.x = 0.288;
+    cube_maker_->scale.y = 0.288;
+    cube_maker_->scale.z = 0.288;
+    cube_maker_->color.r = 6.0f;
+    cube_maker_->color.g = 1.0f;
+    cube_maker_->color.b = 1.0f;
+    cube_maker_->color.a = 0.80;
+
+    arm_marker_pub_->publish(std::move(cube_maker_));
   }
   // 参数初始化
   std::unique_ptr<Detector> DetectorNode::init_detector()
@@ -420,6 +470,7 @@ namespace stone_station_detector
     // Debug.
     this->declare_parameter("debug_without_com", true);
     this->declare_parameter("show_aim_cross", true);
+    this->declare_parameter("using_imu", false);
     this->declare_parameter("show_img", true);
     this->declare_parameter("show_transform", false);
     this->declare_parameter("detect_red", true);
@@ -443,6 +494,7 @@ namespace stone_station_detector
       detector_params_.color = BLUE;
 
     debug_.detect_red = this->get_parameter("detect_red").as_bool();
+    debug_.using_imu = this->get_parameter("using_imu").as_bool();
     debug_.debug_without_com = this->get_parameter("debug_without_com").as_bool();
     debug_.show_aim_cross = this->get_parameter("show_aim_cross").as_bool();
     debug_.show_img = this->get_parameter("show_img").as_bool();

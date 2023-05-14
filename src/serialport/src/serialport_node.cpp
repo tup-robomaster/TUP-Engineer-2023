@@ -27,25 +27,19 @@ namespace serialport
 
         // detector_information订阅
         RCLCPP_WARN(this->get_logger(), "Detect!!!");
-        target_info_sub_ = this->create_subscription<TargetMsg>(
-            "/target_pub",
-            qos,
-            std::bind(&SerialPortNode::TargetMsgSub, this, _1));
+        target_info_sub_ = this->create_subscription<TargetMsg>("/target_pub", qos, std::bind(&SerialPortNode::TargetMsgSub, this, _1));
 
         // stone_msg订阅
-        stone_info_sub_ = this->create_subscription<StoneMsg>(
-            "/stone_msg",
-            qos,
-            std::bind(&SerialPortNode::StoneMsgSub, this, _1));
+        stone_info_sub_ = this->create_subscription<StoneMsg>("/stone_msg", qos, std::bind(&SerialPortNode::StoneMsgSub, this, _1));
 
         // 创建发送数据定时器
-        //  timer_ = this->create_wall_timer(5ms, std::bind(&SerialPortNode::sendData, this));
         timer_ = rclcpp::create_timer(this, this->get_clock(), 500ms, std::bind(&SerialPortNode::serialWatcher, this));
 
         if (using_port_)
         { // Use serial port.
             if (serial_port_->openPort())
-            {
+            {   
+                //mode_change
                 serial_msg_pub_ = this->create_publisher<SerialMsg>("/serial_msg", qos);
                 // joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>("/joint_states", qos);
                 receive_thread_ = std::thread(&SerialPortNode::receiveData, this);
@@ -108,8 +102,13 @@ namespace serialport
             if (flag == 0xA5)
             {
                 // RCLCPP_INFO_THROTTLE(this->get_logger(), this->serial_port_->steady_clock_, 1000, "mode:%d", mode);
+                rclcpp::Time now = this->get_clock()->now();
+                SerialMsg serial_msg;
+                serial_msg.header.frame_id = "serial";
+                serial_msg.header.stamp = now;
+                serial_msg.mode = mode;
+                serial_msg_pub_->publish(std::move(serial_msg));
             }
-           
         }
     }
 
@@ -117,15 +116,15 @@ namespace serialport
     {
         int mode = mode_;
         // int mode = 1;
-        // std::cout<<"------Send_Message_Info--------"<<std::endl;
-        // std::cout<<"mode = "<<mode<<endl;
-        // std::cout<<"x_dis: "<<target_info->x_dis<<std::endl;
-        // std::cout<<"y_dis: "<<target_info->y_dis<<std::endl;
-        // std::cout<<"z_dis: "<<target_info->z_dis<<std::endl;
-        // std::cout<<"pitch: "<<target_info->pitch<<std::endl;
-        // std::cout<<"yaw: "<<target_info->yaw<<std::endl;
-        // std::cout<<"roll: "<<target_info->roll<<std::endl;
-        // std::cout<<"is_target: "<<target_info->is_target<<std::endl;
+        std::cout << "------Send_Message_Info--------" << std::endl;
+        std::cout << "mode = " << mode << endl;
+        std::cout << "x_dis: " << target_info->x_dis << std::endl;
+        std::cout << "y_dis: " << target_info->y_dis << std::endl;
+        std::cout << "z_dis: " << target_info->z_dis << std::endl;
+        std::cout << "pitch: " << target_info->pitch << std::endl;
+        std::cout << "yaw: " << target_info->yaw << std::endl;
+        std::cout << "roll: " << target_info->roll << std::endl;
+        std::cout << "is_target: " << target_info->is_target << std::endl;
 
         if (this->using_port_)
         {

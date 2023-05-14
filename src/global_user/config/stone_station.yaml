@@ -19,7 +19,7 @@
     print_letency: false
     print_target_info: false
     detect_red: true
-    show_aim_cross: false
-    show_target: false
+    show_aim_cross: true
+    show_target: true
     show_transform: false
 

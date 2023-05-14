@@ -69,13 +69,17 @@ namespace stone_station_detector
     bool updateParam();
 
   public:
-    // Mutex param_mutex_;
+    Mutex msg_mutex_;
+    Mutex param_mutex_;
     DetectorParam detector_params_;
     PathParam path_params_;
     DebugParam debug_;
     SerialMsg serial_msg_;
     TargetMsg target_info;
     bool is_target;
+    bool is_send = false;
+    int mode = 0; 
+    int mode_ = 0;
     // TransformMsg tf_data;
 
     std::unique_ptr<Detector> detector_;
@@ -99,11 +103,19 @@ namespace stone_station_detector
     geometry_msgs::msg::PoseStamped pose_msg_;
 
     // Marker publish
-    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;
-    rclcpp::TimerBase::SharedPtr timers_;
-    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
-    void marker_callback();
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr cam_marker_pub_;
+    rclcpp::TimerBase::SharedPtr cam_timers_;
+    std::shared_ptr<tf2_ros::Buffer> cam_tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> cam_tf_listener_;
+    void cam_marker_callback();
+
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr arm_marker_pub_;
+    rclcpp::TimerBase::SharedPtr arm_timers_;
+    std::shared_ptr<tf2_ros::Buffer> arm_tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> arm_tf_listener_;
+    void arm_marker_callback();
+
+
 
   public:
 
