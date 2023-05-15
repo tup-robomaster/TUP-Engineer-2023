@@ -129,7 +129,7 @@ namespace serialport
         if (this->using_port_)
         {
             VisionData vision_data;
-            if (mode == STONE_STATION_DETECT)
+            if (mode == STONE_STATION_DETECT || mode == FREE_MOED)
             {
                 RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
 

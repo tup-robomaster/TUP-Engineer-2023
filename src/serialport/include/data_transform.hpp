@@ -30,7 +30,7 @@ namespace serialport
      */
     enum MODE
     {
-        CLOSE_VISION,
+        FREE_MOED,
         STONE_STATION_DETECT,
         STONE_DETECT
     };

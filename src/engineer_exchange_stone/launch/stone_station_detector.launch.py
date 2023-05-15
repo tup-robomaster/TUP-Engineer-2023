@@ -49,7 +49,7 @@ def generate_launch_description():
         # serialport_node = Node(
         #     package='serialport',
         #     executable='serialport_node',
-        #     name='serialport',serialport_node
+        #     name='serialport',
         #     output='screen',
         #     emulate_tty=True,
         #     parameters=[{

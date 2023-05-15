@@ -253,6 +253,7 @@ namespace stone_station_detector
 
     if (mode == 0)
     {
+      // RCLCPP_WARN(get_logger(), "Mode = %f", mode);
       target_info.is_target = is_target;
       target_info.roll = angle_last_[0];
       target_info.pitch = angle_last_[1] - CV_PI / 2;

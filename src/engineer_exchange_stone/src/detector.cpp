@@ -92,10 +92,7 @@ namespace stone_station_detector
       auto angle = stone_stations.euler;
 
       // angle[2] = angle[2]-CV_PI;
-      int i = 0;
-      i++;
-      cout<<i<<endl;
-      
+     
       tf2::Quaternion qu;
       qu.setRPY(angle[0], angle[1], angle[2]);
       // pose_msg_.header.stamp = this->get_clock()->now();
