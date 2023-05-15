@@ -81,7 +81,6 @@ namespace stone_station_detector
       stone_station.station3d_world = pnp_result.station_world;
       stone_station.station3d_cam = pnp_result.station_cam;
       stone_station.euler = pnp_result.euler;
-      stone_station.area = object.area;
       auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
@@ -92,9 +91,6 @@ namespace stone_station_detector
       auto angle = stone_stations.euler;
 
       // angle[2] = angle[2]-CV_PI;
-      int i = 0;
-      i++;
-      cout<<i<<endl;
       
       tf2::Quaternion qu;
       qu.setRPY(angle[0], angle[1], angle[2]);
