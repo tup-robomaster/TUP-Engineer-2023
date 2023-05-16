@@ -72,6 +72,7 @@ namespace stone_station_detector
     Eigen::Vector3d station3d_cam;
     Eigen::Vector3d station3d_world;
     Eigen::Vector3d euler;
+    Eigen::Matrix3d rvec_eigen_;
   };
 
   struct DebugParam

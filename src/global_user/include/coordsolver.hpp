@@ -28,6 +28,7 @@ namespace coordsolver
     Eigen::Vector3d R_station_cam;
     Eigen::Vector3d euler;
     Eigen::Vector3d rmat;
+    Eigen::Matrix3d rvec_eigen_;
   };
 
   class CoordSolver

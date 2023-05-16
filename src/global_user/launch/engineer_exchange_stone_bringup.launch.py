@@ -86,10 +86,10 @@ def generate_launch_description():
         output="screen" ,
         # （x, y, z, yaw, pitch, roll）顺时针为正
         # 无偏转角相机坐标系
-        # arguments=["-0.210", "0.173", "0.530", "0", "0", "0", "base_link", "cam_link"]
         # arguments=["-0.210", "0.173", "0.530", "0", "0", "-1.570796325", "base_link", "cam_link"]
+        arguments=["0.173", "0.210", "0.530", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
         # 实际相机坐标系（有偏转角仰角75度，绕y轴20度）
-        arguments=["-0.210", "0.173", "0.530", "-0.349066", "0", "-1.308998", "base_link", "cam_link"]
+        # arguments=["-0.210", "0.173", "0.530", "-0.349066", "0", "-1.308998", "base_link", "cam_link"]
         ),
 
         Node(
@@ -100,7 +100,8 @@ def generate_launch_description():
         # arguments=["0", "0.368", "0.420", "0", "0", "0", "base_link", "arm_link"]
         
         # 吸上部
-        arguments=["0", "0.368", "0.371", "0", "3.14", "-1.570796325", "base_link", "arm_link"]
+        # arguments=["0", "0.368", "0.371", "0", "3.14", "-1.570796325", "base_link", "arm_link"]
+        arguments=["0.368", "0", "0.371", "0", "0", "0", "base_link", "arm_link"]
         )
 
     ])
