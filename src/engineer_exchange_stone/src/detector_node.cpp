@@ -244,8 +244,8 @@ namespace stone_station_detector
 
     Eigen::Vector3d location_last_(0, 0, 0);
     location_last_[0] = transformStamped.transform.translation.x;
-    location_last_[1] = transformStamped.transform.translation.z;
-    location_last_[2] = transformStamped.transform.translation.y;
+    location_last_[1] = transformStamped.transform.translation.y;
+    location_last_[2] = transformStamped.transform.translation.z;
 
     TargetInfo target = {angle_last_, location_last_};
     Target_Info_ target_;

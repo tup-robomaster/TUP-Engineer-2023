@@ -23,7 +23,7 @@ namespace serialport
         trans_data[0] = 0xA5;
         trans_data[1] = mode;
         crc_check_.Append_CRC8_Check_Sum(trans_data, 3);
-        if (mode == STONE_STATION_DETECT)
+        if (mode == STONE_STATION_DETECT || mode == FREE_MODE)
         {
             float float_data[] = {vision_data.pitch_angle, vision_data.yaw_angle, vision_data.roll_angle, 
             vision_data.x_dis, vision_data.y_dis, vision_data.z_dis};
