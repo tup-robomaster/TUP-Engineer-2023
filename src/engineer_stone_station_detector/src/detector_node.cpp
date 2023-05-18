@@ -65,7 +65,7 @@ namespace stone_station_detector
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
     timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
 
-    // Pose(ston-station-to-arm) publish
+    // Pose(stone-station-to-arm) publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
@@ -251,6 +251,9 @@ namespace stone_station_detector
     Target_Info_ target_;
     history_info.push_back(target);
 
+    /**
+    *进行模式判断，如果模式为0则进行常规发布动态识别数据，如果模式为1则进行多帧处理数据之后取定值发布
+    */
     if (mode == 0)
     {
       target_info.is_target = is_target;
@@ -362,7 +365,7 @@ namespace stone_station_detector
         target_info.is_target = is_target;
         is_send = true;
       }
-
+      //进行发布判断是否有目标以及是否满足发送条件
       if (is_target == true && is_send == true)
       {
         target_pub_->publish(target_info);

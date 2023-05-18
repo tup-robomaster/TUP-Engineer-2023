@@ -5,7 +5,6 @@
 
   # Camera config params.
     camera_name: "KS2A543" 
-    camera_type: 0 #(/usb: 0 / usb_01: 1 / usb_02: 2)
     camera_param_path: "src/global_user/config/camera.yaml"
 
   # Network model path.
