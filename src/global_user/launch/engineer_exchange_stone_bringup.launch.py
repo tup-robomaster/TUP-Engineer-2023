@@ -19,13 +19,13 @@ def generate_launch_description():
     stone_station_param_file = os.path.join(get_package_share_directory('global_user'), 'config/stone_station.yaml')
     
     # camera_type = LaunchConfiguration('camera_type')
-    # use_serial = LaunchConfiguration('using_imu')
+    use_serial = LaunchConfiguration('using_imu')
 
-    # declare_use_serial = DeclareLaunchArgument(
-    #     name='using_imu',
-    #     default_value='False',
-    #     description='debug without serial port.'
-    # )
+    declare_use_serial = DeclareLaunchArgument(
+        name='using_imu',
+        default_value='False',
+        description='debug without serial port.'
+    )
 
     with open(camera_param_file, 'r') as f:
         usb_cam_params = yaml.safe_load(f)['/usb_cam_driver']['ros__parameters']
@@ -35,7 +35,7 @@ def generate_launch_description():
     
     return LaunchDescription([
         # declare_camera_type,
-        # declare_use_serial,
+        declare_use_serial,
 
         # Node(
         #     package='serialport',
@@ -49,6 +49,18 @@ def generate_launch_description():
         #     }],
         #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
         # ),
+        
+        Node(
+            package='serialport',
+            executable='serialport_node',
+            name='serialport',
+            output='screen', # log/screen/both
+            emulate_tty=True,
+            parameters=[{
+                'using_port': False,
+            }],
+            condition=IfCondition(PythonExpression(["'", use_serial, "' == 'False'"]))
+        ),
         
 
         ComposableNodeContainer(

@@ -73,7 +73,7 @@ OpenCV  |https://github.com/opencv/opencv/tree/4.2.0 \ https://github.com/opencv
         sudo chmod 777 your_shell_script_path 
   - Step2:配置程序启动首选项
 
-        gnome-terminal -- your_shell_script_path
+        gnome-terminal -- bash your_shell_script_path
 - Log
   -  
   - 日志保存路径设置

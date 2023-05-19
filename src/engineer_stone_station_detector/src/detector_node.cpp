@@ -74,7 +74,7 @@ namespace stone_station_detector
     cam_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::cam_marker_callback, this));
     cam_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     cam_tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*cam_tf_buffer_);
-    // Marker(stone station visualization acquisition) publis
+    // Marker(stone station visualization acquisition) publish
     arm_marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("arm_visualization_marker", qos);
     arm_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::arm_marker_callback, this));
     arm_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
@@ -89,9 +89,6 @@ namespace stone_station_detector
   {
     msg_mutex_.lock();
     mode = serial_msg.mode;
-    // if (serial_msg.mode == 1 || serial_msg.mode == 2)
-    //   serial_msg_.mode = serial_msg.mode;
-    // serial_msg_.imu = serial_msg.imu;
     msg_mutex_.unlock();
     return;
   }
@@ -251,9 +248,7 @@ namespace stone_station_detector
     Target_Info_ target_;
     history_info.push_back(target);
 
-    /**
-    *进行模式判断，如果模式为0则进行常规发布动态识别数据，如果模式为1则进行多帧处理数据之后取定值发布
-    */
+    // 进行模式判断，如果模式为0则进行常规发布动态识别数据，如果模式为1则进行多帧处理数据之后取定值发布
     if (mode == 0)
     {
       target_info.is_target = is_target;

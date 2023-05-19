@@ -115,8 +115,6 @@ namespace camera_driver
 
     if (!frame.empty())
     {
-
-      // cv::resize(frame, frame, cv::Size(640, 480));
       sensor_msgs::msg::Image::UniquePtr image_msg = std::make_unique<sensor_msgs::msg::Image>();
       rclcpp::Time timestamp = this->get_clock()->now();
 

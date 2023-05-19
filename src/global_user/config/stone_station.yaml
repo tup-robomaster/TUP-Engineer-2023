@@ -8,7 +8,7 @@
     camera_param_path: "src/global_user/config/camera.yaml"
 
   # Network model path.
-    network_path: "src/engineer_exchange_stone/model/yolox_123.onnx"
+    network_path: "src/engineer_stone_station_detector/model/yolox_123.onnx"
   
   # Debug params.
     debug: true
@@ -20,5 +20,5 @@
     detect_red: true
     show_aim_cross: true
     show_target: true
-    show_transform: true
+    show_transform: false
 
