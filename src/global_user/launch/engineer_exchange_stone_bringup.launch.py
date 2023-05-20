@@ -23,7 +23,7 @@ def generate_launch_description():
 
     declare_use_serial = DeclareLaunchArgument(
         name='using_imu',
-        default_value='False',
+        default_value='Ture',
         description='debug without serial port.'
     )
 
@@ -57,9 +57,9 @@ def generate_launch_description():
             output='screen', # log/screen/both
             emulate_tty=True,
             parameters=[{
-                'using_port': False,
+                'using_port': True,
             }],
-            condition=IfCondition(PythonExpression(["'", use_serial, "' == 'False'"]))
+            # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'False'"]))
         ),
         
 

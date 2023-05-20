@@ -115,16 +115,16 @@ namespace serialport
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
         int mode = mode_;
-        // int mode = 1;
-        std::cout << "------Send_Message_Info--------" << std::endl;
-        std::cout << "mode = " << mode << endl;
-        std::cout << "x_dis: " << target_info->x_dis << std::endl;
-        std::cout << "y_dis: " << target_info->y_dis << std::endl;
-        std::cout << "z_dis: " << target_info->z_dis << std::endl;
-        std::cout << "pitch: " << target_info->pitch << std::endl;
-        std::cout << "yaw: " << target_info->yaw << std::endl;
-        std::cout << "roll: " << target_info->roll << std::endl;
-        std::cout << "is_target: " << target_info->is_target << std::endl;
+        // // int mode = 1;
+        // std::cout << "------Send_Message_Info--------" << std::endl;
+        // std::cout << "mode = " << mode << endl;
+        // std::cout << "x_dis: " << target_info->x_dis << std::endl;
+        // std::cout << "y_dis: " << target_info->y_dis << std::endl;
+        // std::cout << "z_dis: " << target_info->z_dis << std::endl;
+        // std::cout << "pitch: " << target_info->pitch << std::endl;
+        // std::cout << "yaw: " << target_info->yaw << std::endl;
+        // std::cout << "roll: " << target_info->roll << std::endl;
+        // std::cout << "is_target: " << target_info->is_target << std::endl;
 
         if (this->using_port_)
         {

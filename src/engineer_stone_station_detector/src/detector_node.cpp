@@ -253,8 +253,8 @@ namespace stone_station_detector
     {
       target_info.is_target = is_target;
       target_info.roll = angle_last_[0];
-      target_info.pitch = angle_last_[1] - CV_PI / 2;
-      target_info.yaw = angle_last_[2] + CV_PI;
+      target_info.pitch = -angle_last_[1] - CV_PI / 2;
+      target_info.yaw = -angle_last_[2] + CV_PI;
       target_info.x_dis = location_last_[0];
       target_info.y_dis = location_last_[1];
       target_info.z_dis = location_last_[2];
@@ -350,13 +350,13 @@ namespace stone_station_detector
       if (!history_info_.empty() && history_info_.size() == 50)
       {
         target_info.roll = history_info_.back().angle_[0];
-        target_info.pitch = history_info_.back().angle_[1] - CV_PI / 2;
-        target_info.yaw = history_info_.back().angle_[2] + CV_PI;
+        target_info.pitch = -history_info_.back().angle_[1] - CV_PI / 2;
+        target_info.yaw = -history_info_.back().angle_[2] + CV_PI;
 
         target_info.x_dis = history_info_.back().distance_[0];
         target_info.y_dis = history_info_.back().distance_[1];
         target_info.z_dis = history_info_.back().distance_[2];
-        // cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
+        cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
         target_info.is_target = is_target;
         is_send = true;
       }

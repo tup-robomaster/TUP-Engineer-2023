@@ -12,7 +12,7 @@
   
   # Debug params.
     debug: true
-    using_imu: false
+    using_imu: true
     show_img: true
     show_fps: true
     print_letency: false
@@ -20,5 +20,5 @@
     detect_red: true
     show_aim_cross: true
     show_target: true
-    show_transform: false
+    show_transform: true
 

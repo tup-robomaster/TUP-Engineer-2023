@@ -8,7 +8,7 @@
     debug: true
     using_video: false
     video_path: "src/camera_driver/video/red_.mp4"
-    save_video: true
+    save_video: false
 
 /serialport:
   ros__parameters:
