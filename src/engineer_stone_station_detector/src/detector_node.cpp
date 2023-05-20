@@ -277,8 +277,6 @@ namespace stone_station_detector
       }
       if (!history_info.empty())
       {
-
-        // cout<<"history_info.size = "<<history_info.size()<<endl;
         if (history_info.size() == 20)
         {
           // history_info
@@ -358,7 +356,6 @@ namespace stone_station_detector
           target_info.x_dis = history_info_.at(0).distance_[0];
           target_info.y_dis = -history_info_.at(0).distance_[1];
           target_info.z_dis = history_info_.at(0).distance_[2];
-          // cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
           cout << "-history_info_.at(0).distance_[1] =  " <<-history_info_.at(0).distance_[1] << endl;
           target_info.is_target = is_target;
           is_send = true;
