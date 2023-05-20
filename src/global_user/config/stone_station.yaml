@@ -5,11 +5,10 @@
 
   # Camera config params.
     camera_name: "KS2A543" 
-    camera_type: 0 #(/usb: 0 / usb_01: 1 / usb_02: 2)
     camera_param_path: "src/global_user/config/camera.yaml"
 
   # Network model path.
-    network_path: "src/engineer_exchange_stone/model/yolox_123.onnx"
+    network_path: "src/engineer_stone_station_detector/model/yolox_123.onnx"
   
   # Debug params.
     debug: true

@@ -115,7 +115,7 @@ namespace serialport
     void SerialPortNode::TargetMsgSub(TargetMsg::SharedPtr target_info)
     {
         int mode = mode_;
-        // int mode = 1;
+        // // int mode = 1;
         std::cout << "------Send_Message_Info--------" << std::endl;
         std::cout << "mode = " << mode << endl;
         std::cout << "x_dis: " << target_info->x_dis << std::endl;
@@ -129,7 +129,7 @@ namespace serialport
         if (this->using_port_)
         {
             VisionData vision_data;
-            if (mode == STONE_STATION_DETECT || mode == FREE_MOED)
+            if (mode == STONE_STATION_DETECT || mode == FREE_MODE)
             {
                 RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
 

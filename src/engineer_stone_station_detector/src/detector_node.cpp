@@ -65,7 +65,7 @@ namespace stone_station_detector
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
     timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
 
-    // Pose(ston-station-to-arm) publish
+    // Pose(stone-station-to-arm) publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
     target_pub_ = this->create_publisher<TargetMsg>("target_pub", qos);
 
@@ -74,7 +74,7 @@ namespace stone_station_detector
     cam_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::cam_marker_callback, this));
     cam_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     cam_tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*cam_tf_buffer_);
-    // Marker(stone station visualization acquisition) publis
+    // Marker(stone station visualization acquisition) publish
     arm_marker_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("arm_visualization_marker", qos);
     arm_timers_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::arm_marker_callback, this));
     arm_tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
@@ -89,9 +89,6 @@ namespace stone_station_detector
   {
     msg_mutex_.lock();
     mode = serial_msg.mode;
-    // if (serial_msg.mode == 1 || serial_msg.mode == 2)
-    //   serial_msg_.mode = serial_msg.mode;
-    // serial_msg_.imu = serial_msg.imu;
     msg_mutex_.unlock();
     return;
   }
@@ -244,24 +241,24 @@ namespace stone_station_detector
 
     Eigen::Vector3d location_last_(0, 0, 0);
     location_last_[0] = transformStamped.transform.translation.x;
-    location_last_[1] = transformStamped.transform.translation.z;
-    location_last_[2] = transformStamped.transform.translation.y;
+    location_last_[1] = transformStamped.transform.translation.y;
+    location_last_[2] = transformStamped.transform.translation.z;
 
     TargetInfo target = {angle_last_, location_last_};
     Target_Info_ target_;
     history_info.push_back(target);
 
+    // 进行模式判断，如果模式为0则进行常规发布动态识别数据，如果模式为1则进行多帧处理数据之后取定值发布
     if (mode == 0)
     {
-      // RCLCPP_WARN(get_logger(), "Mode = %f", mode);
       target_info.is_target = is_target;
       target_info.roll = angle_last_[0];
-      target_info.pitch = angle_last_[1] - CV_PI / 2;
-      target_info.yaw = angle_last_[2] + CV_PI;
+      target_info.pitch = -angle_last_[1] - CV_PI / 2;
+      target_info.yaw = -angle_last_[2] + CV_PI;
       target_info.x_dis = location_last_[0];
-      target_info.y_dis = location_last_[1];
+      target_info.y_dis = -location_last_[1];
       target_info.z_dis = location_last_[2];
-      if (mode_  == 1)
+      if (mode_ == 1)
       {
         mode_ = 0;
         history_info_.clear();
@@ -271,10 +268,13 @@ namespace stone_station_detector
         target_pub_->publish(target_info);
       }
     }
-
     if (mode == 1)
     {
-      mode_  = mode;
+      if (mode_ == 0)
+      {
+        mode_ = mode;
+        history_info.clear();
+      }
       if (!history_info.empty())
       {
         if (history_info.size() == 20)
@@ -294,7 +294,6 @@ namespace stone_station_detector
           total_sum_angle[0] = 0;
           total_sum_angle[1] = 0;
           total_sum_angle[2] = 0;
-
           total_sum_distance[0] = 0;
           total_sum_distance[1] = 0;
           total_sum_distance[2] = 0;
@@ -345,25 +344,25 @@ namespace stone_station_detector
               history_info_.push_back(target_);
             }
           }
-
           history_info.clear();
+        }
+
+        if (!history_info_.empty())
+        {
+          target_info.roll = history_info_.at(0).angle_[0];
+          target_info.pitch = -history_info_.at(0).angle_[1] - CV_PI / 2;
+          target_info.yaw = -history_info_.at(0).angle_[2] + CV_PI;
+
+          target_info.x_dis = history_info_.at(0).distance_[0];
+          target_info.y_dis = -history_info_.at(0).distance_[1];
+          target_info.z_dis = history_info_.at(0).distance_[2];
+          cout << "-history_info_.at(0).distance_[1] =  " <<-history_info_.at(0).distance_[1] << endl;
+          target_info.is_target = is_target;
+          is_send = true;
         }
       }
 
-      if (!history_info_.empty() && history_info_.size() == 50)
-      {
-        target_info.roll = history_info_.back().angle_[0];
-        target_info.pitch = history_info_.back().angle_[1] - CV_PI / 2;
-        target_info.yaw = history_info_.back().angle_[2] + CV_PI;
-
-        target_info.x_dis = history_info_.back().distance_[0];
-        target_info.y_dis = history_info_.back().distance_[1];
-        target_info.z_dis = history_info_.back().distance_[2];
-        // cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
-        target_info.is_target = is_target;
-        is_send = true;
-      }
-
+      // 进行发布判断是否有目标以及是否满足发送条件
       if (is_target == true && is_send == true)
       {
         target_pub_->publish(target_info);

@@ -37,10 +37,15 @@ namespace coordsolver
 
     points_world =
         {
-            {-0.1375, 0.1375, 0},
-            {-0.1375, -0.1375, 0},
-            {0.1375, -0.1375, 0},
-            {0.1375, 0.1375, 0}
+            // {-0.1375, 0.1375, 0},
+            // {-0.1375, -0.1375, 0},
+            // {0.1375, -0.1375, 0},
+            // {0.1375, 0.1375, 0}
+
+            {0, 0.1375, 0.1375},
+            {0, 0.1375, -0.1375},
+            {0, -0.1375, -0.1375},
+            {0, -0.1375, 0.1375}
 
             // {-0.066, 0.027, 0},
             // {-0.066, -0.027, 0},
@@ -63,6 +68,7 @@ namespace coordsolver
     cv2eigen(tvec, tvec_eigen);
 
     result.station_cam = tvec_eigen;
+    result.rvec_eigen_ = rvec_eigen;
     result.euler = ::global_user::rotationMatrixToEulerAngles(rvec_eigen);
     return result;
   }

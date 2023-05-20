@@ -81,7 +81,7 @@ namespace stone_station_detector
       stone_station.station3d_world = pnp_result.station_world;
       stone_station.station3d_cam = pnp_result.station_cam;
       stone_station.euler = pnp_result.euler;
-      stone_station.area = object.area;
+      stone_station.rvec_eigen_ = pnp_result.rvec_eigen_;
       auto stone_stations = stone_station;
 
       // 坐标系转换获得最终yaw，pitch，roll，x，y，z
@@ -92,9 +92,8 @@ namespace stone_station_detector
       auto angle = stone_stations.euler;
 
       // angle[2] = angle[2]-CV_PI;
-     
-      tf2::Quaternion qu;
-      qu.setRPY(angle[0], angle[1], angle[2]);
+      auto matrix = stone_station.rvec_eigen_;
+      Eigen::Quaterniond qu(matrix);
       // pose_msg_.header.stamp = this->get_clock()->now();
       pose_msg_.header.frame_id = "station_to_cam";
       pose_msg_.pose.position.x = last_target[0];
