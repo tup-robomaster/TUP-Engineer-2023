@@ -256,9 +256,9 @@ namespace stone_station_detector
       target_info.pitch = -angle_last_[1] - CV_PI / 2;
       target_info.yaw = -angle_last_[2] + CV_PI;
       target_info.x_dis = location_last_[0];
-      target_info.y_dis = location_last_[1];
+      target_info.y_dis = -location_last_[1];
       target_info.z_dis = location_last_[2];
-      if (mode_  == 1)
+      if (mode_ == 1)
       {
         mode_ = 0;
         history_info_.clear();
@@ -268,12 +268,17 @@ namespace stone_station_detector
         target_pub_->publish(target_info);
       }
     }
-
     if (mode == 1)
     {
-      mode_  = mode;
+      if (mode_ == 0)
+      {
+        mode_ = mode;
+        history_info.clear();
+      }
       if (!history_info.empty())
       {
+
+        // cout<<"history_info.size = "<<history_info.size()<<endl;
         if (history_info.size() == 20)
         {
           // history_info
@@ -291,7 +296,6 @@ namespace stone_station_detector
           total_sum_angle[0] = 0;
           total_sum_angle[1] = 0;
           total_sum_angle[2] = 0;
-
           total_sum_distance[0] = 0;
           total_sum_distance[1] = 0;
           total_sum_distance[2] = 0;
@@ -342,25 +346,26 @@ namespace stone_station_detector
               history_info_.push_back(target_);
             }
           }
-
           history_info.clear();
+        }
+
+        if (!history_info_.empty())
+        {
+          target_info.roll = history_info_.at(0).angle_[0];
+          target_info.pitch = -history_info_.at(0).angle_[1] - CV_PI / 2;
+          target_info.yaw = -history_info_.at(0).angle_[2] + CV_PI;
+
+          target_info.x_dis = history_info_.at(0).distance_[0];
+          target_info.y_dis = -history_info_.at(0).distance_[1];
+          target_info.z_dis = history_info_.at(0).distance_[2];
+          // cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
+          cout << "-history_info_.at(0).distance_[1] =  " <<-history_info_.at(0).distance_[1] << endl;
+          target_info.is_target = is_target;
+          is_send = true;
         }
       }
 
-      if (!history_info_.empty() && history_info_.size() == 50)
-      {
-        target_info.roll = history_info_.back().angle_[0];
-        target_info.pitch = -history_info_.back().angle_[1] - CV_PI / 2;
-        target_info.yaw = -history_info_.back().angle_[2] + CV_PI;
-
-        target_info.x_dis = history_info_.back().distance_[0];
-        target_info.y_dis = history_info_.back().distance_[1];
-        target_info.z_dis = history_info_.back().distance_[2];
-        cout << "history_info_.back().distance_[2] =  " << -history_info_.back().distance_[2] << endl;
-        target_info.is_target = is_target;
-        is_send = true;
-      }
-      //进行发布判断是否有目标以及是否满足发送条件
+      // 进行发布判断是否有目标以及是否满足发送条件
       if (is_target == true && is_send == true)
       {
         target_pub_->publish(target_info);

@@ -112,7 +112,7 @@ def generate_launch_description():
         
         # 吸上部
         # arguments=["0", "0.368", "0.371", "0", "3.14", "-1.570796325", "base_link", "arm_link"]
-        arguments=["0.368", "0", "0.371", "0", "0", "0", "base_link", "arm_link"]
+        arguments=["0.368", "0", "0.300", "0", "0", "0", "base_link", "arm_link"]
         )
 
     ])
