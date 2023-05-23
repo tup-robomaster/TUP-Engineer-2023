@@ -47,6 +47,9 @@ namespace serialport
         float y_dis; // 横移距离     
         float z_dis; // 抬升距离
 
+        float x_point; // 前后移动
+        float y_point; // 左右移动
+
         int isFindTarget; // 当识别的图片范围内有目标
 
         float up;

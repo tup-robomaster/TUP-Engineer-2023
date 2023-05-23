@@ -61,9 +61,16 @@ namespace stone_station_detector
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     timer_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::stone_station_to_cam, this));
 
+    tf_broadcaster = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+    _timer_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::visualization_point, this));
+
+    tfBuffer = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    tfListener = std::make_shared<tf2_ros::TransformListener>(*tfBuffer);
+    timers = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
+
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
-    timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_callback, this));
+    timer = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&DetectorNode::tf_watch_visualization_to_base, this));
 
     // Pose(stone-station-to-arm) publish
     publisher_pose_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", qos);
@@ -198,6 +205,26 @@ namespace stone_station_detector
     t.transform.rotation.w = pose_msg_.pose.orientation.w;
 
     tf_broadcaster_->sendTransform(t);
+  }
+
+  void DetectorNode::visualization_point()
+  {
+    geometry_msgs::msg::TransformStamped tt;
+
+    tt.header.stamp = this->get_clock()->now();
+    tt.header.frame_id = "cam_link";
+    tt.child_frame_id = "visualization_point_frame";
+
+    tt.transform.translation.x = pose_msg_.pose.position.x - 0.3;
+    tt.transform.translation.y = pose_msg_.pose.position.y;
+    tt.transform.translation.z = pose_msg_.pose.position.z;
+
+    tt.transform.rotation.x = pose_msg_.pose.orientation.x;
+    tt.transform.rotation.y = pose_msg_.pose.orientation.y;
+    tt.transform.rotation.z = pose_msg_.pose.orientation.z;
+    tt.transform.rotation.w = pose_msg_.pose.orientation.w;
+
+    tf_broadcaster->sendTransform(tt);
   }
 
   /**
@@ -356,7 +383,7 @@ namespace stone_station_detector
           target_info.x_dis = history_info_.at(0).distance_[0];
           target_info.y_dis = -history_info_.at(0).distance_[1];
           target_info.z_dis = history_info_.at(0).distance_[2];
-          cout << "-history_info_.at(0).distance_[1] =  " <<-history_info_.at(0).distance_[1] << endl;
+          cout << "-history_info_.at(0).distance_[1] =  " << -history_info_.at(0).distance_[1] << endl;
           target_info.is_target = is_target;
           is_send = true;
         }
@@ -384,6 +411,31 @@ namespace stone_station_detector
       RCLCPP_INFO(get_logger(), "X_dis: %lf", location_last_[0]);
       RCLCPP_INFO(get_logger(), "Y_dis: %lf", location_last_[1]);
       RCLCPP_INFO(get_logger(), "Z_dis: %lf", location_last_[2]);
+    }
+  }
+
+  void DetectorNode::tf_watch_visualization_to_base()
+  {
+    std::string frame_a = "base_link";
+    std::string frame_b = "visualization_point_frame";
+
+    geometry_msgs::msg::TransformStamped tf;
+    try
+    {
+      tf = tfBuffer->lookupTransform(frame_a, frame_b, tf2::TimePoint());
+    }
+    catch (tf2::TransformException &ex)
+    {
+      RCLCPP_ERROR(get_logger(), ex.what());
+      return;
+    }
+
+    target_info.x_point = tf.transform.translation.x;
+    target_info.y_point = tf.transform.translation.y;
+
+    if (is_target == true && is_send == true)
+    {
+      target_pub_->publish(target_info);
     }
   }
 

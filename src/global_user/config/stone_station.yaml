@@ -12,7 +12,7 @@
   
   # Debug params.
     debug: true
-    using_imu: true
+    using_imu: false
     show_img: true
     show_fps: true
     print_letency: false

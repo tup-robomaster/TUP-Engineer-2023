@@ -92,11 +92,22 @@ namespace stone_station_detector
     geometry_msgs::msg::TransformStamped transform_;
     rclcpp::TimerBase::SharedPtr timer_;
     void stone_station_to_cam();
+  
+  private:
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
+    geometry_msgs::msg::TransformStamped transform;
+    rclcpp::TimerBase::SharedPtr _timer_;
+    void visualization_point();
 
     std::shared_ptr<tf2_ros::Buffer> tfBuffer_;
     std::shared_ptr<tf2_ros::TransformListener> tfListener_;
     rclcpp::TimerBase::SharedPtr timer;
     void tf_callback();
+
+    std::shared_ptr<tf2_ros::Buffer> tfBuffer;
+    std::shared_ptr<tf2_ros::TransformListener> tfListener;
+    rclcpp::TimerBase::SharedPtr timers;
+    void tf_watch_visualization_to_base();
 
     // pose publish
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_pose_;

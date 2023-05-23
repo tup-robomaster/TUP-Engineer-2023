@@ -36,19 +36,6 @@ def generate_launch_description():
     return LaunchDescription([
         # declare_camera_type,
         declare_use_serial,
-
-        # Node(
-        #     package='serialport',
-        #     executable='serialport_node',
-        #     name='serialport',
-        #     output='screen',
-        #     emulate_tty=True,
-        #     parameters=[{
-        #         'using_port': True,
-        #         # 'print_serial_info': False
-        #     }],
-        #     # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'True'"]))
-        # ),
         
         Node(
             package='serialport',
@@ -57,7 +44,7 @@ def generate_launch_description():
             output='screen', # log/screen/both
             emulate_tty=True,
             parameters=[{
-                'using_port': True,
+                'using_port': False,
             }],
             # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'False'"]))
         ),
@@ -100,7 +87,8 @@ def generate_launch_description():
         # 无偏转角相机坐标系
         # arguments=["-0.210", "0.173", "0.530", "-1.570796325", "0", "-1.570796325", "base_link", "cam_link"]
         # 实际相机坐标系（有偏转角仰角75度，绕y轴20度）
-        arguments=["0.173", "0.210", "0.530", "-1.919862325", "0", "-1.308998", "base_link", "cam_link"]
+        # arguments=["0.173", "0.210", "0.530", "-1.919862325", "0", "-1.308998", "base_link", "cam_link"]
+        arguments=["0.135", "0.220", "0.550", "-1.919862325", "0", "-1.308998", "base_link", "cam_link"]
         ),
 
         Node(
@@ -111,8 +99,8 @@ def generate_launch_description():
         # arguments=["0", "0.368", "0.420", "0", "0", "0", "base_link", "arm_link"]
         
         # 吸上部
-        # arguments=["0", "0.368", "0.371", "0", "3.14", "-1.570796325", "base_link", "arm_link"]
-        arguments=["0.368", "0", "0.300", "0", "0", "0", "base_link", "arm_link"]
+        # arguments=["0.368", "0", "0.300", "0", "0", "0", "base_link", "arm_link"]
+        arguments=["0.355", "0", "0.630", "0", "0", "0", "base_link", "arm_link"]
         )
 
     ])

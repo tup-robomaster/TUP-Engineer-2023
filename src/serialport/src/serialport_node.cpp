@@ -142,6 +142,8 @@ namespace serialport
                         (float)target_info->x_dis,
                         (float)target_info->y_dis,
                         (float)target_info->z_dis,
+                        (float)target_info->x_point,
+                        (float)target_info->y_point,
 
                         target_info->is_target};
 
