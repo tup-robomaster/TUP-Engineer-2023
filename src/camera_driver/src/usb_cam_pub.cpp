@@ -1,6 +1,7 @@
 #include "../include/usb_cam_pub.hpp"
 
 using namespace std::chrono_literals;
+using namespace std::placeholders;
 
 namespace camera_driver
 {
@@ -57,37 +58,33 @@ namespace camera_driver
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", qos);
     timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
 
-    if (save_video_)
-    {
-      // int frame_cnt = 0;
-      auto src = frame;
-      const std::string &storage_location = "src/camera_driver/data/";
-      char now[64];
-      std::time_t tt;
-      struct tm *ttime;
-      int width = 640;
-      int height = 480;
-      tt = time(nullptr);
-      ttime = localtime(&tt);
-      strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
-      std::string now_string(now);
-      std::string path(std::string(storage_location + now_string).append(".avi"));
-      auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
-      std::future<void> write_video;
-      // write_video = std::async(std::launch::async, [&](){writer.write(frame);});
-      // bool is_first_loop = true;
-      // int frame_cnt = 0;
-      // frame_cnt++;
-      // if (frame_cnt % 3 == 0)
-      // {
-      //   frame_cnt = 0;
-      //   write_video.wait();
-      write_video = std::async(std::launch::async, [&]()
-                               { writer.write(src); });
-      // }
+    // if (save_video_)
+    // {
+    //   while (true)
+    //   {
+    //     cap >> frame;
 
-      RCLCPP_INFO(this->get_logger(), "Saving video...");
-    }
+    //     // int frame_cnt = 0;
+    //     auto src = frame;
+    //     const std::string &storage_location = "src/camera_driver/data/";
+    //     char now[64];
+    //     std::time_t tt;
+    //     struct tm *ttime;
+    //     int width = 640;
+    //     int height = 480;
+    //     tt = time(nullptr);
+    //     ttime = localtime(&tt);
+    //     strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
+    //     std::string now_string(now);
+    //     std::string path(std::string(storage_location + now_string).append(".avi"));
+    //     auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
+    //     // std::future<void> write_video;
+    //     // write_video = std::async(std::launch::async, [&]()
+    //     //                          { writer.write(src); });
+    //     writer.write(src);
+    //   }
+    //   RCLCPP_INFO(this->get_logger(), "Saving video...");
+    // }
   }
 
   std::unique_ptr<UsbCam> UsbCamNode::init_usb_cam()
@@ -115,6 +112,29 @@ namespace camera_driver
 
     if (!frame.empty())
     {
+
+        if (save_video_)
+        {
+          // int frame_cnt = 0;
+          auto src = frame;
+          const std::string &storage_location = "src/camera_driver/data/";
+          char now[64];
+          std::time_t tt;
+          struct tm *ttime;
+          int width = 640;
+          int height = 480;
+          tt = time(nullptr);
+          ttime = localtime(&tt);
+          strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
+          std::string now_string(now);
+          std::string path(std::string(storage_location + now_string).append(".avi"));
+          auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
+          // std::future<void> write_video;
+          // write_video = std::async(std::launch::async, [&]()
+          //                          { writer.write(src); });
+          writer.write(src);
+          RCLCPP_INFO(this->get_logger(), "Saving video...");
+        }
       sensor_msgs::msg::Image::UniquePtr image_msg = std::make_unique<sensor_msgs::msg::Image>();
       rclcpp::Time timestamp = this->get_clock()->now();
 

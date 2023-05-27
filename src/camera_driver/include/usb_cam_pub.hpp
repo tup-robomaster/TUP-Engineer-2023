@@ -20,7 +20,7 @@ namespace camera_driver
     UsbCamNode(const rclcpp::NodeOptions &option = rclcpp::NodeOptions());
     ~UsbCamNode(){};
 
-  private:
+  public:
     bool is_filpped;
     cv::VideoCapture cap;
     cv::Mat frame;

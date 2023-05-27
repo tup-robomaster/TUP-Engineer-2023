@@ -124,6 +124,8 @@ namespace serialport
         std::cout << "pitch: " << target_info->pitch << std::endl;
         std::cout << "yaw: " << target_info->yaw << std::endl;
         std::cout << "roll: " << target_info->roll << std::endl;
+        std::cout << "x_point: " << target_info->x_point << std::endl;
+        std::cout << "y_point: " << target_info->y_point << std::endl;
         std::cout << "is_target: " << target_info->is_target << std::endl;
 
         if (this->using_port_)

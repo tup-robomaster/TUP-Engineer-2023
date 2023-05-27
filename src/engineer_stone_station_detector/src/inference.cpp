@@ -7,10 +7,10 @@
 
 namespace stone_station_detector
 {
-    // static constexpr int INPUT_W = 640;    // Width of input
-    // static constexpr int INPUT_H = 384;    // Height of input
-    static constexpr int INPUT_W = 416;   // Width of input
-    static constexpr int INPUT_H = 416;   // Height of input
+    static constexpr int INPUT_W = 640;    // Width of input
+    static constexpr int INPUT_H = 640;    // Height of input
+    // static constexpr int INPUT_W = 416;   // Width of input
+    // static constexpr int INPUT_H = 416;   // Height of input
     static constexpr int NUM_CLASSES = 1; // Number of classes
     static constexpr int NUM_COLORS = 2;  // Number of color
     static constexpr int TOPK = 128;      // TopK

@@ -28,8 +28,8 @@ namespace serialport
             float float_data[] = {vision_data.pitch_angle, vision_data.yaw_angle, vision_data.roll_angle, 
             vision_data.x_dis, vision_data.y_dis, vision_data.z_dis, vision_data.x_point, vision_data.y_point};
             float2UcharRawArray(float_data, 8, &trans_data[3]);
-            trans_data[36] = vision_data.isFindTarget;
-            trans_data[37] = 0x00;
+            trans_data[35] = vision_data.isFindTarget;
+            trans_data[36] = 0x00;
             crc_check_.Append_CRC16_Check_Sum(trans_data, 64);
         }
         // if (mode == STONE_DETECT)

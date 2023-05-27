@@ -8,7 +8,7 @@
     camera_param_path: "src/global_user/config/camera.yaml"
 
   # Network model path.
-    network_path: "src/engineer_stone_station_detector/model/yolox_123.onnx"
+    network_path: "src/engineer_stone_station_detector/model/yolox_11111.onnx"
   
   # Debug params.
     debug: true
