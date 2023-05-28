@@ -133,7 +133,7 @@ namespace serialport
             VisionData vision_data;
             if (mode == STONE_STATION_DETECT || mode == FREE_MODE)
             {
-                RCLCPP_WARN(this->get_logger(), "Sub stone station msg!!!");
+                RCLCPP_WARN(this->get_logger(), "Sub stone_station msg!!!");
 
                 vision_data =
                     {

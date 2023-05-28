@@ -57,7 +57,7 @@ OpenCV  |https://github.com/opencv/opencv/tree/4.2.0 \ https://github.com/opencv
 
         . install/setup.bash
 
-        colcon build --symlink-install
+        colcon build --symlink-install --parallel 2
 
         . install/setup.bash
 

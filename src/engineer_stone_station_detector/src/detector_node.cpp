@@ -215,9 +215,9 @@ namespace stone_station_detector
     tt.header.frame_id = "cam_link";
     tt.child_frame_id = "visualization_point_frame";
 
-    tt.transform.translation.x = pose_msg_.pose.position.x - 0.3;
+    tt.transform.translation.x = pose_msg_.pose.position.x;
     tt.transform.translation.y = pose_msg_.pose.position.y;
-    tt.transform.translation.z = pose_msg_.pose.position.z;
+    tt.transform.translation.z = pose_msg_.pose.position.z - 0.2;
 
     tt.transform.rotation.x = pose_msg_.pose.orientation.x;
     tt.transform.rotation.y = pose_msg_.pose.orientation.y;
@@ -517,7 +517,7 @@ namespace stone_station_detector
     // TODO:Set by your own path.
     this->declare_parameter("camera_name", "KS2A543"); // 相机型号
     this->declare_parameter("camera_param_path", "src/global_user/config/camera.yaml");
-    this->declare_parameter("network_path", "src/engineer_stone_station_detector/model/yolox_123.onnx");
+    this->declare_parameter("network_path", "src/engineer_stone_station_detector/model/yolox_.xml");
 
     // Debug.
     this->declare_parameter("debug_without_com", true);

@@ -326,7 +326,7 @@ namespace stone_station_detector
         // Step 2. Compile the model
         compiled_model = core.compile_model(
             model,
-            "CPU",
+            "GPU",
             ov::hint::performance_mode(ov::hint::PerformanceMode::LATENCY)
             // "AUTO:GPU,CPU",
             // ov::hint::performance_mode(ov::hint::PerformanceMode::LATENCY)
