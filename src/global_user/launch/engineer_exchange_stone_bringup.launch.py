@@ -49,7 +49,6 @@ def generate_launch_description():
             # condition=IfCondition(PythonExpression(["'", use_serial, "' == 'False'"]))
         ),
         
-
         ComposableNodeContainer(
             name='stone_station_detector_container',
             namespace='',

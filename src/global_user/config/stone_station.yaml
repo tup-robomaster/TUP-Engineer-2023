@@ -9,7 +9,6 @@
 
   # Network model path.
     network_path: "src/engineer_stone_station_detector/model/yolox_.xml"
-  
   # Debug params.
     debug: true
     using_imu: false

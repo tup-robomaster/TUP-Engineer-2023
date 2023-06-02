@@ -10,6 +10,10 @@
 #include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <camera_info_manager/camera_info_manager.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <rosbag2_cpp/writer.hpp>
+#include <rosbag2_cpp/writers/sequential_writer.hpp>
+#include <rosbag2_storage/serialized_bag_message.hpp>
 
 namespace camera_driver
 {
@@ -28,11 +32,16 @@ namespace camera_driver
     std::string video_path_;
     int cam_id_;
     bool save_video_;
+    int frame_cnt_;
 
     rclcpp::TimerBase::SharedPtr timer_;
+    std::thread img_callback_thread_;
+    std::unique_ptr<rosbag2_cpp::writers::SequentialWriter> writer_;
     std::chrono::steady_clock::time_point last_frame;
-    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_publisher_;
-
+    image_transport::CameraPublisher camera_pub_node_;
+    sensor_msgs::msg::Image image_msg_;
+    sensor_msgs::msg::CameraInfo camera_info_msg_;
+    
   public:
     void image_callback();
 

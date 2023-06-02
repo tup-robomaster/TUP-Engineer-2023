@@ -54,37 +54,33 @@ namespace camera_driver
     rmw_qos_profile_t rmw_qos(rmw_qos_profile_default);
     rmw_qos.depth = 1;
 
+    if (save_video_)
+    { // Video save.
+      RCLCPP_WARN_ONCE(this->get_logger(), "Saving video...");
+      time_t tmpcal_ptr;
+      tm *tmp_ptr = nullptr;
+      tmpcal_ptr = time(nullptr);
+      tmp_ptr = localtime(&tmpcal_ptr);
+      char now[64];
+      strftime(now, 64, "%Y-%m-%d_%H_%M_%S", tmp_ptr); // 以时间为名字
+      std::string now_string(now);
+      std::string pkg_path = ament_index_cpp::get_package_share_directory("camera_driver");
+      std::string save_path = this->declare_parameter("save_path", "/recorder/video.webm");
+      std::string path = pkg_path + save_path + now_string;
+      writer_ = std::make_unique<rosbag2_cpp::writers::SequentialWriter>();
+      rosbag2_storage::StorageOptions storage_options({path, "sqlite3"});
+      rosbag2_cpp::ConverterOptions converter_options({rmw_get_serialization_format(),
+                                                       rmw_get_serialization_format()});
+      writer_->open(storage_options, converter_options);
+      writer_->create_topic({"usb_image",
+                             "sensor_msgs::msg::Image",
+                             rmw_get_serialization_format(),
+                             ""});
+    }
+
     last_frame = std::chrono::steady_clock::now();
-    image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("usb_image", qos);
-    timer_ = this->create_wall_timer(1ms, std::bind(&UsbCamNode::image_callback, this));
-
-    // if (save_video_)
-    // {
-    //   while (true)
-    //   {
-    //     cap >> frame;
-
-    //     // int frame_cnt = 0;
-    //     auto src = frame;
-    //     const std::string &storage_location = "src/camera_driver/data/";
-    //     char now[64];
-    //     std::time_t tt;
-    //     struct tm *ttime;
-    //     int width = 640;
-    //     int height = 480;
-    //     tt = time(nullptr);
-    //     ttime = localtime(&tt);
-    //     strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
-    //     std::string now_string(now);
-    //     std::string path(std::string(storage_location + now_string).append(".avi"));
-    //     auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
-    //     // std::future<void> write_video;
-    //     // write_video = std::async(std::launch::async, [&]()
-    //     //                          { writer.write(src); });
-    //     writer.write(src);
-    //   }
-    //   RCLCPP_INFO(this->get_logger(), "Saving video...");
-    // }
+    img_callback_thread_ = std::thread(std::bind(&UsbCamNode::image_callback, this));
+    this->camera_pub_node_ = image_transport::create_camera_publisher(this, "usb_image", rmw_qos);
   }
 
   std::unique_ptr<UsbCam> UsbCamNode::init_usb_cam()
@@ -104,55 +100,61 @@ namespace camera_driver
 
   void UsbCamNode::image_callback()
   {
-    cap >> frame;
-
-    // double alpha = 0.5; // 降低曝光的参数
-    // double beta = 0;    // 降低曝光的参数
-    // frame.convertTo(frame, -1, alpha, beta);
-
-    if (!frame.empty())
+    while (true)
     {
+      cap >> frame;
+
+      // double alpha = 0.5; // 降低曝光的参数
+      // double beta = 0;    // 降低曝光的参数
+      // frame.convertTo(frame, -1, alpha, beta);
+
+      if (!frame.empty())
+      {
+        rclcpp::Time now = this->get_clock()->now();
+        image_msg_.header.stamp = now;
+        image_msg_.encoding = "bgr8";
+        camera_info_msg_.header = image_msg_.header;
+        image_msg_.width = frame.cols;
+        image_msg_.height = frame.rows;
+        image_msg_.is_bigendian = false;
+        image_msg_.step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
+        image_msg_.data.assign(frame.datastart, frame.dataend);
+
+        camera_pub_node_.publish(image_msg_, camera_info_msg_);
 
         if (save_video_)
-        {
-          // int frame_cnt = 0;
-          auto src = frame;
-          const std::string &storage_location = "src/camera_driver/data/";
-          char now[64];
-          std::time_t tt;
-          struct tm *ttime;
-          int width = 640;
-          int height = 480;
-          tt = time(nullptr);
-          ttime = localtime(&tt);
-          strftime(now, 64, "%Y-%m-%d_%H_%M_%S", ttime); // 以时间为名字
-          std::string now_string(now);
-          std::string path(std::string(storage_location + now_string).append(".avi"));
-          auto writer = cv::VideoWriter(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30.0, cv::Size(width, height)); // Avi format
-          // std::future<void> write_video;
-          // write_video = std::async(std::launch::async, [&]()
-          //                          { writer.write(src); });
-          writer.write(src);
-          RCLCPP_INFO(this->get_logger(), "Saving video...");
+        { // Video recorder.
+          ++frame_cnt_;
+          if (frame_cnt_ % 25 == 0)
+          {
+            sensor_msgs::msg::Image image_msg = image_msg_;
+            auto serializer = rclcpp::Serialization<sensor_msgs::msg::Image>();
+            auto serialized_msg = rclcpp::SerializedMessage();
+            serializer.serialize_message(&image_msg, &serialized_msg);
+            auto bag_msg = std::make_shared<rosbag2_storage::SerializedBagMessage>();
+            bag_msg->serialized_data = std::shared_ptr<rcutils_uint8_array_t>(
+                new rcutils_uint8_array_t,
+                [this](rcutils_uint8_array_t *msg)
+                {
+                  if (rcutils_uint8_array_fini(msg) != RCUTILS_RET_OK)
+                  {
+                    RCLCPP_ERROR(this->get_logger(), "RCUTILS_RET_INVALID_ARGUMENT OR RCUTILS_RET_ERROR");
+                  }
+                  delete msg;
+                });
+            *bag_msg->serialized_data = serialized_msg.release_rcl_serialized_message();
+            bag_msg->topic_name = "usb_image";
+            bag_msg->time_stamp = now.nanoseconds();
+            writer_->write(bag_msg);
+          }
         }
-      sensor_msgs::msg::Image::UniquePtr image_msg = std::make_unique<sensor_msgs::msg::Image>();
-      rclcpp::Time timestamp = this->get_clock()->now();
 
-      image_msg->header.frame_id = "usb_image";
-      image_msg->header.stamp = timestamp;
-      image_msg->encoding = "bgr8";
-      image_msg->height = frame.rows;
-      image_msg->width = frame.cols;
-      image_msg->step = static_cast<sensor_msgs::msg::Image::_step_type>(frame.step);
-      image_msg->is_bigendian = false;
-      image_msg->data.assign(frame.datastart, frame.dataend);
-
-      image_publisher_->publish(std::move(image_msg));
-      // RCLCPP_INFO(this->get_logger(), "msg_ptr ...");
-      // cv::namedWindow("raw_image", cv::WINDOW_AUTOSIZE);
-      // cv::imshow("raw_image", frame);
-      // cv::waitKey(1);
-      rclcpp::Time end = this->get_clock()->now();
+        // RCLCPP_INFO(this->get_logger(), "msg_ptr ...");
+        // cv::namedWindow("raw_image", cv::WINDOW_AUTOSIZE);
+        // cv::imshow("raw_image", frame);
+        // cv::waitKey(1);
+        rclcpp::Time end = this->get_clock()->now();
+      }
     }
   }
 }

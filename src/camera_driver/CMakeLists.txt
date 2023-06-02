@@ -13,6 +13,7 @@ find_package(OpenCV REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(rosbag2_cpp REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(camera_calibration_parsers REQUIRED)
@@ -30,6 +31,7 @@ set(dependencies
   camera_calibration_parsers
   OpenCV
   Eigen3
+  rosbag2_cpp
   yaml-cpp
 
   global_user
@@ -83,6 +85,7 @@ install(TARGETS
 install(DIRECTORY 
   launch
   config
+  recorder
   DESTINATION share/${PROJECT_NAME}
 )
 

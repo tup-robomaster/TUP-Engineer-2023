@@ -63,7 +63,7 @@ namespace serialport
 
         bytes = read(serial_data_.fd, serial_data_.rdata, (size_t)(lens));
         timestamp_ = this->steady_clock_.now();
-        // cout << " ReceiveData msg!!!" << endl;
+
         if (serial_data_.rdata[0] == 0xA5 && crc_check_.Verify_CRC8_Check_Sum(serial_data_.rdata, 3) && crc_check_.Verify_CRC16_Check_Sum(serial_data_.rdata, (uint32_t)(lens)))
         {
             return true;
@@ -79,7 +79,7 @@ namespace serialport
     void SerialPort::sendData(int bytes_num)
     {
         auto write_stauts = write(serial_data_.fd, Tdata, bytes_num);
-        cout << "Sending msg!!!" << endl;
+        RCLCPP_WARN_THROTTLE(logger_, steady_clock_, 500, "Sending msg...");
         return;
     }
 
