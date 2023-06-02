@@ -44,12 +44,6 @@ namespace camera_driver
 
     // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
     // cap.set(cv::CAP_PROP_EXPOSURE, -1); // 曝光
-    rclcpp::QoS qos(0);
-    qos.keep_last(1);
-    // qos.reliable();
-    qos.best_effort();
-    qos.transient_local();
-    qos.durability_volatile();
 
     rmw_qos_profile_t rmw_qos(rmw_qos_profile_default);
     rmw_qos.depth = 1;
