@@ -36,9 +36,9 @@ namespace camera_driver
 
     rclcpp::TimerBase::SharedPtr timer_;
     std::thread img_callback_thread_;
+    image_transport::CameraPublisher camera_pub_node_;
     std::unique_ptr<rosbag2_cpp::writers::SequentialWriter> writer_;
     std::chrono::steady_clock::time_point last_frame;
-    image_transport::CameraPublisher camera_pub_node_;
     sensor_msgs::msg::Image image_msg_;
     sensor_msgs::msg::CameraInfo camera_info_msg_;
     
